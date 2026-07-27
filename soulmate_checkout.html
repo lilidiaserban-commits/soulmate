@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unlock your Soulmate Reading</title>
+<!-- Paddle.js v2 -->
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg1:#150c28;--bg2:#2e1640;--bg3:#4a1f47;--bg4:#6b2748;--gold:#f4c78a;--rose:#ff9ab5;--rose-deep:#e8608a;--text:#f6eef7;--muted:#c9b7d4;--glass:rgba(255,255,255,.07);--glass-brd:rgba(255,255,255,.14)}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Inter',-apple-system,sans-serif;color:var(--text);min-height:100dvh;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 45%,var(--bg3) 75%,var(--bg4)) fixed;
+    display:flex;justify-content:center;padding:26px 20px 40px}
+  .wrap{width:100%;max-width:460px}
+  h1,h2{font-family:'Playfair Display',serif;font-weight:600;line-height:1.14}
+  .screen{display:none;animation:rise .45s cubic-bezier(.2,.8,.2,1)}
+  .screen.active{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:10px}
+  h1{font-size:30px;text-align:center;margin-bottom:6px}
+  .sub{color:var(--muted);text-align:center;font-size:15px;line-height:1.5;margin-bottom:20px}
+  .card{background:var(--glass);border:1px solid var(--glass-brd);border-radius:18px;padding:18px 18px 20px;margin-bottom:14px}
+  .incl{list-style:none;display:flex;flex-direction:column;gap:9px;margin:4px 0 6px}
+  .incl li{font-size:14.5px;color:var(--text);display:flex;gap:10px;line-height:1.35}
+  .incl li b{color:var(--gold)}
+  .price{font-family:'Playfair Display',serif;font-size:30px;text-align:center;margin:6px 0 2px}
+  .price small{font-family:'Inter';font-size:13px;color:var(--muted);font-weight:400}
+  .bump{display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:linear-gradient(135deg,rgba(244,199,138,.12),rgba(255,154,181,.1));border:1.5px dashed var(--rose);border-radius:14px;padding:14px;margin:14px 0}
+  .bump input{margin-top:3px;width:18px;height:18px;accent-color:var(--rose-deep);flex:none}
+  .bump .t{font-size:14px;line-height:1.4}
+  .bump .t b{color:var(--gold)}
+  .bump .t span{color:var(--muted);font-size:13px}
+  .cta{width:100%;border:none;cursor:pointer;font-family:'Inter';font-weight:600;font-size:17px;color:#2a1030;
+    background:linear-gradient(135deg,var(--gold),var(--rose));border-radius:100px;padding:17px;
+    box-shadow:0 12px 30px rgba(232,96,138,.4);transition:transform .15s}
+  .cta:active{transform:translateY(1px) scale(.99)}
+  .decline{display:block;width:100%;background:none;border:none;color:var(--muted);font-size:14px;text-align:center;margin-top:14px;cursor:pointer;text-decoration:underline;padding:8px}
+  .reassure{text-align:center;font-size:12.5px;color:var(--muted);margin-top:12px}
+  #paddle-inline{min-height:60px;margin-top:4px}
+  .tag{display:inline-block;background:var(--rose-deep);color:#fff;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;letter-spacing:.5px}
+  .footer{text-align:center;font-size:11px;color:rgba(201,183,212,.55);margin-top:22px;line-height:1.5}
+  .footer a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ [1] CHECKOUT €17 + ORDER BUMP ============ -->
+  <section class="screen active" id="s-checkout">
+    <div class="eyebrow">Your reading is ready</div>
+    <h1>Meet your soulmate, <span id="cName">friend</span>.</h1>
+    <p class="sub">Unlock your full Soulmate Reading + their AI portrait now.</p>
+    <div class="card">
+      <ul class="incl">
+        <li>✅ Your personalized <b>Soulmate Reading</b></li>
+        <li>✅ Their <b>AI portrait</b> — the face of your soulmate</li>
+        <li>✅ How you'll meet & the signs to look for</li>
+        <li>✅ Instant access — delivered on screen</li>
+      </ul>
+      <div class="price">€17 <small>one-time</small></div>
+
+      <label class="bump">
+        <input type="checkbox" id="bump" onchange="toggleBump()">
+        <span class="t"><b>Yes — add my Keepsake Pack (+€9)</b><br>
+          <span>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait. Most people add this.</span></span>
+      </label>
+
+      <!-- Paddle inline checkout renders here -->
+      <div id="paddle-inline"></div>
+      <button class="cta" id="payBtn" onclick="openCheckout()">Reveal my soulmate →</button>
+      <div class="reassure">🔒 Secure checkout · Instant delivery · For entertainment &amp; self-reflection</div>
+    </div>
+    <div class="footer">For entertainment and self-reflection only.<br><a href="#">Privacy</a> · <a href="#">Terms</a></div>
+  </section>
+
+  <!-- ============ [2] UPSELL 1 — DEEP REPORT €27 ============ -->
+  <section class="screen" id="s-upsell1">
+    <div class="eyebrow"><span class="tag">One-time offer</span></div>
+    <h1>Wait, <span class="uName">friend</span> — there's more to their story.</h1>
+    <p class="sub">Your reading covered <i>who</i> they are. The Deep Soulmate Report reveals <i>when, where, and how</i> it all unfolds.</p>
+    <div class="card">
+      <ul class="incl">
+        <li>📖 An extended reading — twice the depth</li>
+        <li>⏳ Your meeting timeline — the season it begins</li>
+        <li>🚩 Red flags to watch for</li>
+        <li>💞 Your compatibility map</li>
+        <li>🎨 3 more portraits — new angles of them</li>
+      </ul>
+      <div class="price">€27 <small>one-click, no re-entering your card</small></div>
+      <button class="cta" onclick="buyUpsell('deep','s-upsell2')">Yes, unlock the Deep Report →</button>
+      <button class="decline" onclick="show('s-upsell2')">No thanks, I'll skip the full story</button>
+    </div>
+  </section>
+
+  <!-- ============ [3] UPSELL 2 — REUNION PORTRAIT €19 ============ -->
+  <section class="screen" id="s-upsell2">
+    <div class="eyebrow"><span class="tag">Last one</span></div>
+    <h1>Want to see the two of you together?</h1>
+    <p class="sub">We can create <i>The Reunion Portrait</i>: a single image of you and your soulmate side by side, with a short story of the moment you meet.</p>
+    <div class="card">
+      <ul class="incl">
+        <li>🖼️ A "you two together" portrait</li>
+        <li>💌 A mini love-story of your first meeting</li>
+        <li>💾 Yours to keep and share</li>
+      </ul>
+      <div class="price">€19 <small>one-click</small></div>
+      <button class="cta" onclick="buyUpsell('reunion','s-result')">Yes, create our portrait →</button>
+      <button class="decline" onclick="show('s-result')">No thanks, take me to my reading</button>
+    </div>
+  </section>
+
+  <!-- ============ [4] RESULT HANDOFF ============ -->
+  <section class="screen" id="s-result">
+    <div class="eyebrow">✨</div>
+    <h1 style="margin-bottom:10px">Your soulmate is coming into focus…</h1>
+    <p class="sub">We're generating your reading and portrait now. This page will show them in a moment, and a copy is on its way to your inbox.</p>
+    <div class="footer">Your reading and portrait are creative interpretations, not predictions.</div>
+  </section>
+
+</div>
+
+<script>
+/* -------------------------------------------------------------
+ * CONFIG — fill these in from your Paddle dashboard
+ * ------------------------------------------------------------- */
+const PADDLE_ENV = 'sandbox';                 // 'sandbox' while testing, 'production' when live
+const PADDLE_TOKEN = 'live_or_test_token_xxx';// Paddle.js client-side token
+const PRICE = {
+  entry:   'pri_01kyht5cwvdz9fqhxxq8pm6syj',
+  bump:    'pri_01kyhtpesj5kxtx6zm783cx06e',
+  deep:    'pri_01kyhv0vqw1jdz1wtaqh8p2sz1',
+  reunion: 'pri_01kyhv3t0a8xtdms2afkskhx8d',
+};
+
+/* Quiz answers arrive from the previous page.
+   Wire this to however you carry state (URL param, in-memory hand-off, etc.).
+   Demo fallback keeps the page functional on its own. */
+const quiz = window.__SOULMATE_ANSWERS__ || {
+  name:'friend', meet:'man', age:'25-34', energy:'mysterious',
+  look:'dark', value:'loyalty', lightning:['wine','ocean','caller','night owl'],
+  email:'you@email.com', consent:false
+};
+
+/* personalize headings */
+document.getElementById('cName').textContent = quiz.name || 'friend';
+document.querySelectorAll('.uName').forEach(e => e.textContent = quiz.name || 'friend');
+
+/* -------------------------------------------------------------
+ * Paddle init
+ * ------------------------------------------------------------- */
+let paddleReady = false;
+function initPaddle(){
+  if (typeof Paddle === 'undefined') return;
+  if (PADDLE_ENV === 'sandbox') Paddle.Environment.set('sandbox');
+  Paddle.Initialize({
+    token: PADDLE_TOKEN,
+    eventCallback: (data) => {
+      // Fires on checkout events; advance the funnel when the €17 payment completes.
+      if (data.name === 'checkout.completed') onEntryPaid();
+    }
+  });
+  paddleReady = true;
+}
+window.addEventListener('load', initPaddle);
+
+/* -------------------------------------------------------------
+ * [1] Entry checkout + order bump
+ * ------------------------------------------------------------- */
+function currentItems(){
+  const items = [{ priceId: PRICE.entry, quantity: 1 }];
+  if (document.getElementById('bump').checked) items.push({ priceId: PRICE.bump, quantity: 1 });
+  return items;
+}
+let checkoutOpen = false;
+function openCheckout(){
+  if (!paddleReady){ alert('Payment is still loading — one moment.'); return; }
+  Paddle.Checkout.open({
+    items: currentItems(),
+    customer: { email: quiz.email },
+    customData: quiz,                 // quiz answers ride along → webhook feeds the AI engine
+    settings: {
+      displayMode: 'inline',
+      frameTarget: 'paddle-inline',
+      frameInitialHeight: 450,
+      frameStyle: 'width:100%; min-height:450px; background:transparent; border:none;',
+      successUrl: undefined           // we stay in-session for 1-click upsells
+    }
+  });
+  checkoutOpen = true;
+  document.getElementById('payBtn').style.display = 'none';
+}
+/* If the customer ticks the bump AFTER the checkout is open, update line items live. */
+function toggleBump(){
+  if (checkoutOpen && paddleReady) Paddle.Checkout.updateItems(currentItems());
+}
+function onEntryPaid(){ show('s-upsell1'); }
+
+/* -------------------------------------------------------------
+ * [2]/[3] One-click upsells (Paddle Upsell Checkout, same session)
+ * ------------------------------------------------------------- */
+function buyUpsell(which, nextScreen){
+  if (!paddleReady){ show(nextScreen); return; }
+  Paddle.Checkout.open({
+    items: [{ priceId: PRICE[which], quantity: 1 }],
+    customData: { ...quiz, upsell: which },
+    settings: {
+      displayMode: 'inline',
+      frameTarget: 'paddle-inline',   // reuse an inline frame; with Upsell Checkout this is a 1-click confirm
+      allowLogout: false
+    }
+  });
+  // When Upsell Checkout early-access is on, the saved card is pre-selected → single confirm.
+  // We advance on the completed event; as a safety net, also advance on decline handled by the button.
+  const adv = (d) => { if (d.name === 'checkout.completed'){ show(nextScreen); Paddle.Update?.({eventCallback:null}); } };
+  // (In production, route this through the single global eventCallback with an upsell flag.)
+}
+
+/* -------------------------------------------------------------
+ * screen router
+ * ------------------------------------------------------------- */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

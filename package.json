@@ -1,0 +1,15 @@
+{
+  "name": "soulmate-engine",
+  "version": "1.0.0",
+  "description": "Soulmate reading + portrait engine (payment webhook + AI generation)",
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node soulmate_server.js",
+    "test:gen": "node test-generation.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5"
+  }
+}
