@@ -90,7 +90,7 @@
       </ul>
       <div class="price">€27 <small>one-click, no re-entering your card</small></div>
       <button class="cta" onclick="buyUpsell('deep','s-upsell2')">Yes, unlock the Deep Report →</button>
-      <button class="decline" onclick="show('s-upsell2')">No thanks, I'll skip the full story</button>
+      <button class="decline" onclick="declineTo('s-upsell2')">No thanks, I'll skip the full story</button>
     </div>
   </section>
 
@@ -151,14 +151,14 @@ document.querySelectorAll('.uName').forEach(e => e.textContent = quiz.name || 'f
  * Paddle init
  * ------------------------------------------------------------- */
 let paddleReady = false;
+let stage = 'entry';   // entry -> upsell1 -> upsell2 -> result
 function initPaddle(){
   if (typeof Paddle === 'undefined') return;
   if (PADDLE_ENV === 'sandbox') Paddle.Environment.set('sandbox');
   Paddle.Initialize({
     token: PADDLE_TOKEN,
     eventCallback: (data) => {
-      // Fires on checkout events; advance the funnel when the €17 payment completes.
-      if (data.name === 'checkout.completed') onEntryPaid();
+      if (data.name === 'checkout.completed') advanceAfterPaid();
     }
   });
   paddleReady = true;
@@ -166,55 +166,47 @@ function initPaddle(){
 window.addEventListener('load', initPaddle);
 
 /* -------------------------------------------------------------
- * [1] Entry checkout + order bump
+ * [1] Entry checkout + order bump (overlay)
  * ------------------------------------------------------------- */
 function currentItems(){
   const items = [{ priceId: PRICE.entry, quantity: 1 }];
   if (document.getElementById('bump').checked) items.push({ priceId: PRICE.bump, quantity: 1 });
   return items;
 }
-let checkoutOpen = false;
 function openCheckout(){
   if (!paddleReady){ alert('Payment is still loading — one moment.'); return; }
   Paddle.Checkout.open({
     items: currentItems(),
     customer: { email: quiz.email },
     customData: quiz,                 // quiz answers ride along → webhook feeds the AI engine
-    settings: {
-      displayMode: 'inline',
-      frameTarget: 'paddle-inline',
-      frameInitialHeight: 450,
-      frameStyle: 'width:100%; min-height:450px; background:transparent; border:none;',
-      successUrl: undefined           // we stay in-session for 1-click upsells
-    }
+    settings: { displayMode: 'overlay' }
   });
-  checkoutOpen = true;
-  document.getElementById('payBtn').style.display = 'none';
 }
-/* If the customer ticks the bump AFTER the checkout is open, update line items live. */
-function toggleBump(){
-  if (checkoutOpen && paddleReady) Paddle.Checkout.updateItems(currentItems());
+/* Overlay: the bump is chosen before opening, so no live update needed. */
+function toggleBump(){}
+
+/* Advance the funnel after each successful payment. */
+function advanceAfterPaid(){
+  if (stage === 'entry'){ stage = 'upsell1'; show('s-upsell1'); }
+  else if (stage === 'upsell1'){ stage = 'upsell2'; show('s-upsell2'); }
+  else { show('s-result'); }
 }
-function onEntryPaid(){ show('s-upsell1'); }
 
 /* -------------------------------------------------------------
- * [2]/[3] One-click upsells (Paddle Upsell Checkout, same session)
+ * [2]/[3] Upsells (overlay). advanceAfterPaid() moves the funnel on success.
  * ------------------------------------------------------------- */
 function buyUpsell(which, nextScreen){
-  if (!paddleReady){ show(nextScreen); return; }
+  if (!paddleReady){ declineTo(nextScreen); return; }
   Paddle.Checkout.open({
     items: [{ priceId: PRICE[which], quantity: 1 }],
     customData: { ...quiz, upsell: which },
-    settings: {
-      displayMode: 'inline',
-      frameTarget: 'paddle-inline',   // reuse an inline frame; with Upsell Checkout this is a 1-click confirm
-      allowLogout: false
-    }
+    settings: { displayMode: 'overlay' }
   });
-  // When Upsell Checkout early-access is on, the saved card is pre-selected → single confirm.
-  // We advance on the completed event; as a safety net, also advance on decline handled by the button.
-  const adv = (d) => { if (d.name === 'checkout.completed'){ show(nextScreen); Paddle.Update?.({eventCallback:null}); } };
-  // (In production, route this through the single global eventCallback with an upsell flag.)
+}
+/* Decline keeps the stage in sync with the screen we jump to. */
+function declineTo(screenId){
+  if (screenId === 's-upsell2') stage = 'upsell2';
+  show(screenId);
 }
 
 /* -------------------------------------------------------------
