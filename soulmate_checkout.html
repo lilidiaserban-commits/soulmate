@@ -173,12 +173,25 @@ function currentItems(){
   if (document.getElementById('bump').checked) items.push({ priceId: PRICE.bump, quantity: 1 });
   return items;
 }
+/* Paddle customData must be flat string values — flatten the quiz answers. */
+function cleanData(extra){
+  return Object.assign({
+    name: String(quiz.name || ''),
+    meet: String(quiz.meet || ''),
+    age: String(quiz.age || ''),
+    energy: String(quiz.energy || ''),
+    look: String(quiz.look || ''),
+    value: String(quiz.value || ''),
+    lightning: (quiz.lightning || []).join(','),
+    email: String(quiz.email || ''),
+    consent: quiz.consent ? 'yes' : 'no'
+  }, extra || {});
+}
 function openCheckout(){
   if (!paddleReady){ alert('Payment is still loading — one moment.'); return; }
   Paddle.Checkout.open({
     items: currentItems(),
-    customer: { email: quiz.email },
-    customData: quiz,                 // quiz answers ride along → webhook feeds the AI engine
+    customData: cleanData(),          // quiz answers ride along → webhook feeds the AI engine
     settings: { displayMode: 'overlay' }
   });
 }
@@ -199,7 +212,7 @@ function buyUpsell(which, nextScreen){
   if (!paddleReady){ declineTo(nextScreen); return; }
   Paddle.Checkout.open({
     items: [{ priceId: PRICE[which], quantity: 1 }],
-    customData: { ...quiz, upsell: which },
+    customData: cleanData({ upsell: which }),
     settings: { displayMode: 'overlay' }
   });
 }

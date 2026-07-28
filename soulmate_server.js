@@ -139,7 +139,7 @@ function buildReadingPrompt(a, { deep }) {
 - Soulmate's core energy: ${a.energy}
 - Aesthetic vibe they're drawn to: ${a.look} (color only, not skin tone)
 - What they value most in love: ${a.value} (make this the emotional heart)
-- Personality texture (weave in lightly): ${(a.lightning || []).join(', ')}
+- Personality texture (weave in lightly): ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}
 Sections in order: Intro, Their essence, Who they are, How you'll meet, The signs to watch for, A note for you, Disclaimer.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you — for reflection and fun, not prediction."
 Length 380–480 words.`;
