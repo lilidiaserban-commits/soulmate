@@ -115,7 +115,7 @@ async function handleCompletedTransaction(txn) {
     result.images.push(await generateImage(buildReunionPrompt(answers), { seed, hd: true }));
   }
 
-  await storeResult(customerId, result);
+  await storeResult(txn.id, result);   // keyed by transaction id so the result page can fetch it
   if (email) await deliverEmail(email, result, { keepsakePdf: bought.bump });
   console.log('[done] result ready for', email || customerId);
   return result;
@@ -255,10 +255,26 @@ async function deliverEmail(email, result, { keepsakePdf }) {
  * 7. Health + start (only when run directly, not when imported by the test)
  * =============================================================== */
 app.get('/health', (_req, res) => res.send('ok'));
-// Serve the checkout page from the same server, so one public URL does everything.
+// Serve the whole funnel (landing → quiz → email → checkout → result) from one URL.
 const path = require('path');
-app.get('/', (_req, res) => res.redirect('/checkout'));
-app.get('/checkout', (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_checkout.html')));
+app.get(['/', '/checkout'], (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_funnel.html')));
+
+// Result page fetches the generated reading + portrait by transaction id.
+app.get('/result', (req, res) => {
+  const tx = String(req.query.tx || '');
+  const file = `result_${tx}.json`;
+  if (tx && fs.existsSync(file)) return res.type('application/json').send(fs.readFileSync(file));
+  res.json({ status: 'pending' });
+});
+
+// Serve a generated portrait image by filename (portrait_*.png only).
+app.get('/portrait/:file', (req, res) => {
+  const file = req.params.file;
+  if (!/^portrait_[A-Za-z0-9_]+\.png$/.test(file)) return res.status(400).end();
+  const full = path.join(__dirname, file);
+  if (fs.existsSync(full)) return res.type('png').send(fs.readFileSync(full));
+  res.status(404).end();
+});
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Soulmate server on :${PORT} (support ${SUPPORT_EMAIL})`));
 }

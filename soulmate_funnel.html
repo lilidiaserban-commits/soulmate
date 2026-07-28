@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Your Soulmate Reading</title>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#150c28; --bg2:#2e1640; --bg3:#4a1f47; --bg4:#6b2748;
+    --gold:#f4c78a; --rose:#ff9ab5; --rose-deep:#e8608a;
+    --text:#f6eef7; --muted:#c9b7d4; --glass:rgba(255,255,255,.07);
+    --glass-brd:rgba(255,255,255,.14); --glass-hi:rgba(255,255,255,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 45%,var(--bg3) 75%,var(--bg4));
+    background-attachment:fixed;min-height:100dvh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center}
+  body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(70px);opacity:.5;z-index:0;pointer-events:none}
+  body::before{width:340px;height:340px;background:radial-gradient(circle,var(--rose-deep),transparent 70%);top:-90px;right:-80px}
+  body::after{width:300px;height:300px;background:radial-gradient(circle,var(--gold),transparent 70%);bottom:-100px;left:-90px;opacity:.28}
+  .wrap{position:relative;z-index:1;width:100%;max-width:460px;min-height:100dvh;padding:28px 22px 34px;display:flex;flex-direction:column}
+  h1,h2{font-family:'Playfair Display',Georgia,serif;font-weight:600;line-height:1.14;letter-spacing:.2px}
+  .screen{display:none;flex:1;flex-direction:column;animation:rise .5s cubic-bezier(.2,.8,.2,1)}
+  .screen.active{display:flex}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .brand{font-family:'Playfair Display',serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.9;text-align:center;margin-bottom:auto}
+  .hero{margin:auto 0;text-align:center}
+  .heart{font-size:34px;filter:drop-shadow(0 0 14px var(--rose-deep));margin-bottom:14px}
+  .hero h1{font-size:38px;margin-bottom:16px;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+  .hero .sub{color:var(--muted);font-size:16px;line-height:1.55;max-width:340px;margin:0 auto 22px}
+  .stars{font-size:15px;color:var(--gold);margin-bottom:6px;letter-spacing:2px}
+  .proof{font-size:13px;color:var(--muted);margin-bottom:26px}
+  .proof b{color:var(--text);font-weight:600}
+  .steps{display:flex;flex-direction:column;gap:12px;margin:8px 0 26px;text-align:left}
+  .step{display:flex;gap:12px;align-items:flex-start;background:var(--glass);border:1px solid var(--glass-brd);border-radius:16px;padding:13px 15px}
+  .step .n{flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--gold));color:#2a1030;font-weight:700;font-size:14px;display:grid;place-items:center}
+  .step p{font-size:14px;line-height:1.4;color:var(--muted)}
+  .step p b{color:var(--text);font-weight:600}
+  .teaser{font-family:'Playfair Display',serif;font-style:italic;font-size:17px;color:var(--rose);text-align:center;margin:6px 0 16px}
+  .cta{width:100%;border:none;cursor:pointer;font-family:'Inter';font-weight:600;font-size:17px;color:#2a1030;
+    background:linear-gradient(135deg,var(--gold),var(--rose));border-radius:100px;padding:17px 20px;
+    box-shadow:0 12px 30px rgba(232,96,138,.4),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .15s ease}
+  .cta:active{transform:translateY(1px) scale(.99)}
+  .cta:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .reassure{text-align:center;font-size:12.5px;color:var(--muted);margin-top:12px}
+  .topbar{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+  .back{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:4px 6px;opacity:.8}
+  .back:disabled{opacity:0;pointer-events:none}
+  .progress{flex:1}
+  .progress .lbl{font-size:12px;color:var(--muted);letter-spacing:.5px;margin-bottom:7px}
+  .bar{height:6px;background:rgba(255,255,255,.12);border-radius:100px;overflow:hidden}
+  .bar span{display:block;height:100%;width:0;border-radius:100px;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .q{margin:6px 0 22px}
+  .q h2{font-size:27px;margin-bottom:8px}
+  .q .hint{color:var(--muted);font-size:14px}
+  .opts{display:flex;flex-direction:column;gap:12px;margin-top:auto}
+  .opt{width:100%;text-align:left;cursor:pointer;font-family:'Inter';font-size:16px;font-weight:500;color:var(--text);
+    background:var(--glass);border:1.5px solid var(--glass-brd);border-radius:16px;padding:17px 18px;transition:all .18s ease;display:flex;align-items:center;gap:12px}
+  .opt:hover{background:var(--glass-hi);border-color:rgba(255,255,255,.28)}
+  .opt.sel{background:linear-gradient(135deg,rgba(244,199,138,.22),rgba(255,154,181,.22));border-color:var(--rose);box-shadow:0 0 0 3px rgba(255,154,181,.18)}
+  .opt .dot{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--glass-brd);flex:none;transition:all .18s}
+  .opt.sel .dot{border-color:var(--rose);background:var(--rose);box-shadow:0 0 10px var(--rose-deep)}
+  .field{margin-top:auto}
+  .field input{width:100%;font-family:'Inter';font-size:18px;color:var(--text);background:var(--glass);border:1.5px solid var(--glass-brd);border-radius:16px;padding:18px;outline:none;transition:border .18s}
+  .field input::placeholder{color:rgba(201,183,212,.6)}
+  .field input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(255,154,181,.15)}
+  .field .micro{font-size:13px;color:var(--muted);margin-top:10px;margin-bottom:16px}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:auto}
+  .tile{cursor:pointer;border-radius:18px;overflow:hidden;border:1.5px solid var(--glass-brd);position:relative;aspect-ratio:1/1.05;transition:all .18s}
+  .tile .swatch{position:absolute;inset:0}
+  .tile .cap{position:absolute;left:0;right:0;bottom:0;padding:12px;font-size:14px;font-weight:600;background:linear-gradient(transparent,rgba(0,0,0,.7));z-index:1}
+  .tile.sel{border-color:var(--rose);box-shadow:0 0 0 3px rgba(255,154,181,.25);transform:translateY(-2px)}
+  .tile.sel::after{content:"♥";position:absolute;top:8px;right:10px;color:#fff;z-index:2;font-size:16px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .sw-soft{background:linear-gradient(150deg,#ffd9b0,#ff9ec4,#f4a8d0)}
+  .sw-bold{background:linear-gradient(150deg,#ff6a88,#c9184a,#7a1030)}
+  .sw-nat{background:linear-gradient(150deg,#cdb79a,#8a9a7b,#4f6b57)}
+  .sw-dark{background:linear-gradient(150deg,#3a2a55,#20143a,#0c0718)}
+  .lightning{display:flex;flex-direction:column;gap:12px;margin-top:auto;margin-bottom:18px}
+  .duo{display:flex;gap:10px}
+  .duo button{flex:1;cursor:pointer;font-family:'Inter';font-size:15px;font-weight:500;color:var(--text);background:var(--glass);border:1.5px solid var(--glass-brd);border-radius:14px;padding:15px 8px;transition:all .16s}
+  .duo button.sel{background:linear-gradient(135deg,rgba(244,199,138,.22),rgba(255,154,181,.22));border-color:var(--rose)}
+  .vs{align-self:center;font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:var(--muted)}
+  .lock{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin:16px 0 4px;cursor:pointer;font-size:13px;color:var(--muted);line-height:1.4}
+  .consent input{margin-top:2px;width:17px;height:17px;accent-color:var(--rose-deep);flex:none}
+  /* checkout */
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:10px}
+  .co h1{font-size:30px;text-align:center;margin-bottom:6px}
+  .sub{color:var(--muted);text-align:center;font-size:15px;line-height:1.5;margin-bottom:20px}
+  .card{background:var(--glass);border:1px solid var(--glass-brd);border-radius:18px;padding:18px 18px 20px;margin-bottom:14px}
+  .incl{list-style:none;display:flex;flex-direction:column;gap:9px;margin:4px 0 6px}
+  .incl li{font-size:14.5px;color:var(--text);display:flex;gap:10px;line-height:1.35}
+  .incl li b{color:var(--gold)}
+  .price{font-family:'Playfair Display',serif;font-size:30px;text-align:center;margin:6px 0 2px}
+  .price small{font-family:'Inter';font-size:13px;color:var(--muted);font-weight:400}
+  .bump{display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:linear-gradient(135deg,rgba(244,199,138,.12),rgba(255,154,181,.1));border:1.5px dashed var(--rose);border-radius:14px;padding:14px;margin:14px 0}
+  .bump input{margin-top:3px;width:18px;height:18px;accent-color:var(--rose-deep);flex:none}
+  .bump .t{font-size:14px;line-height:1.4}
+  .bump .t b{color:var(--gold)}
+  .bump .t span{color:var(--muted);font-size:13px}
+  .decline{display:block;width:100%;background:none;border:none;color:var(--muted);font-size:14px;text-align:center;margin-top:14px;cursor:pointer;text-decoration:underline;padding:8px}
+  .tag{display:inline-block;background:var(--rose-deep);color:#fff;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;letter-spacing:.5px}
+  /* generating / result */
+  .gen{margin:auto 0;text-align:center}
+  .spinner{width:56px;height:56px;margin:0 auto 22px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--rose);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .gen h2{font-size:26px;margin-bottom:10px}
+  .gen p{color:var(--muted);font-size:15px;line-height:1.55;max-width:320px;margin:0 auto}
+  .portrait{width:100%;max-width:340px;border-radius:20px;margin:0 auto 20px;display:block;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .reading{white-space:pre-wrap;font-size:15px;line-height:1.7;color:var(--text);background:var(--glass);border:1px solid var(--glass-brd);border-radius:16px;padding:20px;text-align:left;margin-bottom:16px}
+  .footer{text-align:center;font-size:11px;color:rgba(201,183,212,.55);line-height:1.5;margin-top:22px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+  .footer a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LANDING -->
+  <section class="screen active" id="s-landing">
+    <div class="brand">Soulmate</div>
+    <div class="hero">
+      <div class="heart">💫</div>
+      <h1>See the face of your soulmate.</h1>
+      <p class="sub">Take a 60-second test and get a personalized reading of who your soulmate is — their energy, their personality, and how you'll meet — plus an AI portrait of their face.</p>
+      <div class="stars">★★★★★</div>
+      <div class="proof">Over <b>50,000</b> readings created · "Genuinely gave me chills."</div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><p><b>Answer 7 quick questions</b> — no overthinking, just go with your gut.</p></div>
+        <div class="step"><div class="n">2</div><p><b>We read the signals</b> — your answers shape a one-of-a-kind reading.</p></div>
+        <div class="step"><div class="n">3</div><p><b>Meet them</b> — see their portrait and read their story.</p></div>
+      </div>
+      <p class="teaser">Your soulmate already has a face. Ready to see it?</p>
+    </div>
+    <button class="cta" onclick="start()">Start the test →</button>
+    <div class="reassure">Free to start · Takes under a minute</div>
+    <div class="footer">For entertainment and self-reflection only.<br><a href="#">Privacy</a> · <a href="#">Terms</a></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="screen" id="s-quiz">
+    <div class="topbar">
+      <button class="back" id="backBtn" onclick="back()">←</button>
+      <div class="progress"><div class="lbl" id="progLbl">Question 1 of 7</div><div class="bar"><span id="progBar"></span></div></div>
+    </div>
+    <div id="qBody" style="flex:1;display:flex;flex-direction:column"></div>
+  </section>
+
+  <!-- EMAIL -->
+  <section class="screen" id="s-email">
+    <div class="topbar">
+      <button class="back" onclick="goEmailBack()">←</button>
+      <div class="progress"><div class="lbl">Almost there ✨</div><div class="bar"><span style="width:100%"></span></div></div>
+    </div>
+    <div class="q"><h2>Where should we send your reading?</h2><p class="hint">Your soulmate reading and portrait are ready. Enter your email and we'll unlock them.</p></div>
+    <div class="field">
+      <input type="email" id="emailInput" placeholder="you@email.com" autocomplete="email">
+      <label class="consent"><input type="checkbox" id="consent"><span>Send me my reading + occasional soulmate stories and offers. (Unsubscribe anytime.)</span></label>
+    </div>
+    <button class="cta" style="margin-top:20px" onclick="submitEmail()">Unlock my reading →</button>
+    <div class="lock">🔒 We'll never share your email. Used only to deliver your reading.</div>
+    <div class="footer">For entertainment and self-reflection only.</div>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section class="screen co" id="s-checkout">
+    <div class="eyebrow">Your reading is ready</div>
+    <h1>Meet your soulmate, <span id="cName">friend</span>.</h1>
+    <p class="sub">Unlock your full Soulmate Reading + their AI portrait now.</p>
+    <div class="card">
+      <ul class="incl">
+        <li>✅ Your personalized <b>Soulmate Reading</b></li>
+        <li>✅ Their <b>AI portrait</b> — the face of your soulmate</li>
+        <li>✅ How you'll meet & the signs to look for</li>
+        <li>✅ Delivered on screen + emailed to you</li>
+      </ul>
+      <div class="price">€17 <small>one-time</small></div>
+      <label class="bump">
+        <input type="checkbox" id="bump">
+        <span class="t"><b>Yes — add my Keepsake Pack (+€9)</b><br>
+          <span>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait. Most people add this.</span></span>
+      </label>
+      <button class="cta" id="payBtn" onclick="openCheckout()">Reveal my soulmate →</button>
+      <div class="reassure">🔒 Secure checkout · For entertainment &amp; self-reflection</div>
+    </div>
+    <div class="footer">For entertainment and self-reflection only.<br><a href="#">Privacy</a> · <a href="#">Terms</a></div>
+  </section>
+
+  <!-- UPSELL 1 -->
+  <section class="screen co" id="s-upsell1">
+    <div class="eyebrow"><span class="tag">One-time offer</span></div>
+    <h1>Wait, <span class="uName">friend</span> — there's more to their story.</h1>
+    <p class="sub">Your reading covered <i>who</i> they are. The Deep Soulmate Report reveals <i>when, where, and how</i> it all unfolds.</p>
+    <div class="card">
+      <ul class="incl">
+        <li>📖 An extended reading — twice the depth</li>
+        <li>⏳ Your meeting timeline — the season it begins</li>
+        <li>🚩 Red flags to watch for</li>
+        <li>💞 Your compatibility map</li>
+        <li>🎨 3 more portraits — new angles of them</li>
+      </ul>
+      <div class="price">€27 <small>one-click</small></div>
+      <button class="cta" onclick="buyUpsell('deep','s-upsell2')">Yes, unlock the Deep Report →</button>
+      <button class="decline" onclick="declineTo('s-upsell2')">No thanks, I'll skip the full story</button>
+    </div>
+  </section>
+
+  <!-- UPSELL 2 -->
+  <section class="screen co" id="s-upsell2">
+    <div class="eyebrow"><span class="tag">Last one</span></div>
+    <h1>Want to see the two of you together?</h1>
+    <p class="sub">We can create <i>The Reunion Portrait</i>: a single image of you and your soulmate side by side, with a short story of the moment you meet.</p>
+    <div class="card">
+      <ul class="incl">
+        <li>🖼️ A "you two together" portrait</li>
+        <li>💌 A mini love-story of your first meeting</li>
+        <li>💾 Yours to keep and share</li>
+      </ul>
+      <div class="price">€19 <small>one-click</small></div>
+      <button class="cta" onclick="buyUpsell('reunion','s-result')">Yes, create our portrait →</button>
+      <button class="decline" onclick="show('s-result'); startGenerating();">No thanks, take me to my reading</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="s-result">
+    <div class="gen" id="genBox">
+      <div class="spinner"></div>
+      <h2 id="genMsg">Reading the signals…</h2>
+      <p>Your reading is being crafted just for you. This takes a moment — good things are worth the wait. ✨</p>
+    </div>
+    <div id="resultBox" style="display:none">
+      <div class="eyebrow">Meet your soulmate</div>
+      <h1 style="text-align:center;font-size:26px;margin-bottom:16px" id="resultName">Here they are…</h1>
+      <img class="portrait" id="resultPortrait" alt="Your soulmate portrait" style="display:none">
+      <div class="reading" id="resultReading"></div>
+      <p class="reassure">A copy is on its way to your inbox.</p>
+    </div>
+    <div class="footer">Your reading and portrait are creative interpretations, made just for you — for reflection and fun, not prediction.</div>
+  </section>
+
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const PADDLE_ENV = 'sandbox';
+const PADDLE_TOKEN = 'test_16c433d7e8b65d97a86dd2c8927';
+const PRICE = {
+  entry:   'pri_01kyht5cwvdz9fqhxxq8pm6syj',
+  bump:    'pri_01kyhtpesj5kxtx6zm783cx06e',
+  deep:    'pri_01kyhv0vqw1jdz1wtaqh8p2sz1',
+  reunion: 'pri_01kyhv3t0a8xtdms2afkskhx8d',
+};
+const GEN_MIN_MS = 60000;   // deliberate "crafting" delay so it feels real, not instant
+
+/* ============ QUIZ STATE ============ */
+const data = {};
+let quiz = data;            // checkout reads the same object
+let step = 0;
+const questions = [
+  { key:'meet', type:'single', q:"Who are you hoping to meet?", hint:"", opts:[["man","A man"],["woman","A woman"],["surprise","Surprise me"]] },
+  { key:'name', type:'name', q:"What's your first name?", hint:"We'll make the reading personal." },
+  { key:'age', type:'single', q:"How old are you?", hint:"", opts:[["18-24","18–24"],["25-34","25–34"],["35-44","35–44"],["45+","45+"]] },
+  { key:'energy', type:'single', q:"Which energy pulls you in?", hint:"", opts:[["grounded","Grounded & calm"],["adventurous","Adventurous & wild"],["warm","Warm & nurturing"],["mysterious","Mysterious & deep"]] },
+  { key:'look', type:'tiles', q:"Which look makes your heart skip?", hint:"Go with your first instinct.", opts:[["soft","Soft & radiant","sw-soft"],["bold","Bold & striking","sw-bold"],["natural","Effortless & natural","sw-nat"],["dark","Dark & magnetic","sw-dark"]] },
+  { key:'value', type:'single', q:"In love, what matters most to you?", hint:"", opts:[["loyalty","Loyalty"],["passion","Passion"],["humor","Humor"],["ambition","Ambition"],["calm","Calm"]] },
+  { key:'lightning', type:'lightning', q:"Lightning round", hint:"Tap fast — first instinct.", pairs:[["Coffee","Wine"],["Mountains","Ocean"],["Texter","Caller"],["Night owl","Early bird"]] },
+];
+const $ = id => document.getElementById(id);
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); }
+function start(){ step=0; show('s-quiz'); render(); }
+function render(){
+  const cfg = questions[step];
+  $('progLbl').textContent = `Question ${step+1} of 7`;
+  $('progBar').style.width = ((step)/7*100+6) + '%';
+  $('backBtn').disabled = false;
+  const b = $('qBody');
+  let html = `<div class="q"><h2>${cfg.q}</h2>${cfg.hint?`<p class="hint">${cfg.hint}</p>`:''}</div>`;
+  if(cfg.type==='single'){
+    html += `<div class="opts">`;
+    cfg.opts.forEach(([v,label])=>{ const sel=data[cfg.key]===v?'sel':''; html += `<button class="opt ${sel}" onclick="pick('${cfg.key}','${v}')">${label}<span class="dot"></span></button>`; });
+    html += `</div>`;
+  } else if(cfg.type==='name'){
+    html += `<div class="field"><input id="nameInput" placeholder="Your name" autocomplete="given-name" value="${data.name||''}"><div class="micro">We'll make the reading personal.</div></div><button class="cta" style="margin-top:8px" onclick="saveName()">Continue →</button>`;
+  } else if(cfg.type==='tiles'){
+    html += `<div class="tiles">`;
+    cfg.opts.forEach(([v,label,sw])=>{ const sel=data[cfg.key]===v?'sel':''; html += `<div class="tile ${sel}" onclick="pick('${cfg.key}','${v}')"><div class="swatch ${sw}"></div><div class="cap">${label}</div></div>`; });
+    html += `</div>`;
+  } else if(cfg.type==='lightning'){
+    data.lightning = (data.lightning && typeof data.lightning==='object' && !Array.isArray(data.lightning)) ? data.lightning : {};
+    html += `<div class="lightning">`;
+    cfg.pairs.forEach((pair,i)=>{ const cur=data.lightning[i];
+      html += `<div class="duo"><button class="${cur===0?'sel':''}" onclick="pickDuo(${i},0,'${pair[0]}')">${pair[0]}</button><span class="vs">or</span><button class="${cur===1?'sel':''}" onclick="pickDuo(${i},1,'${pair[1]}')">${pair[1]}</button></div>`; });
+    html += `</div><button class="cta" id="lightBtn" onclick="nextStep()" ${lightningDone()?'':'disabled'}>Continue →</button>`;
+  }
+  b.innerHTML = html;
+  if(cfg.type==='name') setTimeout(()=>$('nameInput')?.focus(),250);
+}
+function pick(key,val){ data[key]=val; render(); setTimeout(nextStep,260); }
+function saveName(){ const v=$('nameInput').value.trim(); if(!v){ $('nameInput').style.borderColor='var(--rose-deep)'; return; } data.name=v.charAt(0).toUpperCase()+v.slice(1); nextStep(); }
+function pickDuo(i,choice,label){ data.lightning[i]=choice; data.lightningLabels=data.lightningLabels||{}; data.lightningLabels[i]=label; render(); }
+function lightningDone(){ return data.lightning && Object.keys(data.lightning).length===4; }
+function nextStep(){ if(step<questions.length-1){ step++; render(); } else { goEmail(); } }
+function back(){ if(step>0){ step--; render(); } else { show('s-landing'); } }
+function goEmail(){ show('s-email'); setTimeout(()=>$('emailInput').focus(),300); }
+function goEmailBack(){ show('s-quiz'); step=questions.length-1; render(); }
+function submitEmail(){
+  const email=$('emailInput').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ $('emailInput').style.borderColor='var(--rose-deep)'; return; }
+  data.email=email; data.consent=$('consent').checked;
+  goCheckout();
+}
+
+/* ============ HAND-OFF TO CHECKOUT ============ */
+function goCheckout(){
+  data.lightning = Object.values(data.lightningLabels || {});   // convert to labels array for the engine
+  $('cName').textContent = data.name || 'friend';
+  document.querySelectorAll('.uName').forEach(e=>e.textContent = data.name || 'friend');
+  show('s-checkout');
+}
+
+/* ============ PADDLE ============ */
+let paddleReady=false, stage='entry', lastTxn=null;
+function initPaddle(){
+  if(typeof Paddle==='undefined') return;
+  if(PADDLE_ENV==='sandbox') Paddle.Environment.set('sandbox');
+  Paddle.Initialize({ token: PADDLE_TOKEN, eventCallback:(d)=>{
+    if(d.name==='checkout.completed'){ lastTxn = (d.data && (d.data.transaction_id || d.data.id)) || lastTxn; advanceAfterPaid(); }
+  }});
+  paddleReady=true;
+}
+window.addEventListener('load', initPaddle);
+function currentItems(){ const items=[{priceId:PRICE.entry,quantity:1}]; if($('bump').checked) items.push({priceId:PRICE.bump,quantity:1}); return items; }
+function cleanData(extra){
+  return Object.assign({
+    name:String(quiz.name||''), meet:String(quiz.meet||''), age:String(quiz.age||''),
+    energy:String(quiz.energy||''), look:String(quiz.look||''), value:String(quiz.value||''),
+    lightning:(quiz.lightning||[]).join(','), email:String(quiz.email||''), consent:quiz.consent?'yes':'no'
+  }, extra||{});
+}
+function openCheckout(){ if(!paddleReady){ alert('Payment is still loading — one moment.'); return; }
+  Paddle.Checkout.open({ items:currentItems(), customData:cleanData(), settings:{displayMode:'overlay'} }); }
+function buyUpsell(which,next){ if(!paddleReady){ declineTo(next); return; }
+  Paddle.Checkout.open({ items:[{priceId:PRICE[which],quantity:1}], customData:cleanData({upsell:which}), settings:{displayMode:'overlay'} }); }
+function declineTo(id){ if(id==='s-upsell2') stage='upsell2'; if(id==='s-result'){ show('s-result'); startGenerating(); return; } show(id); }
+function advanceAfterPaid(){
+  if(stage==='entry'){ stage='upsell1'; show('s-upsell1'); }
+  else if(stage==='upsell1'){ stage='upsell2'; show('s-upsell2'); }
+  else { show('s-result'); startGenerating(); }
+}
+
+/* ============ RESULT (delayed) ============ */
+let genStart=null, resultData=null, msgI=0;
+const genMsgs=['Reading the signals…','Bringing their face into focus…','Writing your story…','Almost there…'];
+function startGenerating(){ if(genStart) return; genStart=Date.now(); cycleMessages(); pollResult(); }
+function cycleMessages(){ const el=$('genMsg'); if(!el) return; el.textContent=genMsgs[msgI%genMsgs.length]; msgI++; if($('s-result').classList.contains('active') && $('genBox').style.display!=='none') setTimeout(cycleMessages,4500); }
+async function pollResult(){
+  if(lastTxn && !resultData){
+    try{ const r=await fetch('/result?tx='+encodeURIComponent(lastTxn)); if(r.ok){ const j=await r.json(); if(j && j.sections && (j.sections.reading||j.sections.deepReport)) resultData=j; } }catch(e){}
+  }
+  const elapsed=Date.now()-genStart;
+  if(resultData && elapsed>=GEN_MIN_MS){ renderResult(); return; }
+  if(!lastTxn && elapsed>=GEN_MIN_MS){ renderNoTxn(); return; }
+  setTimeout(pollResult, 3000);
+}
+function renderResult(){
+  $('genBox').style.display='none'; $('resultBox').style.display='block';
+  $('resultName').textContent = (quiz.name?quiz.name+', ':'') + 'meet your soulmate.';
+  const img=(resultData.images&&resultData.images[0])||'';
+  if(img){ const file=String(img).split('/').pop(); const p=$('resultPortrait'); p.src='/portrait/'+file; p.style.display='block'; }
+  $('resultReading').textContent = resultData.sections.reading || resultData.sections.deepReport || '';
+}
+function renderNoTxn(){
+  $('genBox').innerHTML = '<div style="font-size:34px;margin-bottom:14px">💌</div><h2>Your reading is on its way.</h2><p>We\'re crafting your soulmate reading + portrait and sending them to your inbox. Check your email in a few minutes. ✨</p>';
+}
+</script>
+</body>
+</html>
