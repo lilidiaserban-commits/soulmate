@@ -275,6 +275,130 @@ app.get('/portrait/:file', (req, res) => {
   if (fs.existsSync(full)) return res.type('png').send(fs.readFileSync(full));
   res.status(404).end();
 });
+/* ===============================================================
+ * 8. Legal pages (Terms, Privacy, Refund) — required for Paddle verification
+ * =============================================================== */
+const LEGAL_COMPANY = 'VIRALMOSAIC IMPACT SRL';
+const LEGAL_ADDRESS = 'Strada Ghiocului 24, 051404, Bucharest, Romania';
+const CONTACT_EMAIL = (SUPPORT_EMAIL && !/yourdomain/.test(SUPPORT_EMAIL)) ? SUPPORT_EMAIL : 'li.lidiaserban@gmail.com';
+const LEGAL_UPDATED = '28 July 2026';
+
+function legalPage(title, bodyHtml) {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title} · Soulmate</title>
+<style>
+  :root{color-scheme:light}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Georgia,serif;max-width:720px;margin:0 auto;padding:48px 22px 80px;color:#241033;line-height:1.7;background:#faf7fc}
+  a{color:#7a3f9d}
+  h1{font-size:28px;margin:0 0 4px}
+  h2{font-size:18px;margin:32px 0 8px}
+  .meta{color:#8a7a95;font-size:13px;margin-bottom:28px}
+  .back{display:inline-block;margin-bottom:24px;font-size:14px}
+  .box{background:#fff;border:1px solid #eee3f2;border-radius:14px;padding:22px 26px}
+  p,li{font-size:15px}
+  .fine{color:#8a7a95;font-size:13px;margin-top:36px;border-top:1px solid #eee3f2;padding-top:16px}
+</style></head><body>
+<a class="back" href="/">← Back to Soulmate</a>
+<div class="box">
+<h1>${title}</h1>
+<div class="meta">Last updated: ${LEGAL_UPDATED}</div>
+${bodyHtml}
+<div class="fine">${LEGAL_COMPANY} · ${LEGAL_ADDRESS} · <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a><br>
+Payments are processed by Paddle.com, our Merchant of Record.</div>
+</div></body></html>`;
+}
+
+app.get('/terms', (_req, res) => res.type('html').send(legalPage('Terms &amp; Conditions', `
+<p>These Terms govern your use of the Soulmate website and the personalized reading and portrait service (the "Service"), operated by ${LEGAL_COMPANY}. By using the Service or making a purchase, you agree to these Terms.</p>
+
+<h2>1. What the Service is</h2>
+<p>Soulmate creates an AI-generated, personalized reading and portrait based on the answers you provide. It is offered <strong>for entertainment and self-reflection only</strong>. It is not a prediction, psychic service, or advice of any kind, and it is not medical, psychological, legal, or financial guidance. We make no claim that any part of a reading is accurate or will come true.</p>
+
+<h2>2. Eligibility</h2>
+<p>You must be 18 or older to use the Service.</p>
+
+<h2>3. Purchases &amp; payment</h2>
+<p>The Service is sold as a one-time purchase, plus any optional add-ons you choose. Prices are shown at checkout. Payments are processed by <strong>Paddle.com</strong>, which acts as our Merchant of Record and is the seller of record for your order. Your receipt and invoice are issued by Paddle.</p>
+
+<h2>4. Delivery</h2>
+<p>Your reading and portrait are digital products, generated after your purchase and delivered on this website and by email. Generation may take a few moments.</p>
+
+<h2>5. Your content &amp; intellectual property</h2>
+<p>We and our licensors own the Service and its underlying materials. You receive a personal, non-commercial licence to the reading and portrait generated for you. Please do not resell or present the content as a professional prediction or diagnosis.</p>
+
+<h2>6. Acceptable use</h2>
+<p>Do not misuse the Service, attempt to disrupt it, or submit unlawful content.</p>
+
+<h2>7. Disclaimers &amp; limitation of liability</h2>
+<p>The Service is provided "as is", for entertainment. To the fullest extent permitted by law, we are not liable for any decision you make based on a reading, or for indirect or consequential loss. Nothing in these Terms limits rights that cannot be excluded under applicable consumer law.</p>
+
+<h2>8. Changes</h2>
+<p>We may update these Terms from time to time. The current version is always available on this page.</p>
+
+<h2>9. Governing law</h2>
+<p>These Terms are governed by the laws of Romania. Mandatory consumer-protection rights in your country of residence still apply.</p>
+
+<h2>10. Contact</h2>
+<p>Questions? Email <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+`)));
+
+app.get('/privacy', (_req, res) => res.type('html').send(legalPage('Privacy Policy', `
+<p>This Privacy Policy explains how ${LEGAL_COMPANY} ("we") handles your personal data when you use the Soulmate service. We are the data controller.</p>
+
+<h2>1. Data we collect</h2>
+<p>We collect: (a) the answers you give in the quiz; (b) your email address, so we can send you your result; and (c) purchase information, which is handled by our payment provider, Paddle. We do not ask for or store your card details — Paddle handles payment securely.</p>
+
+<h2>2. Why we use it &amp; legal basis</h2>
+<p>We use your data to create and deliver your reading and portrait and to email it to you — this is necessary to perform the service you purchased (contract). We keep data collection to the minimum needed for this.</p>
+
+<h2>3. Who we share it with (processors)</h2>
+<p>We use a small number of trusted providers to run the Service: <strong>OpenAI</strong> (to generate the reading and portrait), <strong>Resend</strong> (to email your result), and <strong>Paddle</strong> (to process payment as Merchant of Record). They process data on our behalf under their own security terms. <strong>We never sell your personal data.</strong></p>
+
+<h2>4. International transfers</h2>
+<p>Some providers may process data outside the EU/EEA. Where that happens, appropriate safeguards (such as Standard Contractual Clauses) apply.</p>
+
+<h2>5. Retention</h2>
+<p>We keep your data only as long as needed to deliver your result and meet legal or accounting obligations, then delete or anonymize it.</p>
+
+<h2>6. Your rights (GDPR)</h2>
+<p>You have the right to access, correct, delete, or export your data, and to object to or restrict certain processing. To exercise any right, email <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>. You also have the right to complain to the Romanian Data Protection Authority (ANSPDCP).</p>
+
+<h2>7. Cookies</h2>
+<p>We use only the minimal cookies/technology needed for the site to work. We do not use them to build advertising profiles of you.</p>
+
+<h2>8. Contact</h2>
+<p>${LEGAL_COMPANY}, ${LEGAL_ADDRESS} — <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+`)));
+
+app.get('/refund', (_req, res) => res.type('html').send(legalPage('Refund &amp; Cancellation Policy', `
+<p>This policy explains refunds for the Soulmate service, sold by ${LEGAL_COMPANY} through Paddle.com (our Merchant of Record).</p>
+
+<h2>1. Digital product, delivered on demand</h2>
+<p>Your reading and portrait are personalized digital content, generated specifically for you and delivered immediately after purchase.</p>
+
+<h2>2. Right of withdrawal</h2>
+<p>Under EU consumer law you normally have 14 days to withdraw from an online purchase. For digital content that is supplied immediately, this right ends once delivery begins — and by starting your reading you ask us to begin right away and acknowledge you lose the 14-day withdrawal right for that content. This is standard for instant digital goods.</p>
+
+<h2>3. We still want you happy</h2>
+<p>If something went wrong — you didn't receive your result, or there was a technical problem — contact us within 14 days at <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> and we'll make it right or issue a refund.</p>
+
+<h2>4. How refunds are processed</h2>
+<p>Because Paddle is our Merchant of Record, refunds are issued through Paddle back to your original payment method. You can contact us or reply to your Paddle receipt to request one.</p>
+
+<h2>5. Contact</h2>
+<p>${LEGAL_COMPANY} — <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+`)));
+
+app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact Us', `
+<p>We'd love to hear from you. For any question about your reading, your order, a refund, or your data, email us and we'll reply as soon as we can.</p>
+<h2>Email</h2>
+<p><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>
+<h2>Who we are</h2>
+<p>${LEGAL_COMPANY}<br>${LEGAL_ADDRESS}</p>
+<p>Soulmate is an entertainment and self-reflection experience. Payments are handled by Paddle.com, our Merchant of Record.</p>
+`)));
+
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Soulmate server on :${PORT} (support ${SUPPORT_EMAIL})`));
 }
