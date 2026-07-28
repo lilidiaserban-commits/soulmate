@@ -280,7 +280,7 @@ app.get('/portrait/:file', (req, res) => {
  * =============================================================== */
 const LEGAL_COMPANY = 'VIRALMOSAIC IMPACT SRL';
 const LEGAL_ADDRESS = 'Strada Ghiocului 24, 051404, Bucharest, Romania';
-const CONTACT_EMAIL = (SUPPORT_EMAIL && !/yourdomain/.test(SUPPORT_EMAIL)) ? SUPPORT_EMAIL : 'li.lidiaserban@gmail.com';
+const CONTACT_EMAIL = 'contact@viralmosaic.com';
 const LEGAL_UPDATED = '28 July 2026';
 
 function legalPage(title, bodyHtml) {
