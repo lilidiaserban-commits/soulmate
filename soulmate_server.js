@@ -403,6 +403,20 @@ if (require.main === module) {
   app.listen(PORT, () => console.log(`Soulmate server on :${PORT} (support ${SUPPORT_EMAIL})`));
 }
 
+/* ---- Pricing page (public prices, required for Paddle verification) ---- */
+app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
+<p>All Soulmate purchases are one-time digital payments in euro (€). You choose your reading, plus any optional add-ons. Prices are also shown at checkout, where payment is processed securely by Paddle.com, our Merchant of Record.</p>
+<h2>Soulmate Reading — €17</h2>
+<p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly online. One-time payment.</p>
+<h2>Keepsake Pack — +€9 (optional add-on)</h2>
+<p>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait.</p>
+<h2>Deep Soulmate Report — €27 (optional)</h2>
+<p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, and three additional portraits.</p>
+<h2>The Reunion Portrait — €19 (optional)</h2>
+<p>A "you two together" portrait, plus a short cinematic story of your first meeting.</p>
+<p>These are digital products offered for entertainment and self-reflection only — not predictions or advice.</p>
+`)));
+
 module.exports = {
   verifyPaddleSignature, handleCompletedTransaction,
   buildReadingPrompt, buildPortraitPrompt, seedFrom,
