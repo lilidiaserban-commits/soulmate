@@ -429,9 +429,7 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
     const source = String((req.body && req.body.source) || 'site');
     if (!email || !email.includes('@')) return res.status(400).json({ ok: false });
     const key = process.env.RESEND_API_KEY, aud = process.env.RESEND_AUDIENCE_ID;
-    if (key && aud) {
-      const r = await fetch('https://api.resend.com/audiences/' + aud + '/contacts', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, unsubscribed: false }) });
-      if (!r.ok && r.status !== 409) console.error('[subscribe] resend', r.status, await r.text());
+if (key) {const r = await fetch('https://api.resend.com/contacts', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, unsubscribed: false }) });      if (!r.ok && r.status !== 409) console.error('[subscribe] resend', r.status, await r.text());
     }
     console.log('[subscribe]', source, email);
     res.json({ ok: true });
