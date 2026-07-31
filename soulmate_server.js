@@ -422,6 +422,21 @@ app.get('/love-archetype', (_req, res) => res.sendFile(path.join(__dirname, 'rea
 app.get('/past-life', (_req, res) => res.sendFile(path.join(__dirname, 'reading_past_life.html')));
 app.get('/tarot', (_req, res) => res.sendFile(path.join(__dirname, 'reading_tarot.html')));
 app.get('/compatibility', (_req, res) => res.sendFile(path.join(__dirname, 'reading_compatibility.html')));
+/* ---- Email capture -> Resend audience ---- */
+app.post('/api/subscribe', express.json(), async (req, res) => {
+  try {
+    const email = String((req.body && req.body.email) || '').trim();
+    const source = String((req.body && req.body.source) || 'site');
+    if (!email || !email.includes('@')) return res.status(400).json({ ok: false });
+    const key = process.env.RESEND_API_KEY, aud = process.env.RESEND_AUDIENCE_ID;
+    if (key && aud) {
+      const r = await fetch('https://api.resend.com/audiences/' + aud + '/contacts', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, unsubscribed: false }) });
+      if (!r.ok && r.status !== 409) console.error('[subscribe] resend', r.status, await r.text());
+    }
+    console.log('[subscribe]', source, email);
+    res.json({ ok: true });
+  } catch (e) { console.error('[subscribe] fail', e); res.json({ ok: true }); }
+});
 
 
 module.exports = {
