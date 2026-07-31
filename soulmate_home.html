@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discover Soulmate — playful AI readings for self-reflection</title>
+<meta name="description" content="Take a short quiz and instantly receive a personalized, AI-crafted reading and portrait — made just for you. For entertainment and self-reflection.">
+<style>
+  :root{
+    --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
+    --accent-soft:#efe3f6; --rose:#e7b6c9; --gold:#e9c98a; --card:#ffffff; --line:#eee3f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+
+  /* NAV */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(250,247,252,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{font-family:Georgia,serif;font-size:20px;font-weight:600;letter-spacing:.3px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .brand .dot{color:var(--accent)}
+  nav.links{display:flex;gap:26px;align-items:center}
+  nav.links a{color:var(--ink);font-size:15px;opacity:.85}
+  nav.links a:hover{opacity:1;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;padding:11px 20px;border-radius:999px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(122,63,157,.28);color:#fff}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  .btn.ghost:hover{background:var(--accent-soft);box-shadow:none}
+  @media(max-width:760px){nav.links a:not(.btn){display:none}}
+
+  /* HERO */
+  .hero{position:relative;text-align:center;padding:72px 0 40px;overflow:hidden}
+  .hero .eyebrow{letter-spacing:.28em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:18px}
+  .hero h1{font-size:52px;line-height:1.08;margin:0 auto 18px;max-width:16ch}
+  .hero p.sub{font-size:19px;color:#4a3b55;max-width:60ch;margin:0 auto 30px}
+  .hero .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .hero .tiny{margin-top:18px;font-size:13px;color:var(--muted)}
+  .glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;z-index:-1}
+  .glow.a{width:340px;height:340px;background:var(--rose);top:-60px;left:-40px}
+  .glow.b{width:300px;height:300px;background:var(--gold);top:20px;right:-40px;opacity:.35}
+  @media(max-width:760px){.hero h1{font-size:36px}.hero p.sub{font-size:17px}}
+
+  /* SECTION */
+  section{padding:54px 0}
+  .sec-head{text-align:center;max-width:60ch;margin:0 auto 34px}
+  .sec-head .kicker{letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700}
+  .sec-head h2{font-size:34px;margin:10px 0 8px}
+  .sec-head p{color:#4a3b55;font-size:17px;margin:0}
+
+  /* EXPERIENCE CARDS */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 24px;position:relative;display:flex;flex-direction:column;transition:transform .14s ease, box-shadow .14s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(80,40,110,.12)}
+  .card .emoji{font-size:30px}
+  .card h3{font-size:21px;margin:14px 0 8px}
+  .card p{color:#5b4b66;font-size:15px;margin:0 0 18px;flex:1}
+  .tag{position:absolute;top:16px;right:16px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+  .tag.live{background:#e4f6ec;color:#1f7a4d}
+  .tag.soon{background:var(--accent-soft);color:var(--accent)}
+  .card .go{font-weight:600;font-size:15px}
+
+  /* HOW */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}}
+  .step{text-align:center;padding:10px}
+  .step .num{width:44px;height:44px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-family:Georgia,serif;font-size:19px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+  .step h3{font-size:19px;margin:0 0 6px}
+  .step p{color:#5b4b66;font-size:15px;margin:0}
+
+  /* BAND */
+  .band{background:linear-gradient(135deg,#2b1440,#4a2470);color:#fff;border-radius:24px;padding:46px 34px;text-align:center;margin:10px 0}
+  .band h2{font-size:30px;margin:0 0 10px;color:#fff}
+  .band p{color:#e7dcf1;max-width:52ch;margin:0 auto 24px;font-size:17px}
+  .band .btn{background:#fff;color:var(--accent)}
+  .band .btn:hover{color:var(--accent)}
+
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto}
+  details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 20px;margin-bottom:12px}
+  details summary{cursor:pointer;font-weight:600;padding:16px 0;list-style:none;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:'+';color:var(--accent);font-size:22px;font-weight:400}
+  details[open] summary::after{content:'\2013'}
+  details p{color:#5b4b66;font-size:15px;margin:0 0 16px}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--line);margin-top:30px;padding:34px 0 46px;color:var(--muted);font-size:14px}
+  .foot-inner{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  footer a{color:var(--muted)}footer a:hover{color:var(--accent)}
+  .foot-links{display:flex;gap:18px;flex-wrap:wrap}
+  .disclaimer{margin-top:18px;font-size:13px;color:var(--muted);max-width:70ch}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">Discover&nbsp;Soulmate<span class="dot">.</span></div>
+    <nav class="links">
+      <a href="#experiences">Readings</a>
+      <a href="#how">How it works</a>
+      <a href="#about">About</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn" href="/soulmate">Start your reading</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="glow a"></span><span class="glow b"></span>
+  <div class="wrap">
+    <div class="eyebrow">Playful AI readings · made just for you</div>
+    <h1>Meet the story the universe is writing for you.</h1>
+    <p class="sub">Answer a few gentle questions and instantly receive a personalized reading and a dreamy AI portrait — a warm little moment of self-reflection, made only for you.</p>
+    <div class="cta-row">
+      <a class="btn" href="/soulmate">Discover your soulmate →</a>
+      <a class="btn ghost" href="#experiences">See all readings</a>
+    </div>
+    <div class="tiny">✦ Instant · digital · for entertainment &amp; self-reflection</div>
+  </div>
+</section>
+
+<!-- EXPERIENCES -->
+<section id="experiences">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Choose your reading</div>
+      <h2>One little quiz. A story that feels like you.</h2>
+      <p>Your Soulmate reading is our signature experience. The new readings are <strong>free to try</strong> — with an optional extended version whenever you want to go deeper.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <span class="tag live">Available now</span>
+        <div class="emoji">💫</div>
+        <h3>Your Soulmate</h3>
+        <p>Who they are, the energy they carry, and how your paths may cross — with a soft portrait of the face this reading senses for you.</p>
+        <a class="go" href="/soulmate">Start →</a>
+      </div>
+
+      <div class="card">
+        <span class="tag soon">Free · soon</span>
+        <div class="emoji">🌙</div>
+        <h3>Your Love Archetype</h3>
+        <p>A playful personality reading that reveals how you love, what you need, and the kind of connection you quietly long for.</p>
+        <span class="go" style="color:var(--muted)">Coming soon</span>
+      </div>
+
+      <div class="card">
+        <span class="tag soon">Free · soon</span>
+        <div class="emoji">💞</div>
+        <h3>Love Compatibility</h3>
+        <p>Bring two people together and see your shared story — where you click, where you grow, and a portrait of you as a pair.</p>
+        <span class="go" style="color:var(--muted)">Coming soon</span>
+      </div>
+
+      <div class="card">
+        <span class="tag soon">Free · soon</span>
+        <div class="emoji">🔮</div>
+        <h3>Tarot, just for fun</h3>
+        <p>Draw your cards and get a warm, entertainment-style interpretation for the season you're in. No fortune-telling — just reflection.</p>
+        <span class="go" style="color:var(--muted)">Coming soon</span>
+      </div>
+
+      <div class="card">
+        <span class="tag soon">Free · soon</span>
+        <div class="emoji">✨</div>
+        <h3>Your Past Life</h3>
+        <p>A whimsical peek at who you might have been — your era, your story, and a portrait of that other you.</p>
+        <span class="go" style="color:var(--muted)">Coming soon</span>
+      </div>
+
+      <div class="card" style="background:linear-gradient(135deg,#fff,#f7eefc);align-items:flex-start;justify-content:center">
+        <div class="emoji">💌</div>
+        <h3>More on the way</h3>
+        <p>New readings are added often. Start your soulmate reading today — the rest are coming very soon.</p>
+        <a class="go" href="/soulmate">Begin →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">How it works</div>
+      <h2>Three little steps</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Take the quiz</h3>
+        <p>Answer a handful of soft, playful questions about you and what your heart is drawn to.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>We craft your reading</h3>
+        <p>Our AI writes a warm, personalized story just for you — and paints a portrait to match.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>It's yours, instantly</h3>
+        <p>Read it right away on screen and in your inbox. Keep it, print it, or share it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">About</div>
+      <h2>A little studio for wonder</h2>
+      <p>We make gentle, beautiful moments of self-reflection — the kind that make you smile, think, and want to share. Every reading is created just for you, for fun and reflection, never as a prediction or advice. Behind Discover Soulmate is a small, real team based in Romania that cares about craft, kindness, and your privacy. If you ever need us, we're a message away.</p>
+    </div>
+    <div style="text-align:center">
+      <a class="btn ghost" href="/contact-us">Contact us</a>
+    </div>
+  </div>
+</section>
+
+<!-- BAND CTA -->
+<section>
+  <div class="wrap">
+    <div class="band">
+      <h2>Ready to meet your soulmate?</h2>
+      <p>Your reading and portrait are waiting — it only takes a minute.</p>
+      <a class="btn" href="/soulmate">Start your reading →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:#fff;border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">FAQ</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Is this real / accurate?</summary>
+        <p>It's for entertainment and self-reflection — a creative interpretation made just for you, not a prediction, psychic service, or advice of any kind. Enjoy it in that spirit. 💛</p>
+      </details>
+      <details>
+        <summary>What exactly do I get?</summary>
+        <p>A personalized written reading plus an AI-generated portrait, delivered instantly on this website and to your email. Some readings offer optional extras (like a keepsake PDF or a deeper report).</p>
+      </details>
+      <details>
+        <summary>How fast is it?</summary>
+        <p>Seconds. Right after you finish the quiz, your reading and portrait are generated and shown to you, and a copy is emailed to you.</p>
+      </details>
+      <details>
+        <summary>How much does it cost?</summary>
+        <p>It's a one-time purchase starting at €17, with a few optional add-ons you can choose. See the <a href="/pricing">pricing page</a> for details.</p>
+      </details>
+      <details>
+        <summary>What about my data &amp; refunds?</summary>
+        <p>We keep only what's needed to create and send your reading, and we never sell your data — see our <a href="/privacy">Privacy Policy</a>. If something goes wrong technically, contact us and we'll make it right — see our <a href="/refund">Refund Policy</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <div class="brand" style="font-size:18px">Discover&nbsp;Soulmate<span class="dot">.</span></div>
+      <div class="foot-links">
+        <a href="/soulmate">Start a reading</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/terms">Terms</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/refund">Refunds</a>
+        <a href="/contact-us">Contact</a>
+      </div>
+    </div>
+    <p class="disclaimer">Discover Soulmate is an entertainment and self-reflection experience — readings are creative interpretations, not predictions or advice. © 2026 Discover Soulmate. Payments are processed securely by Paddle.com, our Merchant of Record.</p>
+  </div>
+</footer>
+
+</body>
+</html>
