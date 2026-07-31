@@ -241,7 +241,7 @@
   function capture(){
     const e=document.getElementById('email').value.trim();
     if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }
-    // TODO: POST email + archetype to backend / email list
+    fetch('/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,source:'love-archetype'})}).catch(()=>{});
     document.getElementById('capok').style.display='block';
     document.getElementById('email').value='';
   }

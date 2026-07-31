@@ -183,6 +183,7 @@
   function capture(){
     const e=document.getElementById('email').value.trim();
     if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }
+    fetch('/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,source:'tarot'})}).catch(()=>{});
     document.getElementById('capok').style.display='block';
     document.getElementById('email').value='';
   }
