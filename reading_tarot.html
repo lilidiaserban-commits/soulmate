@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Tarot Reading (just for fun) — Discover Soulmate</title>
+<meta name="description" content="Draw three cards and get a warm, entertainment-style tarot reading for the season you're in. Free to try — for reflection, not prediction.">
+<style>
+  :root{
+    --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
+    --accent-soft:#efe3f6; --rose:#e7b6c9; --gold:#e9c98a; --card:#fff; --line:#eee3f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:660px;margin:0 auto;padding:0 20px}
+  .topbar{height:60px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);position:relative}
+  .topbar .brand{font-family:Georgia,serif;font-weight:600;font-size:17px}
+  .topbar .brand .dot{color:var(--accent)}
+  .topbar .home{position:absolute;left:18px;font-size:20px;color:var(--muted);text-decoration:none}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:14px 26px;border-radius:999px;
+    font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .12s;font-family:inherit}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(122,63,157,.28)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  .glow{position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;z-index:-1}
+  .glow.a{width:320px;height:320px;background:var(--rose);top:-40px;left:-60px}
+  .glow.b{width:280px;height:280px;background:var(--gold);top:30px;right:-60px;opacity:.3}
+  .screen{display:none;padding:44px 0 70px;animation:fade .4s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .intro{text-align:center}
+  .intro .eyebrow{letter-spacing:.24em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:16px}
+  .intro h1{font-size:40px;line-height:1.1;margin:0 0 14px}
+  .intro p{font-size:18px;color:#4a3b55;max-width:46ch;margin:0 auto 26px}
+  .intro .meta{margin-top:16px;font-size:13px;color:var(--muted)}
+  .stars{color:var(--gold);letter-spacing:2px;font-size:18px}
+
+  /* draw screen */
+  .draw{text-align:center}
+  .draw h2{font-size:26px;margin:0 0 6px}
+  .draw .hint{color:var(--muted);font-size:15px;margin:0 0 26px}
+  .deck{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+  .facedown{width:76px;height:120px;border-radius:12px;cursor:pointer;
+    background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;
+    display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:24px;
+    box-shadow:0 6px 16px rgba(60,25,90,.25);transition:transform .15s, box-shadow .15s}
+  .facedown:hover{transform:translateY(-8px)}
+  .facedown.picked{opacity:.35;pointer-events:none;transform:translateY(-4px)}
+  .picked-count{font-size:14px;color:var(--accent);font-weight:600;margin-top:8px;min-height:20px}
+
+  /* result */
+  .result h1{font-size:34px;text-align:center;margin:0 0 4px}
+  .result .kicker{text-align:center;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:8px}
+  .cardrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:22px 0 8px}
+  @media(max-width:560px){.cardrow{grid-template-columns:1fr}}
+  .tcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 14px;text-align:center}
+  .tcard .pos{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .tcard .face{font-size:40px;margin:8px 0 4px}
+  .tcard .nm{font-family:Georgia,serif;font-size:19px;margin-bottom:6px}
+  .tcard .mn{font-size:14px;color:#5b4b66}
+  .summary{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-top:8px}
+  .summary h3{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+  .summary p{margin:0;color:#3d2d49;font-size:16px}
+  .capture{background:linear-gradient(135deg,#2b1440,#4a2470);color:#fff;border-radius:20px;padding:30px 26px;text-align:center;margin:22px 0}
+  .capture h3{color:#fff;font-size:23px;margin:0 0 8px}
+  .capture p{color:#e7dcf1;margin:0 auto 18px;max-width:42ch;font-size:15px}
+  .capture .row{display:flex;gap:10px;max-width:420px;margin:0 auto;flex-wrap:wrap}
+  .capture input{flex:1;min-width:190px;border:none;border-radius:999px;padding:14px 18px;font-size:15px;font-family:inherit}
+  .capture .btn{background:#fff;color:var(--accent)}
+  .capture .note{margin-top:12px;font-size:12px;color:#c9b6e0}
+  .capture .ok{color:#d8ffe9;font-weight:600;margin-top:6px}
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .disclaimer{color:var(--muted);font-size:12.5px;margin-top:30px;text-align:center;max-width:60ch;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+<span class="glow a"></span><span class="glow b"></span>
+<div class="topbar">
+  <a class="home" href="/" title="Home">←</a>
+  <span class="brand">Discover&nbsp;Soulmate<span class="dot">.</span></span>
+</div>
+<div class="wrap">
+
+  <section class="screen intro active" id="intro">
+    <div class="eyebrow">Free · Tarot, just for fun</div>
+    <h1>Pull three cards.</h1>
+    <p>Take a breath, hold a question in your heart, and draw three cards for the season you're in — a warm little reading, just for reflection.</p>
+    <button class="btn" onclick="toDraw()">Shuffle &amp; draw →</button>
+    <div class="meta"><span class="stars">★★★★★</span><br>free · for reflection, not prediction</div>
+  </section>
+
+  <section class="screen draw" id="draw">
+    <h2>Pick your three cards</h2>
+    <p class="hint">Trust your gut — tap any three.</p>
+    <div class="deck" id="deck"></div>
+    <div class="picked-count" id="pickedCount">0 of 3 chosen</div>
+  </section>
+
+  <section class="screen result" id="result">
+    <div class="kicker">Your three-card reading</div>
+    <h1>The cards you drew</h1>
+    <div class="cardrow" id="cardrow"></div>
+    <div class="summary"><h3>What they whisper together</h3><p id="summaryText"></p></div>
+    <div class="capture">
+      <h3>Want the full reading?</h3>
+      <p>Get an extended, personalized tarot reading written just for your question — the moment it's ready.</p>
+      <div class="row">
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+        <button class="btn" onclick="capture()">Notify me</button>
+      </div>
+      <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
+      <div class="note">Free to join · no spam · unsubscribe anytime</div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" onclick="restart()">↺ Draw again</button>
+      <a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a>
+    </div>
+    <p class="disclaimer">For entertainment and self-reflection only — a creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  </section>
+</div>
+
+<script>
+  const deckCards = [
+    {face:'✨', nm:'The Star', mn:'hope, healing and a fresh sense of faith'},
+    {face:'💞', nm:'The Lovers', mn:'connection, a meaningful choice, coming together'},
+    {face:'🌙', nm:'The Moon', mn:'intuition, dreams and trusting what you sense'},
+    {face:'☀️', nm:'The Sun', mn:'joy, clarity and things finally going right'},
+    {face:'🎡', nm:'The Wheel', mn:'change, luck and a turning point'},
+    {face:'🌹', nm:'The Empress', mn:'love, warmth and quiet abundance'},
+    {face:'🔮', nm:'The Magician', mn:'your own power to make it happen'},
+    {face:'🦁', nm:'Strength', mn:'courage, patience and gentle inner power'},
+    {face:'🌍', nm:'The World', mn:'completion, wholeness and new horizons'},
+    {face:'🕯️', nm:'The Hermit', mn:'reflection, wisdom and a needed pause'},
+    {face:'🕊️', nm:'Temperance', mn:'balance, calm and finding your center'},
+    {face:'⭐', nm:'The Wish', mn:'a heartfelt hope that is closer than it feels'},
+  ];
+  const positions = ['Where you are', 'Your path', 'What’s coming'];
+  const posLead = [
+    'Right now, you are held by',
+    'The way forward is lit by',
+    'Moving toward you is'
+  ];
+  const NUM_FACEDOWN = 7;
+  let picks = [], pool = [];
+
+  function toDraw(){
+    picks = [];
+    // shuffle a fresh pool
+    pool = deckCards.slice().sort(()=>Math.random()-0.5);
+    const deck = document.getElementById('deck'); deck.innerHTML='';
+    for(let i=0;i<NUM_FACEDOWN;i++){
+      const c=document.createElement('div'); c.className='facedown'; c.textContent='✦';
+      c.onclick=()=>pick(c);
+      deck.appendChild(c);
+    }
+    document.getElementById('pickedCount').textContent='0 of 3 chosen';
+    show('draw');
+  }
+  function pick(el){
+    if(picks.length>=3 || el.classList.contains('picked')) return;
+    el.classList.add('picked');
+    picks.push(pool[picks.length]);
+    document.getElementById('pickedCount').textContent = picks.length+' of 3 chosen';
+    if(picks.length===3) setTimeout(reveal, 450);
+  }
+  function reveal(){
+    const row=document.getElementById('cardrow'); row.innerHTML='';
+    picks.forEach((card,i)=>{
+      const d=document.createElement('div'); d.className='tcard';
+      d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="face">'+card.face+'</div>'+
+                  '<div class="nm">'+card.nm+'</div><div class="mn">'+posLead[i]+' '+card.mn+'.</div>';
+      row.appendChild(d);
+    });
+    const s = "Your cards trace a gentle arc: from "+picks[0].nm+", through "+picks[1].nm+", toward "+picks[2].nm+
+      ". The thread between them is simple — trust where you are, keep walking your path, and stay open to what's arriving. Something is quietly shifting in your favor.";
+    document.getElementById('summaryText').textContent = s;
+    show('result');
+  }
+  function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+  function restart(){ show('intro'); }
+  function capture(){
+    const e=document.getElementById('email').value.trim();
+    if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }
+    document.getElementById('capok').style.display='block';
+    document.getElementById('email').value='';
+  }
+</script>
+</body>
+</html>

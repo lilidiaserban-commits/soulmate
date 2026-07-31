@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Love Compatibility — Discover Soulmate</title>
+<meta name="description" content="Two people, two birth charts, one honest reading — your spark, where you click, and where you clash. Free to try.">
+<style>
+  :root{
+    --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
+    --accent-soft:#efe3f6; --rose:#e7b6c9; --gold:#e9c98a; --card:#fff; --line:#eee3f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:660px;margin:0 auto;padding:0 20px}
+  .topbar{height:60px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);position:relative}
+  .topbar .brand{font-family:Georgia,serif;font-weight:600;font-size:17px}
+  .topbar .brand .dot{color:var(--accent)}
+  .topbar .home{position:absolute;left:18px;font-size:20px;color:var(--muted);text-decoration:none}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:14px 26px;border-radius:999px;
+    font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .12s;font-family:inherit}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(122,63,157,.28)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  .glow{position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;z-index:-1}
+  .glow.a{width:320px;height:320px;background:var(--rose);top:-40px;left:-60px}
+  .glow.b{width:280px;height:280px;background:var(--gold);top:30px;right:-60px;opacity:.3}
+  .screen{display:none;padding:40px 0 70px;animation:fade .4s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .intro{text-align:center}
+  .intro .eyebrow{letter-spacing:.24em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:14px}
+  .intro h1{font-size:38px;line-height:1.1;margin:0 0 10px}
+  .intro p.sub{font-size:17px;color:#4a3b55;max-width:48ch;margin:0 auto 22px}
+
+  .people{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left;margin-bottom:8px}
+  @media(max-width:560px){.people{grid-template-columns:1fr}}
+  .person{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px}
+  .person h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 12px}
+  .fld{margin-bottom:11px}
+  .fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600}
+  .fld input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;background:#fff;color:var(--ink)}
+  .fld input:focus{outline:none;border-color:var(--accent)}
+  .opt-note{font-size:11px;color:var(--muted);font-weight:400}
+  .fld.geo{position:relative}
+  .sugg{position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;border:1px solid var(--line);border-radius:10px;margin-top:4px;box-shadow:0 12px 28px rgba(60,25,90,.16);display:none;max-height:220px;overflow-y:auto}
+  .sugg.open{display:block}
+  .sugg div{padding:10px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid #f4edf9}
+  .sugg div:last-child{border-bottom:none}
+  .sugg div:hover{background:var(--accent-soft)}
+
+  .statusbox{text-align:left;margin:20px 0 6px}
+  .statusbox > label{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px;text-align:center}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:14px;cursor:pointer;font-family:inherit;color:var(--ink);transition:all .12s}
+  .chip:hover{border-color:var(--accent)}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .err{color:#c0392b;font-size:13px;text-align:center;margin-top:12px;min-height:18px}
+  .meta{margin-top:16px;font-size:13px;color:var(--muted);text-align:center}
+  .stars{color:var(--gold);letter-spacing:2px;font-size:18px}
+
+  .result{text-align:center}
+  .signs{font-family:Georgia,serif;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+  .pairnames{font-family:Georgia,serif;font-size:24px;margin:0 0 12px}
+  .pairnames .amp{color:var(--rose)}
+  .score{font-family:Georgia,serif;font-size:60px;color:var(--accent);line-height:1;margin:6px 0 2px}
+  .meter{height:12px;background:var(--accent-soft);border-radius:999px;overflow:hidden;max-width:340px;margin:10px auto 6px}
+  .meter > i{display:block;height:100%;background:linear-gradient(90deg,#e7b6c9,#7a3f9d);width:0;transition:width .9s ease}
+  .matchtype{letter-spacing:.16em;text-transform:uppercase;font-size:13px;color:var(--accent);font-weight:700;margin-bottom:18px}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;text-align:left;margin-bottom:14px}
+  .rcard.warn{border-color:#f0d9c4;background:#fff9f3}
+  .rcard.warn h3{color:#b5722e}
+  .rcard.honest{border-color:#d9cdEA;background:#faf6ff}
+  .rcard h3{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+  .rcard p{margin:0;color:#3d2d49;font-size:16px}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.rgrid{grid-template-columns:1fr}}
+  .capture{background:linear-gradient(135deg,#2b1440,#4a2470);color:#fff;border-radius:20px;padding:30px 26px;text-align:center;margin:22px 0}
+  .capture h3{color:#fff;font-size:22px;margin:0 0 8px}
+  .capture p{color:#e7dcf1;margin:0 auto 18px;max-width:44ch;font-size:15px}
+  .capture .row{display:flex;gap:10px;max-width:420px;margin:0 auto;flex-wrap:wrap}
+  .capture input{flex:1;min-width:190px;border:none;border-radius:999px;padding:14px 18px;font-size:15px;font-family:inherit}
+  .capture .btn{background:#fff;color:var(--accent)}
+  .capture .note{margin-top:12px;font-size:12px;color:#c9b6e0}
+  .capture .ok{color:#d8ffe9;font-weight:600;margin-top:6px}
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .disclaimer{color:var(--muted);font-size:12.5px;margin-top:30px;text-align:center;max-width:60ch;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+<span class="glow a"></span><span class="glow b"></span>
+<div class="topbar">
+  <a class="home" href="/" title="Home">←</a>
+  <span class="brand">Discover&nbsp;Soulmate<span class="dot">.</span></span>
+</div>
+<div class="wrap">
+
+  <section class="screen intro active" id="intro">
+    <div class="eyebrow">Free · Love Compatibility</div>
+    <h1>How compatible are you two — really?</h1>
+    <p class="sub">Add both birthdays and your relationship status for an honest reading — the good, and the parts worth knowing.</p>
+
+    <div class="people">
+      <div class="person">
+        <h3>You</h3>
+        <div class="fld"><label>Name</label><input id="n1" placeholder="Your name" autocomplete="off"></div>
+        <div class="fld"><label>Birthday</label><input id="b1" type="date"></div>
+        <div class="fld geo"><label>Birthplace <span class="opt-note">(optional)</span></label><input id="p1" placeholder="Start typing a city…" autocomplete="off"><div class="sugg" id="sugg1"></div></div>
+        <div class="fld"><label>Time of birth <span class="opt-note">(if known)</span></label><input id="t1" type="time"></div>
+      </div>
+      <div class="person">
+        <h3>Them</h3>
+        <div class="fld"><label>Name</label><input id="n2" placeholder="Their name" autocomplete="off"></div>
+        <div class="fld"><label>Birthday</label><input id="b2" type="date"></div>
+        <div class="fld geo"><label>Birthplace <span class="opt-note">(optional)</span></label><input id="p2" placeholder="Start typing a city…" autocomplete="off"><div class="sugg" id="sugg2"></div></div>
+        <div class="fld"><label>Time of birth <span class="opt-note">(if known)</span></label><input id="t2" type="time"></div>
+      </div>
+    </div>
+
+    <div class="statusbox">
+      <label>Where are you two right now?</label>
+      <div class="chips" id="chips">
+        <button class="chip" data-s="together">Together</button>
+        <button class="chip" data-s="dating">Dating / early</button>
+        <button class="chip" data-s="situationship">Situationship</button>
+        <button class="chip" data-s="crushing">Crushing on them</button>
+        <button class="chip" data-s="friends">Just friends</button>
+        <button class="chip" data-s="nocontact">No contact / a break</button>
+        <button class="chip" data-s="brokeup">Broke up</button>
+        <button class="chip" data-s="complicated">It's complicated</button>
+      </div>
+    </div>
+
+    <div class="err" id="err"></div>
+    <div style="text-align:center;margin-top:8px"><button class="btn" onclick="run()">Reveal our reading →</button></div>
+    <div class="meta"><span class="stars">★★★★★</span><br>free · for reflection, not prediction</div>
+  </section>
+
+  <section class="screen result" id="result">
+    <div class="signs" id="signs"></div>
+    <div class="pairnames" id="pair"></div>
+    <div class="score" id="scoreNum">0%</div>
+    <div class="meter"><i id="meterFill"></i></div>
+    <div class="matchtype" id="matchType"></div>
+
+    <div class="rcard"><h3>Your spark</h3><p id="r-spark"></p></div>
+    <div class="rgrid">
+      <div class="rcard"><h3>Where you click</h3><p id="r-click"></p></div>
+      <div class="rcard warn"><h3>Where you clash</h3><p id="r-clash"></p></div>
+    </div>
+    <div class="rcard honest"><h3>The honest read</h3><p id="r-honest"></p></div>
+
+    <div class="capture">
+      <h3>Get your full birth-chart reading</h3>
+      <p>The extended reading uses both birth dates, places and times to map your complete compatibility — plus an AI portrait of you two together.</p>
+      <div class="row">
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+        <button class="btn" onclick="capture()">Notify me</button>
+      </div>
+      <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
+      <div class="note">Free to join · no spam · unsubscribe anytime</div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" onclick="restart()">↺ Try another pair</button>
+      <a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a>
+    </div>
+    <p class="disclaimer">For entertainment and self-reflection only — a creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  </section>
+</div>
+
+<script>
+  let status='';
+  document.getElementById('chips').addEventListener('click',e=>{
+    const c=e.target.closest('.chip'); if(!c) return;
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on'); status=c.dataset.s;
+  });
+
+  const SIGNS=[['Capricorn',1,19],['Aquarius',2,18],['Pisces',3,20],['Aries',4,19],['Taurus',5,20],
+    ['Gemini',6,20],['Cancer',7,22],['Leo',8,22],['Virgo',9,22],['Libra',10,22],['Scorpio',11,21],['Sagittarius',12,21]];
+  function zodiac(dstr){
+    if(!dstr) return null;
+    const d=new Date(dstr); if(isNaN(d)) return null;
+    const m=d.getUTCMonth()+1, day=d.getUTCDate();
+    for(const [name,mm,dd] of SIGNS){ if(m===mm && day<=dd) return name; }
+    return 'Capricorn';
+  }
+  const ELEMENT={Aries:'fire',Leo:'fire',Sagittarius:'fire',Taurus:'earth',Virgo:'earth',Capricorn:'earth',
+    Gemini:'air',Libra:'air',Aquarius:'air',Cancer:'water',Scorpio:'water',Pisces:'water'};
+
+  const PAIRS={
+    'fire|fire':{base:82,spark:"Two big, bright energies — passion, adventure and a shared hunger for life.",click:"You match each other's fire; life together is exciting and rarely dull.",clash:"Two flames burn hot and fast — egos, pride and stubbornness need room to breathe or you scorch each other."},
+    'earth|earth':{base:84,spark:"A grounded, dependable pull — you want to build something that lasts.",click:"Loyalty, comfort and shared goals; you feel genuinely safe with each other.",clash:"Comfort can slide into routine and stubbornness — you'll have to keep courting each other on purpose."},
+    'air|air':{base:79,spark:"Instant mental spark — endless talk, ideas and curiosity.",click:"You get each other's minds and never run out of things to say.",clash:"Lots of head, less heart — feelings get analysed instead of felt, and follow-through can slip."},
+    'water|water':{base:82,spark:"A deep, wordless emotional understanding — you feel each other.",click:"Real intimacy and empathy; you're each other's soft place to land.",clash:"Two deep oceans can drown in moods — someone has to come up for air and stay honest."},
+    'air|fire':{base:88,spark:"Air feeds fire — playful, electric and full of momentum.",click:"You energise each other; it's fun, fast and full of spark.",clash:"So busy being exciting you can skip the deeper, quieter intimacy underneath."},
+    'earth|water':{base:86,spark:"Water softens earth, earth steadies water — tender and safe.",click:"Nurturing and secure; you take good care of each other.",clash:"So cozy you may dodge the hard truths — don't let comfort quietly mute honesty."},
+    'fire|water':{base:60,spark:"Real chemistry and intensity — steam when it's good.",click:"Opposite energies that fascinate; the attraction is undeniable.",clash:"Fire and water can cancel each other out — hot reactions vs. big feelings, and someone often gets burned or flooded."},
+    'earth|fire':{base:63,spark:"Earth gives fire something real to build; fire brings earth to life.",click:"One dreams big, the other makes it real — powerful when aligned.",clash:"Very different speeds — one wants to leap, the other to plan. Impatience is the trap."},
+    'air|water':{base:59,spark:"A dreamy, imaginative attraction — you pull each other into another world.",click:"Creative and gentle; you can be lovely and unexpected together.",clash:"Head vs. heart — you can genuinely struggle to speak the same emotional language."},
+    'air|earth':{base:62,spark:"Ideas meet action — together you can actually make things happen.",click:"You balance freedom and stability when you respect the difference.",clash:"Different priorities: one craves space and novelty, the other security and routine."}
+  };
+  function pairData(e1,e2){ return PAIRS[e1+'|'+e2] || PAIRS[e2+'|'+e1]; }
+
+  const STATUS_READ={
+    together:"You're already in it — so the honest part is this: the clash above is the real work, not something to gloss over. Choose each other on the ordinary, unglamorous days and you'll be fine.",
+    dating:"It's early and unproven — which is exciting, but don't let the spark do all the talking. Watch how they show up when it's inconvenient; that tells you more than any chemistry.",
+    situationship:"Let's be honest: 'undefined' is its own answer for now. The real question isn't whether you're compatible — it's whether you're both actually choosing this, out loud.",
+    crushing:"Right now this mostly lives in your head, and imagination flatters everything. The only way to know what's real is to give it a genuine chance in the real world.",
+    friends:"There's a real foundation here — which is exactly why crossing the line is a risk. It's worth it only if you're both ready to lose the safety of 'just friends'.",
+    nocontact:"The silence might be doing something useful. Space isn't always the enemy — sometimes it's how two people heal or finally see clearly. Don't rush to fill it just because it aches.",
+    brokeup:"Be honest about why it ended — chemistry probably wasn't the problem, the pattern was. Nothing here changes unless the thing that broke it has actually changed.",
+    complicated:"'Complicated' usually means something's gone unspoken. The connection is real, but it won't matter much until the conversation you're both avoiding finally happens."
+  };
+
+  const MATCH=[[85,'A rare, magnetic match'],[72,'Strong potential'],[60,'Real, but it takes work'],[0,'Challenging — not impossible']];
+
+  function nameHash(a,b){ const s=(a+'&'+b).toLowerCase().replace(/[^a-z]/g,''); let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function run(){
+    const err=document.getElementById('err'); err.textContent='';
+    const n1=(document.getElementById('n1').value||'You').trim()||'You';
+    const n2=(document.getElementById('n2').value||'Them').trim()||'Them';
+    const z1=zodiac(document.getElementById('b1').value);
+    const z2=zodiac(document.getElementById('b2').value);
+    if(!z1||!z2){ err.textContent='Please add both birthdays 🌙'; return; }
+    if(!status){ err.textContent='Pick your relationship status 💫'; return; }
+
+    const e1=ELEMENT[z1], e2=ELEMENT[z2];
+    const pd=pairData(e1,e2);
+    const nudge=(nameHash(n1+z1,n2+z2)%11)-5;   // -5..+5
+    let score=Math.max(46,Math.min(97,pd.base+nudge));
+    const type=(MATCH.find(m=>score>=m[0])||MATCH[MATCH.length-1])[1];
+
+    document.getElementById('signs').textContent = z1+'  ✦  '+z2;
+    document.getElementById('pair').innerHTML = esc(n1)+' <span class="amp">&amp;</span> '+esc(n2);
+    document.getElementById('scoreNum').textContent = score+'%';
+    document.getElementById('matchType').textContent = type;
+    document.getElementById('r-spark').textContent = pd.spark;
+    document.getElementById('r-click').textContent = pd.click;
+    document.getElementById('r-clash').textContent = pd.clash;
+    document.getElementById('r-honest').textContent = STATUS_READ[status];
+    show('result');
+    setTimeout(()=>{ document.getElementById('meterFill').style.width=score+'%'; },120);
+  }
+  function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+  function restart(){ show('intro'); }
+  function capture(){
+    const e=document.getElementById('email').value.trim();
+    if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }
+    document.getElementById('capok').style.display='block';
+    document.getElementById('email').value='';
+  }
+
+  // ---- City autocomplete with lat/long (Open-Meteo geocoding, free, no key) ----
+  function attachGeo(inputId, suggId){
+    const input=document.getElementById(inputId), box=document.getElementById(suggId);
+    let timer=null;
+    input.addEventListener('input',()=>{
+      input.dataset.lat=''; input.dataset.lon='';
+      const q=input.value.trim();
+      clearTimeout(timer);
+      if(q.length<2){ box.classList.remove('open'); box.innerHTML=''; return; }
+      timer=setTimeout(()=>fetchGeo(q,input,box),260);
+    });
+    document.addEventListener('click',e=>{ if(!box.contains(e.target) && e.target!==input) box.classList.remove('open'); });
+  }
+  function fetchGeo(q,input,box){
+    fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&format=json&name='+encodeURIComponent(q))
+      .then(r=>r.json()).then(data=>{
+        const res=(data&&data.results)||[];
+        if(!res.length){ box.classList.remove('open'); box.innerHTML=''; return; }
+        box.innerHTML='';
+        res.forEach(p=>{
+          const label=[p.name,p.admin1,p.country].filter(Boolean).join(', ');
+          const d=document.createElement('div'); d.textContent=label;
+          d.onclick=()=>{ input.value=label; input.dataset.lat=p.latitude; input.dataset.lon=p.longitude; box.classList.remove('open'); box.innerHTML=''; };
+          box.appendChild(d);
+        });
+        box.classList.add('open');
+      }).catch(()=>{ box.classList.remove('open'); });
+  }
+  attachGeo('p1','sugg1'); attachGeo('p2','sugg2');
+</script>
+</body>
+</html>

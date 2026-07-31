@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Were You in a Past Life? — Discover Soulmate</title>
+<meta name="description" content="A playful quiz that reveals who you might have been in a past life — your era, your story, your soul. Free to try.">
+<style>
+  :root{
+    --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
+    --accent-soft:#efe3f6; --rose:#e7b6c9; --gold:#e9c98a; --card:#fff; --line:#eee3f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:640px;margin:0 auto;padding:0 20px}
+  .topbar{height:60px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);position:relative}
+  .topbar .brand{font-family:Georgia,serif;font-weight:600;font-size:17px}
+  .topbar .brand .dot{color:var(--accent)}
+  .topbar .home{position:absolute;left:18px;font-size:20px;color:var(--muted);text-decoration:none}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:14px 26px;border-radius:999px;
+    font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .12s;font-family:inherit}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(122,63,157,.28)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  .glow{position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;z-index:-1}
+  .glow.a{width:320px;height:320px;background:var(--rose);top:-40px;left:-60px}
+  .glow.b{width:280px;height:280px;background:var(--gold);top:30px;right:-60px;opacity:.3}
+  .screen{display:none;padding:44px 0 70px;animation:fade .4s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .intro{text-align:center}
+  .intro .eyebrow{letter-spacing:.24em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:16px}
+  .intro h1{font-size:40px;line-height:1.1;margin:0 0 14px}
+  .intro p{font-size:18px;color:#4a3b55;max-width:46ch;margin:0 auto 26px}
+  .intro .meta{margin-top:16px;font-size:13px;color:var(--muted)}
+  .stars{color:var(--gold);letter-spacing:2px;font-size:18px}
+  .progress{height:6px;background:var(--accent-soft);border-radius:999px;overflow:hidden;margin-bottom:28px}
+  .progress > i{display:block;height:100%;background:var(--accent);width:0;transition:width .35s ease}
+  .qcount{font-size:13px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+  .qtext{font-family:Georgia,serif;font-size:26px;line-height:1.25;margin:0 0 24px}
+  .opts{display:flex;flex-direction:column;gap:12px}
+  .opt{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;font-size:16px;cursor:pointer;
+    transition:border-color .12s,background .12s,transform .1s;text-align:left}
+  .opt:hover{border-color:var(--accent);background:#fbf6ff;transform:translateY(-1px)}
+  .result{text-align:center}
+  .result .emblem{font-size:60px;margin-bottom:6px}
+  .result .kicker{letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:6px}
+  .result h1{font-size:36px;margin:0 0 4px}
+  .result .era{font-size:14px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0 0 18px}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;text-align:left;margin-bottom:16px}
+  .rcard h3{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+  .rcard p{margin:0;color:#3d2d49;font-size:16px}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.rgrid{grid-template-columns:1fr}}
+  .capture{background:linear-gradient(135deg,#2b1440,#4a2470);color:#fff;border-radius:20px;padding:30px 26px;text-align:center;margin:22px 0}
+  .capture h3{color:#fff;font-size:23px;margin:0 0 8px}
+  .capture p{color:#e7dcf1;margin:0 auto 18px;max-width:42ch;font-size:15px}
+  .capture .row{display:flex;gap:10px;max-width:420px;margin:0 auto;flex-wrap:wrap}
+  .capture input{flex:1;min-width:190px;border:none;border-radius:999px;padding:14px 18px;font-size:15px;font-family:inherit}
+  .capture .btn{background:#fff;color:var(--accent)}
+  .capture .note{margin-top:12px;font-size:12px;color:#c9b6e0}
+  .capture .ok{color:#d8ffe9;font-weight:600;margin-top:6px}
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .disclaimer{color:var(--muted);font-size:12.5px;margin-top:30px;text-align:center;max-width:60ch;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+<span class="glow a"></span><span class="glow b"></span>
+<div class="topbar">
+  <a class="home" href="/" title="Home">←</a>
+  <span class="brand">Discover&nbsp;Soulmate<span class="dot">.</span></span>
+</div>
+<div class="wrap">
+
+  <section class="screen intro active" id="intro">
+    <div class="eyebrow">Free · Past Life</div>
+    <h1>Who were you in a past life?</h1>
+    <p>Answer six dreamy questions and uncover the soul you may have carried in another time — your era, your story, and who you were.</p>
+    <button class="btn" onclick="start()">Reveal my past life →</button>
+    <div class="meta"><span class="stars">★★★★★</span><br>60 seconds · free · just for fun</div>
+  </section>
+
+  <section class="screen" id="quiz">
+    <div class="progress"><i id="bar"></i></div>
+    <div class="qcount" id="qcount"></div>
+    <h2 class="qtext" id="qtext"></h2>
+    <div class="opts" id="opts"></div>
+  </section>
+
+  <section class="screen result" id="result">
+    <div class="emblem" id="r-emblem"></div>
+    <div class="kicker">In a past life, you were</div>
+    <h1 id="r-name"></h1>
+    <div class="era" id="r-era"></div>
+    <div class="rcard"><h3>Your story</h3><p id="r-desc"></p></div>
+    <div class="rgrid">
+      <div class="rcard"><h3>Your soul carried</h3><p id="r-trait"></p></div>
+      <div class="rcard"><h3>Echo in this life</h3><p id="r-echo"></p></div>
+    </div>
+    <div class="capture">
+      <h3>See your past-life portrait</h3>
+      <p>Get your extended reading — a longer story of that life plus an AI portrait of who you were — the moment it's ready.</p>
+      <div class="row">
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+        <button class="btn" onclick="capture()">Notify me</button>
+      </div>
+      <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
+      <div class="note">Free to join · no spam · unsubscribe anytime</div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" onclick="restart()">↺ Retake</button>
+      <a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a>
+    </div>
+    <p class="disclaimer">For entertainment and self-reflection only — a creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  </section>
+</div>
+
+<script>
+  const P = { artist:'artist', priestess:'priestess', sailor:'sailor', warrior:'warrior', jazz:'jazz', nomad:'nomad' };
+  const questions = [
+    { q:"Which place calls to your soul?",
+      o:[["A candlelit studio full of paint and marble", P.artist],
+         ["An ancient temple at dawn", P.priestess],
+         ["The open sea, salt on the wind", P.sailor],
+         ["Misty green highlands", P.warrior]] },
+    { q:"People have always said you're…",
+      o:[["Impossibly creative", P.artist],
+         ["Wise beyond your years", P.priestess],
+         ["Free and restless", P.sailor],
+         ["Effortlessly glamorous", P.jazz]] },
+    { q:"Your hands would have been…",
+      o:[["Stained with ink and paint", P.artist],
+         ["Weathered from the ropes and tides", P.sailor],
+         ["Strong, ready to protect", P.warrior],
+         ["Wrapped around a microphone at midnight", P.jazz]] },
+    { q:"What do you value most?",
+      o:[["Beauty and meaning", P.artist],
+         ["Faith and mystery", P.priestess],
+         ["Freedom and horizon", P.nomad],
+         ["Honor and courage", P.warrior]] },
+    { q:"At a gathering, you were the one who…",
+      o:[["Made everyone feel something", P.jazz],
+         ["Everyone came to for guidance", P.priestess],
+         ["Told stories of far-off lands", P.nomad],
+         ["Led when it mattered", P.warrior]] },
+    { q:"Your soul moves toward…",
+      o:[["Creation", P.artist],
+         ["The sacred", P.priestess],
+         ["The unknown", P.nomad],
+         ["The music of the night", P.jazz]] },
+  ];
+  const results = {
+    artist:{ emblem:'🎨', name:'The Renaissance Artist', era:'Florence · 15th century',
+      desc:"You lived among masters and marble, chasing beauty like it was breath. Your days were paint, patronage, and quiet obsession — you saw the divine in a single ray of light and spent a lifetime trying to capture it.",
+      trait:"An eye for beauty and a heart that couldn't stop creating.",
+      echo:"You still turn ordinary moments into something worth keeping." },
+    priestess:{ emblem:'🌙', name:'The Temple Priestess', era:'Ancient Egypt · by the Nile',
+      desc:"You kept the sacred flame. People traveled far to hear you read the stars and the water. You lived close to mystery, trusted your intuition completely, and carried secrets the world had half-forgotten.",
+      trait:"Deep intuition and an old, knowing soul.",
+      echo:"You still feel things before anyone says them out loud." },
+    sailor:{ emblem:'⚓', name:'The Wandering Sailor', era:'Age of Sail · the open ocean',
+      desc:"Home was the horizon. You chased trade winds and new coastlines, loved fiercely in every port, and feared standing still more than any storm. The sea gave you freedom and took your heart in return.",
+      trait:"A restless, brave spirit that needs the open road.",
+      echo:"You still get itchy feet whenever life gets too settled." },
+    warrior:{ emblem:'⚔️', name:'The Highland Warrior', era:'Medieval Scotland · the glens',
+      desc:"You stood for your people when it counted. Loyal to the bone and quietly tender under the armor, you loved your land, your kin, and one person with a devotion nothing could break.",
+      trait:"Fierce loyalty and a protector's heart.",
+      echo:"You'd still go to the ends of the earth for the people you love." },
+    jazz:{ emblem:'🎷', name:'The Jazz-Age Dreamer', era:'1920s · smoky midnight clubs',
+      desc:"You lived for the music and the moment. All velvet, laughter, and neon, you turned every night into a story. Underneath the glamour was a romantic who believed the right song could change everything.",
+      trait:"Magnetic charm and a romantic's soul.",
+      echo:"You still light up a room without meaning to." },
+    nomad:{ emblem:'🐪', name:'The Desert Nomad', era:'Silk Road · endless dunes',
+      desc:"You belonged to no place and every place. Guided by stars across golden sand, you traded stories as often as goods, and carried an inner peace that came from needing very little to feel free.",
+      trait:"Freedom, adaptability, and a wanderer's calm.",
+      echo:"You still feel most alive when you're exploring something new." },
+  };
+
+  let qi=0; const scores={};
+  function start(){ qi=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
+  function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+  function render(){
+    const item=questions[qi];
+    document.getElementById('bar').style.width=((qi)/questions.length*100)+'%';
+    document.getElementById('qcount').textContent='Question '+(qi+1)+' of '+questions.length;
+    document.getElementById('qtext').textContent=item.q;
+    const box=document.getElementById('opts'); box.innerHTML='';
+    item.o.forEach(([label,key])=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=label; b.onclick=()=>{ scores[key]=(scores[key]||0)+1; next(); }; box.appendChild(b); });
+  }
+  function next(){ qi++; if(qi<questions.length){ render(); } else { finish(); } }
+  function finish(){
+    document.getElementById('bar').style.width='100%';
+    let best=null,max=-1; for(const k in scores){ if(scores[k]>max){ max=scores[k]; best=k; } }
+    const r=results[best];
+    document.getElementById('r-emblem').textContent=r.emblem;
+    document.getElementById('r-name').textContent=r.name;
+    document.getElementById('r-era').textContent=r.era;
+    document.getElementById('r-desc').textContent=r.desc;
+    document.getElementById('r-trait').textContent=r.trait;
+    document.getElementById('r-echo').textContent=r.echo;
+    show('result');
+  }
+  function restart(){ show('intro'); }
+  function capture(){
+    const e=document.getElementById('email').value.trim();
+    if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }
+    document.getElementById('capok').style.display='block';
+    document.getElementById('email').value='';
+  }
+</script>
+</body>
+</html>
