@@ -257,7 +257,8 @@ async function deliverEmail(email, result, { keepsakePdf }) {
 app.get('/health', (_req, res) => res.send('ok'));
 // Serve the whole funnel (landing → quiz → email → checkout → result) from one URL.
 const path = require('path');
-app.get(['/', '/checkout'], (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_funnel.html')));
+app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_home.html')));
+app.get(['/soulmate', '/checkout'], (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_funnel.html')));
 
 // Result page fetches the generated reading + portrait by transaction id.
 app.get('/result', (req, res) => {
