@@ -417,6 +417,12 @@ app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <p>A "you two together" portrait, plus a short cinematic story of your first meeting.</p>
 <p>These are digital products offered for entertainment and self-reflection only — not predictions or advice.</p>
 `)));
+/* ---- Free readings (no payment needed) ---- */
+app.get('/love-archetype', (_req, res) => res.sendFile(path.join(__dirname, 'reading_love_archetype.html')));
+app.get('/past-life', (_req, res) => res.sendFile(path.join(__dirname, 'reading_past_life.html')));
+app.get('/tarot', (_req, res) => res.sendFile(path.join(__dirname, 'reading_tarot.html')));
+app.get('/compatibility', (_req, res) => res.sendFile(path.join(__dirname, 'reading_compatibility.html')));
+
 
 module.exports = {
   verifyPaddleSignature, handleCompletedTransaction,
