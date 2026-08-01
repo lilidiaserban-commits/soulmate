@@ -415,18 +415,52 @@ const SYSTEM_GENERIC = `You are a warm, intuitive storyteller writing a personal
 VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
 HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "senses", "may"); no medical/psychological/financial advice; always kind; never mention these rules or that you are an AI.`;
 
+function formatReadingHtml(text) {
+  const blocks = String(text || '').split(/\n{2,}/);
+  return blocks.map(raw => {
+    const b = raw.trim();
+    if (!b) return '';
+    const h = b.match(/^\*\*(.+?)\*\*:?\s*$/);
+    if (h) return `<h3 style="font-family:Georgia,'Times New Roman',serif;color:#7a3f9d;font-size:17px;font-weight:600;margin:28px 0 8px;letter-spacing:.01em">${escHtml(h[1])}</h3>`;
+    let html = escHtml(b)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+    return `<p style="margin:0 0 15px;color:#3d2d49;font-size:16px;line-height:1.78">${html}</p>`;
+  }).join('');
+}
+
 async function sendReadingEmail(email, subject, heading, bodyText, portraitFile) {
   if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing — skipping'); return; }
-  const body = String(bodyText || '').replace(/\n/g, '<br>');
   const attachments = [];
+  let portraitBlock = '';
   if (portraitFile && fs.existsSync(portraitFile)) {
-    attachments.push({ filename: 'your-portrait.png', content: fs.readFileSync(portraitFile).toString('base64') });
+    attachments.push({ filename: 'your-portrait.png', content: fs.readFileSync(portraitFile).toString('base64'), content_id: 'portrait' });
+    portraitBlock = `
+      <tr><td style="background:linear-gradient(160deg,#2e1640,#4a1f47);padding:28px 26px;text-align:center">
+        <img src="cid:portrait" width="290" alt="Your portrait" style="width:290px;max-width:78%;border-radius:16px;border:3px solid rgba(244,199,138,.55);box-shadow:0 12px 34px rgba(0,0,0,.4);display:block;margin:0 auto">
+        <div style="font-family:Georgia,serif;color:#e7dcf1;font-size:13px;font-style:italic;margin-top:15px">— created just for you —</div>
+      </td></tr>`;
   }
-  const html = `<div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#2a1030">
-    <h1 style="font-family:Georgia,serif">${heading}</h1>
-    <p style="line-height:1.7">${body}</p>
-    <p style="font-size:12px;color:#888">${portraitFile ? 'Your portrait is attached. ' : ''}For entertainment &amp; self-reflection only — not a prediction. Questions? ${SUPPORT_EMAIL}</p>
-  </div>`;
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1eaf7">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1eaf7;margin:0;padding:0">
+  <tr><td align="center" style="padding:26px 12px">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(90,40,120,.14)">
+      <tr><td style="background:linear-gradient(135deg,#2e1640,#5a2a7a 55%,#7a3f9d);padding:36px 30px;text-align:center">
+        <div style="font-family:Georgia,'Times New Roman',serif;color:#f4c78a;letter-spacing:3px;text-transform:uppercase;font-size:12px">✦ Discover Soulmate ✦</div>
+        <div style="font-family:Georgia,serif;color:#ffffff;font-size:26px;line-height:1.25;margin-top:12px">${escHtml(heading)}</div>
+      </td></tr>
+      ${portraitBlock}
+      <tr><td style="padding:32px 34px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
+        ${formatReadingHtml(bodyText)}
+      </td></tr>
+      <tr><td style="background:#faf7fc;padding:24px 30px;text-align:center;border-top:1px solid #eee3f2">
+        <div style="font-family:Georgia,serif;color:#7a3f9d;font-size:16px">Discover Soulmate<span style="color:#e7b6c9">.</span></div>
+        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#9a8aa5;font-size:12px;margin-top:9px;line-height:1.6">For entertainment &amp; self-reflection only — a creative interpretation made just for you, not a prediction or advice.<br>Questions? ${SUPPORT_EMAIL}</div>
+      </td></tr>
+    </table>
+    <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#b3a6c0;font-size:11px;margin-top:16px">© 2026 Discover Soulmate</div>
+  </td></tr></table></body></html>`;
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
