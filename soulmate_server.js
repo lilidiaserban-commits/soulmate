@@ -440,7 +440,8 @@ async function themedPortrait(promptCore, seed) {
   return generateImage({ prompt: `${promptCore}, ${STYLE_PORTRAIT}`, negative: NEGATIVE_PORTRAIT, aspect: '4:5' }, { seed, hd: true });
 }
 
-async function generateForType(type, p, email, saleId) {
+async function generateForType(type, p, email, saleId, opts = {}) {
+  const media = !opts.textOnly;
   const seed = seedFrom(saleId || email || 'x');
   const focus = String(p.focus || '').trim().slice(0, 400);
   const focusLine = focus ? ` The person especially wants this reading to speak to: "${focus}". Address that directly and warmly within the reading.` : '';
@@ -452,10 +453,10 @@ async function generateForType(type, p, email, saleId) {
     const smPrompt = buildReadingPrompt(a, { deep });
     if (focus && smPrompt && smPrompt.user) smPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
     text = await generateText(smPrompt);
-    portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: deep });
+    if (media) portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: deep });
     if (deep) {
-      try { await generateImage(buildPortraitPrompt(a, 'candid laugh'), { seed, hd:true }); } catch(e){}
-      try { portrait = await generateImage(buildReunionPrompt(a), { seed, hd:true }); } catch(e){}
+      if (media) { try { await generateImage(buildPortraitPrompt(a, 'candid laugh'), { seed, hd:true }); } catch(e){} }
+      if (media) { try { portrait = await generateImage(buildReunionPrompt(a), { seed, hd:true }); } catch(e){} }
       text += '\n\n— Your Premium package also includes a "you two together" reunion portrait (attached) and a keepsake copy of this reading to save or print.';
     }
     subject = deep ? 'Your Premium Soulmate Reading is inside ✨' : 'Your Soulmate Reading is inside ✨';
@@ -466,7 +467,7 @@ async function generateForType(type, p, email, saleId) {
     const profLine = p.profile ? ` Their full quiz profile (result scores): ${p.profile}. Use their secondary leanings to make this specific to THEM, not generic.` : '';
     const ansLine = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Reference these real choices naturally so the reading feels personally theirs.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose primary archetype is "${arch}".${profLine}${ansLine} Sections: Who you are in love (go deep), Your hidden patterns, Your shadow side (what quietly trips you up in love — be honest but kind), The partner who truly fits you, Which archetypes you click with and which you clash with (reference types like The Devoted, Free Spirit, Dreamer, Flame, Anchor, Muse), How to recognise & attract your match in real life, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.${focusLine}` });
-    portrait = await themedPortrait('a dreamy romantic portrait of an ideal partner, soft warm golden light, head and shoulders', seed);
+    if (media) portrait = await themedPortrait('a dreamy romantic portrait of an ideal partner, soft warm golden light, head and shoulders', seed);
     subject = 'Your extended Love Archetype reading ✨';
     heading = `Your Love Archetype: ${arch}`;
   }
@@ -475,7 +476,7 @@ async function generateForType(type, p, email, saleId) {
     const profLineP = p.profile ? ` Their full quiz profile (persona scores): ${p.profile}. Blend in their secondary leanings so this life feels uniquely theirs.` : '';
     const ansLineP = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Weave these real choices into the story so it feels personally theirs.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}".${profLineP}${ansLineP} Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.${focusLine}` });
-    portrait = await themedPortrait(`a cinematic period-accurate portrait of a person who lived as ${persona}, atmospheric, head and shoulders`, seed);
+    if (media) portrait = await themedPortrait(`a cinematic period-accurate portrait of a person who lived as ${persona}, atmospheric, head and shoulders`, seed);
     subject = 'Your extended Past Life reading ✨';
     heading = `Your Past Life: ${persona}`;
   }
@@ -490,14 +491,15 @@ async function generateForType(type, p, email, saleId) {
     const bd1 = [p.b1, p.p1, p.t1].filter(Boolean).join(' · '), bd2 = [p.b2, p.p2, p.t2].filter(Boolean).join(' · ');
     const birthLine = (bd1 || bd2) ? ` Birth details — ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}. Weave in sun-sign and (where birth time/place are given) a light rising-sign flavour.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended love-compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${birthLine} Sections: Your dynamic (name it in one vivid phrase, e.g. "the Sun & the Deep Water"), Where you flow, Where the friction is (be honest), Your communication styles + a short "translation guide" (how to reach each other when you clash), What each of you needs to feel loved, Your growth path together, An honest read on where this could go given the status, Disclaimer. Balanced and honest, not all-positive. 700-900 words.${focusLine}` });
-    portrait = await themedPortrait('a warm romantic portrait of a couple together, golden hour, foreheads close, head and shoulders', seed);
+    if (media) portrait = await themedPortrait('a warm romantic portrait of a couple together, golden hour, foreheads close, head and shoulders', seed);
     subject = `Your extended compatibility reading — ${n1} & ${n2} 💞`;
     heading = `${n1} & ${n2}: Your Compatibility`;
   }
-  else { console.warn('[gumroad] no generator for', type); return; }
+  else { console.warn('[gumroad] no generator for', type); return null; }
 
-  if (email) await sendReadingEmail(email, subject, heading, text, portrait);
-  console.log('[paid] delivered', type, 'to', email);
+  if (media && email) await sendReadingEmail(email, subject, heading, text, portrait);
+  if (media) console.log('[paid] delivered', type, 'to', email);
+  return { subject, heading, text, portrait };
 }
 
 function permalinkSlug(v) {
@@ -527,6 +529,57 @@ app.post('/webhook/gumroad', express.urlencoded({ extended: true }), async (req,
     console.log('[gumroad] sale', matched, '->', type, saleId, email);
     await generateForType(type, p, email, saleId);
   } catch (e) { console.error('[gumroad] fail', e); }
+});
+
+// ---- Reading preview / test tool (no payment, no email, text only) ----
+let previewCount = 0;
+const PREVIEW_MAX = 300;
+function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+app.get('/preview', async (req, res) => {
+  const q = req.query || {};
+  const PKEY = process.env.PREVIEW_KEY || 'li2026';
+  const types = ['archetype','pastlife','tarot','compat','soulmate','soulmate-deep'];
+  const ptype = types.includes(q.ptype) ? q.ptype : 'archetype';
+  let out = '';
+  if (q.go) {
+    if (q.key !== PKEY) out = `<div class="err">Wrong key.</div>`;
+    else if (previewCount >= PREVIEW_MAX) out = `<div class="err">Preview limit reached for now — try again later.</div>`;
+    else {
+      previewCount++;
+      try {
+        const r = await generateForType(ptype, q, null, 'preview', { textOnly: true });
+        const body = (r && r.text) ? r.text : '(no text generated)';
+        const html = '<p>' + escHtml(body).replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
+        out = `<div class="reading"><h2>${escHtml(r && r.heading || '')}</h2>${html}</div>`;
+      } catch(e){ out = `<div class="err">Error: ${escHtml(e && e.message || e)}</div>`; }
+    }
+  }
+  const inp = (n,ph) => `<label>${n}<input name="${n}" value="${escHtml(q[n]||'')}" placeholder="${escHtml(ph||'')}"></label>`;
+  res.send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reading preview</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#241033;background:#faf7fc}
+h1{font-family:Georgia,serif}label{display:block;font-size:13px;color:#6b5a78;margin:8px 0 2px}
+input,select{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{margin-top:16px;background:#7a3f9d;color:#fff;border:0;border-radius:999px;padding:12px 26px;font-size:15px;font-weight:600;cursor:pointer}
+.reading{background:#fff;border:1px solid #eee3f2;border-radius:16px;padding:22px 26px;margin-top:26px;line-height:1.65}
+.reading h2{font-family:Georgia,serif;color:#7a3f9d}.err{background:#fdecea;color:#b5372e;padding:12px;border-radius:8px;margin-top:16px}
+.hint{font-size:12px;color:#8a7a95}</style>
+<h1>🔮 Reading preview — test tool</h1>
+<p class="hint">Alege tipul, completează câmpurile relevante, Generate. Fără plată, fără email — doar textul. Portretul e sărit aici. Rulează același test de mai multe ori sau schimbă răspunsurile ca să compari.</p>
+<form method="get">
+<input type="hidden" name="go" value="1">
+<label>Reading type<select name="ptype">${types.map(t=>`<option ${t===ptype?'selected':''}>${t}</option>`).join('')}</select></label>
+<div class="row">${inp('archetype','ex: The Devoted')}${inp('persona','ex: The Desert Nomad — Silk Road')}</div>
+<div class="row">${inp('cards','ex: The Lovers, The Wheel, The Wish')}${inp('focus','întrebarea / inputul lor')}</div>
+${inp('profile','ex: The Devoted (2/6), The Flame (2/6), The Dreamer (1/6)')}
+${inp('answers','răspunsurile din test, separate cu |')}
+<div class="row">${inp('n1','nume 1')}${inp('n2','nume 2')}</div>
+<div class="row">${inp('z1','zodie 1')}${inp('z2','zodie 2')}</div>
+<div class="row">${inp('status','status relație')}${inp('score','ex: 78')}</div>
+<label>key<input name="key" value="${escHtml(q.key||'')}" placeholder="preview key"></label>
+<button>Generate reading →</button>
+</form>
+${out}`);
 });
 
 if (require.main === module) {
