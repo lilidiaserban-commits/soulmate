@@ -489,9 +489,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     text = await generateText(smPrompt);
     if (media) portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: deep });
     if (deep) {
-      if (media) { try { await generateImage(buildPortraitPrompt(a, 'candid laugh'), { seed, hd:true }); } catch(e){} }
-      if (media) { try { portrait = await generateImage(buildReunionPrompt(a), { seed, hd:true }); } catch(e){} }
-      text += '\n\n— Your Premium package also includes a "you two together" reunion portrait (attached) and a keepsake copy of this reading to save or print.';
+      text += '\n\n— Your Premium package includes this hi-res soulmate portrait and a keepsake copy of this reading to save or print.';
     }
     subject = deep ? 'Your Premium Soulmate Reading is inside ✨' : 'Your Soulmate Reading is inside ✨';
     heading = deep ? 'Your Premium Soulmate Reading ✨' : 'Your Soulmate Reading ✨';
@@ -501,7 +499,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const profLine = p.profile ? ` Their full quiz profile (result scores): ${p.profile}. Use their secondary leanings to make this specific to THEM, not generic.` : '';
     const ansLine = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Reference these real choices naturally so the reading feels personally theirs.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose primary archetype is "${arch}".${profLine}${ansLine} Sections: Who you are in love (go deep), Your hidden patterns, Your shadow side (what quietly trips you up in love — be honest but kind), The partner who truly fits you, Which archetypes you click with and which you clash with (reference types like The Devoted, Free Spirit, Dreamer, Flame, Anchor, Muse), How to recognise & attract your match in real life, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.${focusLine}` });
-    if (media) portrait = await themedPortrait('a dreamy romantic portrait of an ideal partner, soft warm golden light, head and shoulders', seed);
+    const prefG = p.pref === 'man' ? 'man' : p.pref === 'woman' ? 'woman' : 'partner';
+    if (media) portrait = await themedPortrait(`a dreamy romantic portrait of an ideal ${prefG}, soft warm golden light, head and shoulders`, seed);
     subject = 'Your extended Love Archetype reading ✨';
     heading = `Your Love Archetype: ${arch}`;
   }
@@ -510,7 +509,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const profLineP = p.profile ? ` Their full quiz profile (persona scores): ${p.profile}. Blend in their secondary leanings so this life feels uniquely theirs.` : '';
     const ansLineP = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Weave these real choices into the story so it feels personally theirs.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}".${profLineP}${ansLineP} Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.${focusLine}` });
-    if (media) portrait = await themedPortrait(`a cinematic period-accurate portrait of a person who lived as ${persona}, atmospheric, head and shoulders`, seed);
+    const selfG = p.gender === 'woman' ? 'woman' : p.gender === 'man' ? 'man' : 'person';
+    if (media) portrait = await themedPortrait(`a cinematic period-accurate portrait of a ${selfG} who lived as ${persona}, atmospheric, head and shoulders`, seed);
     subject = 'Your extended Past Life reading ✨';
     heading = `Your Past Life: ${persona}`;
   }
@@ -525,7 +525,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const bd1 = [p.b1, p.p1, p.t1].filter(Boolean).join(' · '), bd2 = [p.b2, p.p2, p.t2].filter(Boolean).join(' · ');
     const birthLine = (bd1 || bd2) ? ` Birth details — ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}. Weave in sun-sign and (where birth time/place are given) a light rising-sign flavour.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended love-compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${birthLine} Sections: Your dynamic (name it in one vivid phrase, e.g. "the Sun & the Deep Water"), Where you flow, Where the friction is (be honest), Your communication styles + a short "translation guide" (how to reach each other when you clash), What each of you needs to feel loved, Your growth path together, An honest read on where this could go given the status, Disclaimer. Balanced and honest, not all-positive. 700-900 words.${focusLine}` });
-    if (media) portrait = await themedPortrait('a warm romantic portrait of a couple together, golden hour, foreheads close, head and shoulders', seed);
+    // Compatibility is text-only — a generic couple portrait wouldn't be truly "them".
     subject = `Your extended compatibility reading — ${n1} & ${n2} 💞`;
     heading = `${n1} & ${n2}: Your Compatibility`;
   }
