@@ -541,16 +541,23 @@ app.get('/preview', async (req, res) => {
   const types = ['archetype','pastlife','tarot','compat','soulmate','soulmate-deep'];
   const ptype = types.includes(q.ptype) ? q.ptype : 'archetype';
   let out = '';
-  if (q.go) {
+  const act = q.send ? 'send' : (q.go ? 'go' : '');
+  if (act) {
     if (q.key !== PKEY) out = `<div class="err">Wrong key.</div>`;
-    else if (previewCount >= PREVIEW_MAX) out = `<div class="err">Preview limit reached for now — try again later.</div>`;
+    else if (previewCount >= PREVIEW_MAX) out = `<div class="err">Limit reached for now — try again later.</div>`;
+    else if (act === 'send' && !String(q.email||'').includes('@')) out = `<div class="err">Adaugă emailul tău ca să primești varianta completă (cu portret).</div>`;
     else {
       previewCount++;
       try {
-        const r = await generateForType(ptype, q, null, 'preview', { textOnly: true });
-        const body = (r && r.text) ? r.text : '(no text generated)';
-        const html = '<p>' + escHtml(body).replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
-        out = `<div class="reading"><h2>${escHtml(r && r.heading || '')}</h2>${html}</div>`;
+        if (act === 'send') {
+          await generateForType(ptype, q, q.email, 'sim-' + previewCount, {});
+          out = `<div class="reading"><h2>✓ Trimis</h2><p>Readingul complet (cu portret) a plecat către <b>${escHtml(q.email)}</b>. Ajunge în 1–2 minute — verifică și spam/promotions. E identic cu ce primește un client care plătește.</p></div>`;
+        } else {
+          const r = await generateForType(ptype, q, null, 'preview', { textOnly: true });
+          const body = (r && r.text) ? r.text : '(no text generated)';
+          const html = '<p>' + escHtml(body).replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
+          out = `<div class="reading"><h2>${escHtml(r && r.heading || '')}</h2>${html}</div>`;
+        }
       } catch(e){ out = `<div class="err">Error: ${escHtml(e && e.message || e)}</div>`; }
     }
   }
@@ -567,7 +574,6 @@ button{margin-top:16px;background:#7a3f9d;color:#fff;border:0;border-radius:999p
 <h1>🔮 Reading preview — test tool</h1>
 <p class="hint">Alege tipul, completează câmpurile relevante, Generate. Fără plată, fără email — doar textul. Portretul e sărit aici. Rulează același test de mai multe ori sau schimbă răspunsurile ca să compari.</p>
 <form method="get">
-<input type="hidden" name="go" value="1">
 <label>Reading type<select name="ptype">${types.map(t=>`<option ${t===ptype?'selected':''}>${t}</option>`).join('')}</select></label>
 <div class="row">${inp('archetype','ex: The Devoted')}${inp('persona','ex: The Desert Nomad — Silk Road')}</div>
 <div class="row">${inp('cards','ex: The Lovers, The Wheel, The Wish')}${inp('focus','întrebarea / inputul lor')}</div>
@@ -576,8 +582,10 @@ ${inp('answers','răspunsurile din test, separate cu |')}
 <div class="row">${inp('n1','nume 1')}${inp('n2','nume 2')}</div>
 <div class="row">${inp('z1','zodie 1')}${inp('z2','zodie 2')}</div>
 <div class="row">${inp('status','status relație')}${inp('score','ex: 78')}</div>
+<label>email (pentru varianta identică, cu portret)<input name="email" value="${escHtml(q.email||'')}" placeholder="li.lidiaserban@gmail.com"></label>
 <label>key<input name="key" value="${escHtml(q.key||'')}" placeholder="preview key"></label>
-<button>Generate reading →</button>
+<button type="submit" name="go" value="1">Preview text →</button>
+<button type="submit" name="send" value="1" style="background:#2b7a4b">Trimite identic pe email (cu portret) →</button>
 </form>
 ${out}`);
 });
