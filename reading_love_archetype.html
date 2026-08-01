@@ -121,6 +121,7 @@
     <div class="capture">
       <h3>Unlock your full Love Archetype reading</h3>
       <p>A personalized deep-dive written just for your archetype — plus an AI portrait of your ideal match, delivered to your inbox in minutes.</p>
+      <input type="text" id="focus" maxlength="300" placeholder="What do you most want to understand about your love life?" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
       <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading — $14.99 →</button>
       <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
       <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
@@ -244,7 +245,7 @@
   }
   function restart(){ show('intro'); }
   function buyExtended(){
-    const p=new URLSearchParams({ptype:'archetype',archetype:resultName||'',email:(document.getElementById('email').value||'').trim()});
+    const p=new URLSearchParams({ptype:'archetype',archetype:resultName||'',focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()});
     window.location.href='https://discoversoulmate.gumroad.com/l/kvkwy?'+p.toString();
   }
   function capture(){

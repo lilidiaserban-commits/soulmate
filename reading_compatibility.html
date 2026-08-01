@@ -155,6 +155,7 @@
     <div class="capture">
       <h3>Get your full birth-chart reading</h3>
       <p>The extended reading maps your complete compatibility from both birth charts — strengths, friction points and what makes you two work — plus an AI portrait of you together, in your inbox in minutes.</p>
+      <input type="text" id="focus" maxlength="300" placeholder="What's your biggest question about the two of you?" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
       <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get our full reading — $16.99 →</button>
       <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
       <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
@@ -260,7 +261,7 @@
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function restart(){ show('intro'); }
   function buyExtended(){
-    const p=new URLSearchParams(Object.assign({ptype:'compat'}, lastResult, {email:(document.getElementById('email').value||'').trim()}));
+    const p=new URLSearchParams(Object.assign({ptype:'compat'}, lastResult, {focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()}));
     window.location.href='https://discoversoulmate.gumroad.com/l/tabntc?'+p.toString();
   }
   function capture(){

@@ -442,12 +442,16 @@ async function themedPortrait(promptCore, seed) {
 
 async function generateForType(type, p, email, saleId) {
   const seed = seedFrom(saleId || email || 'x');
+  const focus = String(p.focus || '').trim().slice(0, 400);
+  const focusLine = focus ? ` The person especially wants this reading to speak to: "${focus}". Address that directly and warmly within the reading.` : '';
   let subject, heading, text, portrait = null;
 
   if (type === 'soulmate' || type === 'soulmate-deep') {
     const a = { name:p.name||'', meet:p.meet||'', age:p.age||'', energy:p.energy||'', look:p.look||'', value:p.value||'', lightning:p.lightning||'' };
     const deep = type === 'soulmate-deep';
-    text = await generateText(buildReadingPrompt(a, { deep }));
+    const smPrompt = buildReadingPrompt(a, { deep });
+    if (focus && smPrompt && smPrompt.user) smPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
+    text = await generateText(smPrompt);
     portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: deep });
     if (deep) {
       try { await generateImage(buildPortraitPrompt(a, 'candid laugh'), { seed, hd:true }); } catch(e){}
@@ -459,21 +463,21 @@ async function generateForType(type, p, email, saleId) {
   }
   else if (type === 'archetype') {
     const arch = p.archetype || 'your love archetype';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose archetype is "${arch}". Sections: Who you are in love (go deep), Your hidden patterns, The partner who truly fits you, How to recognise & attract them, Your growth edge, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.` });
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose archetype is "${arch}". Sections: Who you are in love (go deep), Your hidden patterns, The partner who truly fits you, How to recognise & attract them, Your growth edge, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.${focusLine}` });
     portrait = await themedPortrait('a dreamy romantic portrait of an ideal partner, soft warm golden light, head and shoulders', seed);
     subject = 'Your extended Love Archetype reading ✨';
     heading = `Your Love Archetype: ${arch}`;
   }
   else if (type === 'pastlife') {
     const persona = p.persona || 'your past life';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.` });
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.${focusLine}` });
     portrait = await themedPortrait(`a cinematic period-accurate portrait of a person who lived as ${persona}, atmospheric, head and shoulders`, seed);
     subject = 'Your extended Past Life reading ✨';
     heading = `Your Past Life: ${persona}`;
   }
   else if (type === 'tarot') {
     const cards = p.cards || 'three cards';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, personalized tarot reading for someone who drew: ${cards}. For each card give a rich interpretation for the season they're in, then weave the three into one story (where you are, your path, what's emerging), then gentle practical guidance and a closing affirmation. Frame as reflection, not fortune-telling. Disclaimer. 700-900 words.` });
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, personalized tarot reading for someone who drew: ${cards}. For each card give a rich interpretation for the season they're in, then weave the three into one story (where you are, your path, what's emerging), then gentle practical guidance and a closing affirmation. Frame as reflection, not fortune-telling. Disclaimer. 700-900 words.${focusLine}` });
     subject = 'Your extended Tarot reading 🔮';
     heading = 'Your Personal Tarot Reading';
   }
@@ -481,7 +485,7 @@ async function generateForType(type, p, email, saleId) {
     const n1 = p.n1 || 'You', n2 = p.n2 || 'Them', z1 = p.z1 || '', z2 = p.z2 || '', status = p.status || 'together', score = p.score || '';
     const bd1 = [p.b1, p.p1, p.t1].filter(Boolean).join(' · '), bd2 = [p.b2, p.p2, p.t2].filter(Boolean).join(' · ');
     const birthLine = (bd1 || bd2) ? ` Birth details — ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}. Weave in sun-sign and (where birth time/place are given) a light rising-sign flavour.` : '';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended love-compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${birthLine} Sections: Your spark, Where you click, Where you clash (be honest), Your communication styles, What each of you needs, Your growth path together, An honest read on where this could go given the status, Disclaimer. Balanced and honest, not all-positive. 700-900 words.` });
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended love-compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${birthLine} Sections: Your spark, Where you click, Where you clash (be honest), Your communication styles, What each of you needs, Your growth path together, An honest read on where this could go given the status, Disclaimer. Balanced and honest, not all-positive. 700-900 words.${focusLine}` });
     portrait = await themedPortrait('a warm romantic portrait of a couple together, golden hour, foreheads close, head and shoulders', seed);
     subject = `Your extended compatibility reading — ${n1} & ${n2} 💞`;
     heading = `${n1} & ${n2}: Your Compatibility`;
