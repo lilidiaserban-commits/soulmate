@@ -119,14 +119,18 @@
     <div class="rcard"><h3>Your ideal match</h3><p id="r-match"></p></div>
 
     <div class="capture">
-      <h3>Want the full reading?</h3>
-      <p>Get your extended Love Archetype reading — a personalized deep-dive plus an AI portrait of your ideal match — the moment it's ready.</p>
-      <div class="row">
-        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-        <button class="btn" onclick="capture()">Notify me</button>
+      <h3>Unlock your full Love Archetype reading</h3>
+      <p>A personalized deep-dive written just for your archetype — plus an AI portrait of your ideal match, delivered to your inbox in minutes.</p>
+      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading — $14.99 →</button>
+      <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
+      <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
+        <p style="font-size:13.5px;color:#d6c6ea;margin:0 0 12px">Not ready? Leave your email and I'll send you a little something first.</p>
+        <div class="row">
+          <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+          <button class="btn" onclick="capture()" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)">Notify me</button>
+        </div>
+        <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
       </div>
-      <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
-      <div class="note">Free to join · no spam · unsubscribe anytime</div>
     </div>
 
     <div class="actions">
@@ -208,7 +212,7 @@
       match:"A soulful admirer — a Dreamer or a Free Spirit who's endlessly enchanted by you." },
   };
 
-  let qi = 0; const scores = {};
+  let qi = 0; const scores = {}; let resultName = '';
   function start(){ qi=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function render(){
@@ -228,6 +232,7 @@
     document.getElementById('bar').style.width='100%';
     let best=null,max=-1; for(const k in scores){ if(scores[k]>max){ max=scores[k]; best=k; } }
     const r=results[best];
+    resultName = r.name;
     document.getElementById('r-emblem').textContent=r.emblem;
     document.getElementById('r-name').textContent=r.name;
     document.getElementById('r-tagline').textContent=r.tagline;
@@ -238,6 +243,10 @@
     show('result');
   }
   function restart(){ show('intro'); }
+  function buyExtended(){
+    const p=new URLSearchParams({archetype:resultName||'',email:(document.getElementById('email').value||'').trim()});
+    window.location.href='https://lidiaserban.gumroad.com/l/archetype?'+p.toString();
+  }
   function capture(){
     const e=document.getElementById('email').value.trim();
     if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }

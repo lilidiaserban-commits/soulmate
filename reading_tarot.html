@@ -104,14 +104,18 @@
     <div class="cardrow" id="cardrow"></div>
     <div class="summary"><h3>What they whisper together</h3><p id="summaryText"></p></div>
     <div class="capture">
-      <h3>Want the full reading?</h3>
-      <p>Get an extended, personalized tarot reading written just for your question — the moment it's ready.</p>
-      <div class="row">
-        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-        <button class="btn" onclick="capture()">Notify me</button>
+      <h3>Unlock your full tarot reading</h3>
+      <p>An extended, personalized reading of your three cards — what they mean for love, timing and the season you're stepping into — delivered to your inbox in minutes.</p>
+      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading — $14.99 →</button>
+      <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
+      <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
+        <p style="font-size:13.5px;color:#d6c6ea;margin:0 0 12px">Not ready? Leave your email and I'll send you a little something first.</p>
+        <div class="row">
+          <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+          <button class="btn" onclick="capture()" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)">Notify me</button>
+        </div>
+        <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
       </div>
-      <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
-      <div class="note">Free to join · no spam · unsubscribe anytime</div>
     </div>
     <div class="actions">
       <button class="btn ghost" onclick="restart()">↺ Draw again</button>
@@ -180,6 +184,11 @@
   }
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function restart(){ show('intro'); }
+  function buyExtended(){
+    const cards = picks.map(c=>c.nm).join(', ');
+    const p=new URLSearchParams({cards:cards,email:(document.getElementById('email').value||'').trim()});
+    window.location.href='https://lidiaserban.gumroad.com/l/tarotreading?'+p.toString();
+  }
   function capture(){
     const e=document.getElementById('email').value.trim();
     if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }

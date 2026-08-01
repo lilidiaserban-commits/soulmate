@@ -101,13 +101,17 @@
     </div>
     <div class="capture">
       <h3>See your past-life portrait</h3>
-      <p>Get your extended reading — a longer story of that life plus an AI portrait of who you were — the moment it's ready.</p>
-      <div class="row">
-        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-        <button class="btn" onclick="capture()">Notify me</button>
+      <p>Your extended reading — the full story of that life, plus an AI portrait of who you once were — delivered to your inbox in minutes.</p>
+      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading — $14.99 →</button>
+      <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
+      <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
+        <p style="font-size:13.5px;color:#d6c6ea;margin:0 0 12px">Not ready? Leave your email and I'll send you a little something first.</p>
+        <div class="row">
+          <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+          <button class="btn" onclick="capture()" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)">Notify me</button>
+        </div>
+        <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
       </div>
-      <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
-      <div class="note">Free to join · no spam · unsubscribe anytime</div>
     </div>
     <div class="actions">
       <button class="btn ghost" onclick="restart()">↺ Retake</button>
@@ -178,7 +182,7 @@
       echo:"You still feel most alive when you're exploring something new." },
   };
 
-  let qi=0; const scores={};
+  let qi=0; const scores={}; let resultName='';
   function start(){ qi=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function render(){
@@ -194,6 +198,7 @@
     document.getElementById('bar').style.width='100%';
     let best=null,max=-1; for(const k in scores){ if(scores[k]>max){ max=scores[k]; best=k; } }
     const r=results[best];
+    resultName = r.name+' — '+r.era;
     document.getElementById('r-emblem').textContent=r.emblem;
     document.getElementById('r-name').textContent=r.name;
     document.getElementById('r-era').textContent=r.era;
@@ -203,6 +208,10 @@
     show('result');
   }
   function restart(){ show('intro'); }
+  function buyExtended(){
+    const p=new URLSearchParams({persona:resultName||'',email:(document.getElementById('email').value||'').trim()});
+    window.location.href='https://lidiaserban.gumroad.com/l/pastlife?'+p.toString();
+  }
   function capture(){
     const e=document.getElementById('email').value.trim();
     if(!e || e.indexOf('@')<1){ document.getElementById('email').focus(); return; }

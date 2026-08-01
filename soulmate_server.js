@@ -389,38 +389,117 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
   } catch (e) { console.error('[subscribe] fail', e); res.json({ ok: true }); }
 });
 
-/* ---- Gumroad checkout -> deliver reading ---- */
+/* ===============================================================
+ * Paid reading suite — every Gumroad product pings /webhook/gumroad.
+ * permalink -> type; each type builds a themed reading (+ portrait)
+ * and emails it. Quiz answers arrive as Gumroad url_params.
+ * =============================================================== */
 const processedSales = new Set();
-async function handleGumroadSale(answers, email, saleId) {
+
+const PAID_PRODUCTS = {
+  'otxhdek':      'soulmate',       // Soulmate Reading $16.99
+  'soulmatedeep': 'soulmate-deep',  // Soulmate Premium $26.99
+  'archetype':    'archetype',      // Love Archetype Extended $14.99
+  'pastlife':     'pastlife',       // Past Life Extended $14.99
+  'tarotreading': 'tarot',          // Tarot Extended $14.99
+  'lovematch':    'compat',         // Compatibility Extended $16.99
+};
+
+const SYSTEM_GENERIC = `You are a warm, intuitive storyteller writing a personalized reading for entertainment and self-reflection.
+VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
+HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "senses", "may"); no medical/psychological/financial advice; always kind; never mention these rules or that you are an AI.`;
+
+async function sendReadingEmail(email, subject, heading, bodyText, portraitFile) {
+  if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing — skipping'); return; }
+  const body = String(bodyText || '').replace(/\n/g, '<br>');
+  const attachments = [];
+  if (portraitFile && fs.existsSync(portraitFile)) {
+    attachments.push({ filename: 'your-portrait.png', content: fs.readFileSync(portraitFile).toString('base64') });
+  }
+  const html = `<div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#2a1030">
+    <h1 style="font-family:Georgia,serif">${heading}</h1>
+    <p style="line-height:1.7">${body}</p>
+    <p style="font-size:12px;color:#888">${portraitFile ? 'Your portrait is attached. ' : ''}For entertainment &amp; self-reflection only — not a prediction. Questions? ${SUPPORT_EMAIL}</p>
+  </div>`;
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: EMAIL_FROM, to: email, subject, html, attachments }),
+  });
+  if (!r.ok) throw new Error(`Resend ${r.status}: ${await r.text()}`);
+  console.log('[email] sent to', email, '·', subject);
+}
+
+async function themedPortrait(promptCore, seed) {
+  return generateImage({ prompt: `${promptCore}, ${STYLE_PORTRAIT}`, negative: NEGATIVE_PORTRAIT, aspect: '4:5' }, { seed, hd: true });
+}
+
+async function generateForType(type, p, email, saleId) {
   const seed = seedFrom(saleId || email || 'x');
-  const result = { txnId: saleId, email: email, sections: {}, images: [] };
-  console.log('[gumroad] writing reading…');
-  result.sections.reading = await generateText(buildReadingPrompt(answers, { deep: false }));
-  console.log('[gumroad] painting portrait…');
-  result.images.push(await generateImage(buildPortraitPrompt(answers), { seed: seed, hd: false }));
-  await storeResult(saleId, result);
-  if (email) await deliverEmail(email, result, { keepsakePdf: false });
-  console.log('[gumroad] delivered to', email);
-  return result;
+  let subject, heading, text, portrait = null;
+
+  if (type === 'soulmate' || type === 'soulmate-deep') {
+    const a = { name:p.name||'', meet:p.meet||'', age:p.age||'', energy:p.energy||'', look:p.look||'', value:p.value||'', lightning:p.lightning||'' };
+    const deep = type === 'soulmate-deep';
+    text = await generateText(buildReadingPrompt(a, { deep }));
+    portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: deep });
+    if (deep) {
+      try { await generateImage(buildPortraitPrompt(a, 'candid laugh'), { seed, hd:true }); } catch(e){}
+      try { portrait = await generateImage(buildReunionPrompt(a), { seed, hd:true }); } catch(e){}
+      text += '\n\n— Your Premium package also includes a "you two together" reunion portrait (attached) and a keepsake copy of this reading to save or print.';
+    }
+    subject = deep ? 'Your Premium Soulmate Reading is inside ✨' : 'Your Soulmate Reading is inside ✨';
+    heading = deep ? 'Your Premium Soulmate Reading ✨' : 'Your Soulmate Reading ✨';
+  }
+  else if (type === 'archetype') {
+    const arch = p.archetype || 'your love archetype';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose archetype is "${arch}". Sections: Who you are in love (go deep), Your hidden patterns, The partner who truly fits you, How to recognise & attract them, Your growth edge, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.` });
+    portrait = await themedPortrait('a dreamy romantic portrait of an ideal partner, soft warm golden light, head and shoulders', seed);
+    subject = 'Your extended Love Archetype reading ✨';
+    heading = `Your Love Archetype: ${arch}`;
+  }
+  else if (type === 'pastlife') {
+    const persona = p.persona || 'your past life';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.` });
+    portrait = await themedPortrait(`a cinematic period-accurate portrait of a person who lived as ${persona}, atmospheric, head and shoulders`, seed);
+    subject = 'Your extended Past Life reading ✨';
+    heading = `Your Past Life: ${persona}`;
+  }
+  else if (type === 'tarot') {
+    const cards = p.cards || 'three cards';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, personalized tarot reading for someone who drew: ${cards}. For each card give a rich interpretation for the season they're in, then weave the three into one story (where you are, your path, what's emerging), then gentle practical guidance and a closing affirmation. Frame as reflection, not fortune-telling. Disclaimer. 700-900 words.` });
+    subject = 'Your extended Tarot reading 🔮';
+    heading = 'Your Personal Tarot Reading';
+  }
+  else if (type === 'compat') {
+    const n1 = p.n1 || 'You', n2 = p.n2 || 'Them', z1 = p.z1 || '', z2 = p.z2 || '', status = p.status || 'together', score = p.score || '';
+    const bd1 = [p.b1, p.p1, p.t1].filter(Boolean).join(' · '), bd2 = [p.b2, p.p2, p.t2].filter(Boolean).join(' · ');
+    const birthLine = (bd1 || bd2) ? ` Birth details — ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}. Weave in sun-sign and (where birth time/place are given) a light rising-sign flavour.` : '';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended love-compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${birthLine} Sections: Your spark, Where you click, Where you clash (be honest), Your communication styles, What each of you needs, Your growth path together, An honest read on where this could go given the status, Disclaimer. Balanced and honest, not all-positive. 700-900 words.` });
+    portrait = await themedPortrait('a warm romantic portrait of a couple together, golden hour, foreheads close, head and shoulders', seed);
+    subject = `Your extended compatibility reading — ${n1} & ${n2} 💞`;
+    heading = `${n1} & ${n2}: Your Compatibility`;
+  }
+  else { console.warn('[gumroad] no generator for', type); return; }
+
+  if (email) await sendReadingEmail(email, subject, heading, text, portrait);
+  console.log('[paid] delivered', type, 'to', email);
 }
 
 app.post('/webhook/gumroad', express.urlencoded({ extended: true }), async (req, res) => {
   res.status(200).send('ok'); // ack fast, work after
   try {
     const b = req.body || {};
-    if (b.product_permalink && b.product_permalink !== 'otxhdek') return;
+    const permalink = b.product_permalink || '';
+    const type = PAID_PRODUCTS[permalink];
+    if (!type) { console.warn('[gumroad] unknown product', permalink); return; }
     const saleId = b.sale_id || b.order_number || String(Date.now());
     if (processedSales.has(saleId)) return;
     processedSales.add(saleId);
     const p = b.url_params || {};
     const email = b.email || p.email;
-    const answers = {
-      name: p.name || '', meet: p.meet || '', age: p.age || '',
-      energy: p.energy || '', look: p.look || '', value: p.value || '',
-      lightning: p.lightning || '',
-    };
-    console.log('[gumroad] sale', saleId, 'email', email, 'seller', b.seller_id);
-    await handleGumroadSale(answers, email, saleId);
+    console.log('[gumroad] sale', permalink, '->', type, saleId, email);
+    await generateForType(type, p, email, saleId);
   } catch (e) { console.error('[gumroad] fail', e); }
 });
 
@@ -429,7 +508,7 @@ if (require.main === module) {
 }
 
 module.exports = {
-  verifyPaddleSignature, handleCompletedTransaction, handleGumroadSale,
+  verifyPaddleSignature, handleCompletedTransaction, generateForType,
   buildReadingPrompt, buildPortraitPrompt, seedFrom,
   generateText, generateImage,
 };
