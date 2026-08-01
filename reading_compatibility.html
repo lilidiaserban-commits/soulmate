@@ -260,8 +260,8 @@
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function restart(){ show('intro'); }
   function buyExtended(){
-    const p=new URLSearchParams(Object.assign({}, lastResult, {email:(document.getElementById('email').value||'').trim()}));
-    window.location.href='https://lidiaserban.gumroad.com/l/lovematch?'+p.toString();
+    const p=new URLSearchParams(Object.assign({ptype:'compat'}, lastResult, {email:(document.getElementById('email').value||'').trim()}));
+    window.location.href='https://lidiaserban.gumroad.com/l/tabntc?'+p.toString();
   }
   function capture(){
     const e=document.getElementById('email').value.trim();

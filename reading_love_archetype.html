@@ -244,8 +244,8 @@
   }
   function restart(){ show('intro'); }
   function buyExtended(){
-    const p=new URLSearchParams({archetype:resultName||'',email:(document.getElementById('email').value||'').trim()});
-    window.location.href='https://lidiaserban.gumroad.com/l/archetype?'+p.toString();
+    const p=new URLSearchParams({ptype:'archetype',archetype:resultName||'',email:(document.getElementById('email').value||'').trim()});
+    window.location.href='https://lidiaserban.gumroad.com/l/kvkwy?'+p.toString();
   }
   function capture(){
     const e=document.getElementById('email').value.trim();

@@ -397,12 +397,18 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
 const processedSales = new Set();
 
 const PAID_PRODUCTS = {
-  'otxhdek':      'soulmate',       // Soulmate Reading $16.99
-  'soulmatedeep': 'soulmate-deep',  // Soulmate Premium $26.99
-  'archetype':    'archetype',      // Love Archetype Extended $14.99
-  'pastlife':     'pastlife',       // Past Life Extended $14.99
-  'tarotreading': 'tarot',          // Tarot Extended $14.99
-  'lovematch':    'compat',         // Compatibility Extended $16.99
+  // Soulmate Reading $16.99
+  'otxhdek':      'soulmate',
+  // Soulmate Premium $26.99
+  'yhpvvf':       'soulmate-deep',  'soulmatedeep': 'soulmate-deep',
+  // Love Archetype Extended $14.99
+  'kvkwy':        'archetype',      'archetype':    'archetype',
+  // Past Life Extended $14.99
+  'gypcaa':       'pastlife',       'pastlife':     'pastlife',
+  // Tarot Extended $14.99
+  'ecdzzj':       'tarot',          'tarotreading': 'tarot',
+  // Compatibility Extended $16.99
+  'tabntc':       'compat',         'lovematch':    'compat',
 };
 
 const SYSTEM_GENERIC = `You are a warm, intuitive storyteller writing a personalized reading for entertainment and self-reflection.
@@ -486,19 +492,31 @@ async function generateForType(type, p, email, saleId) {
   console.log('[paid] delivered', type, 'to', email);
 }
 
+function permalinkSlug(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  const m = s.match(/\/l\/([^/?#]+)/);        // full checkout URL -> slug
+  return (m ? m[1] : s).replace(/[?#].*$/, '').trim();
+}
+
 app.post('/webhook/gumroad', express.urlencoded({ extended: true }), async (req, res) => {
   res.status(200).send('ok'); // ack fast, work after
   try {
     const b = req.body || {};
-    const permalink = b.product_permalink || '';
-    const type = PAID_PRODUCTS[permalink];
-    if (!type) { console.warn('[gumroad] unknown product', permalink); return; }
+    const p = b.url_params || {};
+    // Try every field Gumroad might use to identify the product, in slug form.
+    const cands = [b.product_permalink, b.permalink, b.short_product_id, b.product_id]
+      .map(permalinkSlug).filter(Boolean);
+    let type = null, matched = '';
+    for (const c of cands) { if (PAID_PRODUCTS[c]) { type = PAID_PRODUCTS[c]; matched = c; break; } }
+    // Explicit override passed by our own pages as a url_param.
+    if (!type && p.ptype && Object.values(PAID_PRODUCTS).includes(p.ptype)) { type = p.ptype; matched = 'ptype:' + p.ptype; }
+    if (!type) { console.warn('[gumroad] unknown product', cands, 'ptype=', p.ptype); return; }
     const saleId = b.sale_id || b.order_number || String(Date.now());
     if (processedSales.has(saleId)) return;
     processedSales.add(saleId);
-    const p = b.url_params || {};
     const email = b.email || p.email;
-    console.log('[gumroad] sale', permalink, '->', type, saleId, email);
+    console.log('[gumroad] sale', matched, '->', type, saleId, email);
     await generateForType(type, p, email, saleId);
   } catch (e) { console.error('[gumroad] fail', e); }
 });

@@ -321,13 +321,19 @@ function cleanData(extra){
   }, extra||{});
 }
 const GUMROAD_BASE = 'https://lidiaserban.gumroad.com/l/';
-function openCheckout(permalink){
+const PROD = {
+  otxhdek:      { slug:'otxhdek', ptype:'soulmate' },
+  soulmatedeep: { slug:'yhpvvf',  ptype:'soulmate-deep' }
+};
+function openCheckout(key){
+  const prod = PROD[key] || PROD.otxhdek;
   const d = cleanData();
   const p = new URLSearchParams({
+    ptype:prod.ptype,
     name:d.name, meet:d.meet, age:d.age, energy:d.energy,
     look:d.look, value:d.value, lightning:d.lightning, email:d.email
   });
-  window.location.href = GUMROAD_BASE + (permalink || 'otxhdek') + '?' + p.toString();
+  window.location.href = GUMROAD_BASE + prod.slug + '?' + p.toString();
 }
 function buyUpsell(which,next){ declineTo(next); } /* upsells not on Gumroad yet */
 function declineTo(id){ if(id==='s-upsell2') stage='upsell2'; if(id==='s-result'){ show('s-result'); startGenerating(); return; } show(id); }
