@@ -213,8 +213,8 @@
       match:"A soulful admirer — a Dreamer or a Free Spirit who's endlessly enchanted by you." },
   };
 
-  let qi = 0; const scores = {}; let resultName = '';
-  function start(){ qi=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
+  let qi = 0; const scores = {}; let resultName = ''; let resultProfile = ''; const chosen = [];
+  function start(){ qi=0; chosen.length=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function render(){
     const item = questions[qi];
@@ -224,7 +224,7 @@
     const box = document.getElementById('opts'); box.innerHTML='';
     item.o.forEach(([label,key])=>{
       const b=document.createElement('button'); b.className='opt'; b.textContent=label;
-      b.onclick=()=>{ scores[key]=(scores[key]||0)+1; next(); };
+      b.onclick=()=>{ scores[key]=(scores[key]||0)+1; chosen.push(label); next(); };
       box.appendChild(b);
     });
   }
@@ -234,6 +234,8 @@
     let best=null,max=-1; for(const k in scores){ if(scores[k]>max){ max=scores[k]; best=k; } }
     const r=results[best];
     resultName = r.name;
+    const ranked = Object.keys(scores).filter(k=>scores[k]>0).sort((a,b)=>scores[b]-scores[a]);
+    resultProfile = ranked.map(k=>results[k].name+' ('+scores[k]+'/'+questions.length+')').join(', ');
     document.getElementById('r-emblem').textContent=r.emblem;
     document.getElementById('r-name').textContent=r.name;
     document.getElementById('r-tagline').textContent=r.tagline;
@@ -245,7 +247,7 @@
   }
   function restart(){ show('intro'); }
   function buyExtended(){
-    const p=new URLSearchParams({ptype:'archetype',archetype:resultName||'',focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()});
+    const p=new URLSearchParams({ptype:'archetype',archetype:resultName||'',profile:resultProfile||'',answers:chosen.join(' | '),focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()});
     window.location.href='https://discoversoulmate.gumroad.com/l/kvkwy?'+p.toString();
   }
   function capture(){

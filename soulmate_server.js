@@ -463,14 +463,18 @@ async function generateForType(type, p, email, saleId) {
   }
   else if (type === 'archetype') {
     const arch = p.archetype || 'your love archetype';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose archetype is "${arch}". Sections: Who you are in love (go deep), Your hidden patterns, Your shadow side (what quietly trips you up in love — be honest but kind), The partner who truly fits you, Which archetypes you click with and which you clash with (reference types like The Devoted, Free Spirit, Dreamer, Flame, Anchor, Muse), How to recognise & attract your match in real life, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.${focusLine}` });
+    const profLine = p.profile ? ` Their full quiz profile (result scores): ${p.profile}. Use their secondary leanings to make this specific to THEM, not generic.` : '';
+    const ansLine = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Reference these real choices naturally so the reading feels personally theirs.` : '';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose primary archetype is "${arch}".${profLine}${ansLine} Sections: Who you are in love (go deep), Your hidden patterns, Your shadow side (what quietly trips you up in love — be honest but kind), The partner who truly fits you, Which archetypes you click with and which you clash with (reference types like The Devoted, Free Spirit, Dreamer, Flame, Anchor, Muse), How to recognise & attract your match in real life, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.${focusLine}` });
     portrait = await themedPortrait('a dreamy romantic portrait of an ideal partner, soft warm golden light, head and shoulders', seed);
     subject = 'Your extended Love Archetype reading ✨';
     heading = `Your Love Archetype: ${arch}`;
   }
   else if (type === 'pastlife') {
     const persona = p.persona || 'your past life';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.${focusLine}` });
+    const profLineP = p.profile ? ` Their full quiz profile (persona scores): ${p.profile}. Blend in their secondary leanings so this life feels uniquely theirs.` : '';
+    const ansLineP = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Weave these real choices into the story so it feels personally theirs.` : '';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}".${profLineP}${ansLineP} Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.${focusLine}` });
     portrait = await themedPortrait(`a cinematic period-accurate portrait of a person who lived as ${persona}, atmospheric, head and shoulders`, seed);
     subject = 'Your extended Past Life reading ✨';
     heading = `Your Past Life: ${persona}`;
