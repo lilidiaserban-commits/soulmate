@@ -1,19 +1,18 @@
 /**
  * SOULMATE — Payment webhook + AI generation backend
  * -------------------------------------------------------------
- * Node/Express. Receives Paddle "transaction.completed" webhooks,
- * verifies the signature, reads the quiz answers from custom_data,
- * runs the AI engine (reading + portrait per `04`), then delivers
- * the result and emails a copy.
+ * Node/Express. Receives Gumroad "sale" pings, reads the quiz
+ * answers from url_params, runs the AI engine (reading + portrait
+ * per `04`), then delivers the result and emails a copy.
  *
  * Providers wired in:
- *   - Text  : OpenAI Chat Completions   (env OPENAI_API_KEY, TEXT_MODEL)
- *   - Image : OpenAI Images             (env OPENAI_API_KEY, IMAGE_MODEL)
- *   - Email : Resend                    (env RESEND_API_KEY, EMAIL_FROM)
- *   - Store : local JSON + PNG for now  (swap for a DB/CDN in production)
+ *  - Text  : OpenAI Chat Completions   (env OPENAI_API_KEY, TEXT_MODEL)
+ *  - Image : OpenAI Images             (env OPENAI_API_KEY, IMAGE_MODEL)
+ *  - Email : Resend                    (env RESEND_API_KEY, EMAIL_FROM)
+ *  - Store : local JSON + PNG for now  (swap for a DB/CDN in production)
  *
  * Run the server:   npm install && npm start
- * Run the AI test:  npm run test:gen         (no Paddle needed)
+ * Run the AI test:  npm run test:gen            (no payment needed)
  */
 
 try { require('dotenv').config(); } catch { /* dotenv optional */ }
@@ -37,7 +36,7 @@ const {
 } = process.env;
 
 /* ===============================================================
- * 1. Signature verification (Paddle Billing)
+ * 1. Signature verification (Paddle Billing) — legacy, unused
  * =============================================================== */
 function verifyPaddleSignature(rawBody, header, secret) {
   if (!header || !secret) return false;
@@ -45,7 +44,7 @@ function verifyPaddleSignature(rawBody, header, secret) {
   const { ts, h1 } = parts;
   if (!ts || !h1) return false;
   const ageSec = Math.abs(Date.now() / 1000 - Number(ts));
-  if (Number.isNaN(ageSec) || ageSec > 300) return false;       // reject stale (>5 min)
+  if (Number.isNaN(ageSec) || ageSec > 300) return false; // reject stale (>5 min)
   const expected = crypto.createHmac('sha256', secret).update(`${ts}:${rawBody}`).digest('hex');
   const a = Buffer.from(expected, 'hex');
   const b = Buffer.from(h1, 'hex');
@@ -58,29 +57,7 @@ function verifyPaddleSignature(rawBody, header, secret) {
 const processedEvents = new Set();
 
 /* ===============================================================
- * 3. Webhook route
- * =============================================================== */
-app.post('/webhook/paddle',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    const raw = req.body.toString('utf8');
-    if (!verifyPaddleSignature(raw, req.headers['paddle-signature'], PADDLE_WEBHOOK_SECRET)) {
-      return res.status(401).send('bad signature');
-    }
-    let evt;
-    try { evt = JSON.parse(raw); } catch { return res.status(400).send('bad json'); }
-    res.status(200).send('ok');                    // ack fast, work after
-
-    if (evt.event_type !== 'transaction.completed') return;
-    if (processedEvents.has(evt.event_id)) return;
-    processedEvents.add(evt.event_id);
-    try { await handleCompletedTransaction(evt.data); }
-    catch (err) { console.error('[generation] failed:', err.message); }
-  }
-);
-
-/* ===============================================================
- * 4. What we bought → what we generate
+ * 3. What we bought → what we generate (shared)
  * =============================================================== */
 async function handleCompletedTransaction(txn) {
   const priceIds = (txn.items || []).map(i => i.price?.id).filter(Boolean);
@@ -90,9 +67,9 @@ async function handleCompletedTransaction(txn) {
   const seed = seedFrom(customerId || email || txn.id);
 
   const bought = {
-    entry:   priceIds.includes(PRICE_ENTRY),
-    bump:    priceIds.includes(PRICE_BUMP),
-    deep:    priceIds.includes(PRICE_DEEP),
+    entry: priceIds.includes(PRICE_ENTRY),
+    bump: priceIds.includes(PRICE_BUMP),
+    deep: priceIds.includes(PRICE_DEEP),
     reunion: priceIds.includes(PRICE_REUNION),
   };
 
@@ -115,7 +92,7 @@ async function handleCompletedTransaction(txn) {
     result.images.push(await generateImage(buildReunionPrompt(answers), { seed, hd: true }));
   }
 
-  await storeResult(txn.id, result);   // keyed by transaction id so the result page can fetch it
+  await storeResult(txn.id, result);
   if (email) await deliverEmail(email, result, { keepsakePdf: bought.bump });
   console.log('[done] result ready for', email || customerId);
   return result;
@@ -180,7 +157,7 @@ function seedFrom(str) {
  * 6. Providers (the 4 TODOs, now wired)
  * =============================================================== */
 
-// --- TODO 1: TEXT (OpenAI Chat Completions) ---
+// --- TEXT (OpenAI Chat Completions) ---
 async function generateText({ system, user }) {
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing — check your .env file');
   const r = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -197,11 +174,7 @@ async function generateText({ system, user }) {
   return j.choices[0].message.content.trim();
 }
 
-// --- TODO 2: IMAGE (OpenAI Images) ---
-// Note: OpenAI's image API has no separate "negative prompt" or seed param,
-// so we fold the negatives into the prompt. For consistent upsell portraits
-// (same face, new poses) in production, use the image *edits* endpoint with the
-// first portrait as a reference, or a provider that exposes a seed.
+// --- IMAGE (OpenAI Images) ---
 async function generateImage({ prompt, negative, aspect }, { seed, hd }) {
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing — check your .env file');
   const size = aspect === '4:5' ? '1024x1536' : '1024x1024';
@@ -215,20 +188,19 @@ async function generateImage({ prompt, negative, aspect }, { seed, hd }) {
   const j = await r.json();
   const b64 = j.data[0].b64_json;
   const file = `portrait_${seed}${hd ? '_hd' : ''}.png`;
-  fs.writeFileSync(file, Buffer.from(b64, 'base64'));   // local for the test; upload to a CDN in production
+  fs.writeFileSync(file, Buffer.from(b64, 'base64'));
   console.log('[image] saved', file);
   return file;
 }
 
-// --- TODO 3: STORE (local JSON for now) ---
+// --- STORE (local JSON for now) ---
 async function storeResult(customerId, result) {
   const file = `result_${customerId || 'test'}.json`;
   fs.writeFileSync(file, JSON.stringify(result, null, 2));
   console.log('[store] wrote', file);
-  // Production: write to a DB/KV keyed by customerId so the result page can load it.
 }
 
-// --- TODO 4: EMAIL (Resend) ---
+// --- EMAIL (Resend) ---
 async function deliverEmail(email, result, { keepsakePdf }) {
   if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing — skipping email'); return; }
   const reading = (result.sections.reading || result.sections.deepReport || '').replace(/\n/g, '<br>');
@@ -252,10 +224,9 @@ async function deliverEmail(email, result, { keepsakePdf }) {
 }
 
 /* ===============================================================
- * 7. Health + start (only when run directly, not when imported by the test)
+ * 7. Health + pages
  * =============================================================== */
 app.get('/health', (_req, res) => res.send('ok'));
-// Serve the whole funnel (landing → quiz → email → checkout → result) from one URL.
 const path = require('path');
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_home.html')));
 app.get(['/soulmate', '/checkout'], (_req, res) => res.sendFile(path.join(__dirname, 'soulmate_funnel.html')));
@@ -276,8 +247,9 @@ app.get('/portrait/:file', (req, res) => {
   if (fs.existsSync(full)) return res.type('png').send(fs.readFileSync(full));
   res.status(404).end();
 });
+
 /* ===============================================================
- * 8. Legal pages (Terms, Privacy, Refund) — required for Paddle verification
+ * 8. Legal pages (Terms, Privacy, Refund)
  * =============================================================== */
 const LEGAL_COMPANY = 'VIRALMOSAIC IMPACT SRL';
 const LEGAL_ADDRESS = 'Strada Ghiocului 24, 051404, Bucharest, Romania';
@@ -289,16 +261,16 @@ function legalPage(title, bodyHtml) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} · Soulmate</title>
 <style>
-  :root{color-scheme:light}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Georgia,serif;max-width:720px;margin:0 auto;padding:48px 22px 80px;color:#241033;line-height:1.7;background:#faf7fc}
-  a{color:#7a3f9d}
-  h1{font-size:28px;margin:0 0 4px}
-  h2{font-size:18px;margin:32px 0 8px}
-  .meta{color:#8a7a95;font-size:13px;margin-bottom:28px}
-  .back{display:inline-block;margin-bottom:24px;font-size:14px}
-  .box{background:#fff;border:1px solid #eee3f2;border-radius:14px;padding:22px 26px}
-  p,li{font-size:15px}
-  .fine{color:#8a7a95;font-size:13px;margin-top:36px;border-top:1px solid #eee3f2;padding-top:16px}
+:root{color-scheme:light}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Georgia,serif;max-width:720px;margin:0 auto;padding:48px 22px 80px;color:#241033;line-height:1.7;background:#faf7fc}
+a{color:#7a3f9d}
+h1{font-size:28px;margin:0 0 4px}
+h2{font-size:18px;margin:32px 0 8px}
+.meta{color:#8a7a95;font-size:13px;margin-bottom:28px}
+.back{display:inline-block;margin-bottom:24px;font-size:14px}
+.box{background:#fff;border:1px solid #eee3f2;border-radius:14px;padding:22px 26px}
+p,li{font-size:15px}
+.fine{color:#8a7a95;font-size:13px;margin-top:36px;border-top:1px solid #eee3f2;padding-top:16px}
 </style></head><body>
 <a class="back" href="/">← Back to Soulmate</a>
 <div class="box">
@@ -306,87 +278,64 @@ function legalPage(title, bodyHtml) {
 <div class="meta">Last updated: ${LEGAL_UPDATED}</div>
 ${bodyHtml}
 <div class="fine">${LEGAL_COMPANY} · ${LEGAL_ADDRESS} · <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a><br>
-Payments are processed by Paddle.com, our Merchant of Record.</div>
+Payments are processed by Gumroad, our Merchant of Record.</div>
 </div></body></html>`;
 }
 
 app.get('/terms', (_req, res) => res.type('html').send(legalPage('Terms &amp; Conditions', `
 <p>These Terms govern your use of the Soulmate website and the personalized reading and portrait service (the "Service"), operated by ${LEGAL_COMPANY}. By using the Service or making a purchase, you agree to these Terms.</p>
-
 <h2>1. What the Service is</h2>
 <p>Soulmate creates an AI-generated, personalized reading and portrait based on the answers you provide. It is offered <strong>for entertainment and self-reflection only</strong>. It is not a prediction, psychic service, or advice of any kind, and it is not medical, psychological, legal, or financial guidance. We make no claim that any part of a reading is accurate or will come true.</p>
-
 <h2>2. Eligibility</h2>
 <p>You must be 18 or older to use the Service.</p>
-
 <h2>3. Purchases &amp; payment</h2>
-<p>The Service is sold as a one-time purchase, plus any optional add-ons you choose. Prices are shown at checkout. Payments are processed by <strong>Paddle.com</strong>, which acts as our Merchant of Record and is the seller of record for your order. Your receipt and invoice are issued by Paddle.</p>
-
+<p>The Service is sold as a one-time purchase, plus any optional add-ons you choose. Prices are shown at checkout. Payments are processed by <strong>Gumroad</strong>, which acts as our Merchant of Record and is the seller of record for your order. Your receipt and invoice are issued by Gumroad.</p>
 <h2>4. Delivery</h2>
-<p>Your reading and portrait are digital products, generated after your purchase and delivered on this website and by email. Generation may take a few moments.</p>
-
+<p>Your reading and portrait are digital products, generated after your purchase and delivered by email. Generation may take a few moments.</p>
 <h2>5. Your content &amp; intellectual property</h2>
 <p>We and our licensors own the Service and its underlying materials. You receive a personal, non-commercial licence to the reading and portrait generated for you. Please do not resell or present the content as a professional prediction or diagnosis.</p>
-
 <h2>6. Acceptable use</h2>
 <p>Do not misuse the Service, attempt to disrupt it, or submit unlawful content.</p>
-
 <h2>7. Disclaimers &amp; limitation of liability</h2>
 <p>The Service is provided "as is", for entertainment. To the fullest extent permitted by law, we are not liable for any decision you make based on a reading, or for indirect or consequential loss. Nothing in these Terms limits rights that cannot be excluded under applicable consumer law.</p>
-
 <h2>8. Changes</h2>
 <p>We may update these Terms from time to time. The current version is always available on this page.</p>
-
 <h2>9. Governing law</h2>
 <p>These Terms are governed by the laws of Romania. Mandatory consumer-protection rights in your country of residence still apply.</p>
-
 <h2>10. Contact</h2>
 <p>Questions? Email <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
 `)));
 
 app.get('/privacy', (_req, res) => res.type('html').send(legalPage('Privacy Policy', `
 <p>This Privacy Policy explains how ${LEGAL_COMPANY} ("we") handles your personal data when you use the Soulmate service. We are the data controller.</p>
-
 <h2>1. Data we collect</h2>
-<p>We collect: (a) the answers you give in the quiz; (b) your email address, so we can send you your result; and (c) purchase information, which is handled by our payment provider, Paddle. We do not ask for or store your card details — Paddle handles payment securely.</p>
-
+<p>We collect: (a) the answers you give in the quiz; (b) your email address, so we can send you your result; and (c) purchase information, which is handled by our payment provider, Gumroad. We do not ask for or store your card details — Gumroad handles payment securely.</p>
 <h2>2. Why we use it &amp; legal basis</h2>
 <p>We use your data to create and deliver your reading and portrait and to email it to you — this is necessary to perform the service you purchased (contract). We keep data collection to the minimum needed for this.</p>
-
 <h2>3. Who we share it with (processors)</h2>
-<p>We use a small number of trusted providers to run the Service: <strong>OpenAI</strong> (to generate the reading and portrait), <strong>Resend</strong> (to email your result), and <strong>Paddle</strong> (to process payment as Merchant of Record). They process data on our behalf under their own security terms. <strong>We never sell your personal data.</strong></p>
-
+<p>We use a small number of trusted providers to run the Service: <strong>OpenAI</strong> (to generate the reading and portrait), <strong>Resend</strong> (to email your result), and <strong>Gumroad</strong> (to process payment as Merchant of Record). They process data on our behalf under their own security terms. <strong>We never sell your personal data.</strong></p>
 <h2>4. International transfers</h2>
 <p>Some providers may process data outside the EU/EEA. Where that happens, appropriate safeguards (such as Standard Contractual Clauses) apply.</p>
-
 <h2>5. Retention</h2>
 <p>We keep your data only as long as needed to deliver your result and meet legal or accounting obligations, then delete or anonymize it.</p>
-
 <h2>6. Your rights (GDPR)</h2>
 <p>You have the right to access, correct, delete, or export your data, and to object to or restrict certain processing. To exercise any right, email <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>. You also have the right to complain to the Romanian Data Protection Authority (ANSPDCP).</p>
-
 <h2>7. Cookies</h2>
 <p>We use only the minimal cookies/technology needed for the site to work. We do not use them to build advertising profiles of you.</p>
-
 <h2>8. Contact</h2>
 <p>${LEGAL_COMPANY}, ${LEGAL_ADDRESS} — <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
 `)));
 
 app.get('/refund', (_req, res) => res.type('html').send(legalPage('Refund &amp; Cancellation Policy', `
-<p>This policy explains refunds for the Soulmate service, sold by ${LEGAL_COMPANY} through Paddle.com (our Merchant of Record).</p>
-
+<p>This policy explains refunds for the Soulmate service, sold by ${LEGAL_COMPANY} through Gumroad (our Merchant of Record).</p>
 <h2>1. Digital product, delivered on demand</h2>
 <p>Your reading and portrait are personalized digital content, generated specifically for you and delivered immediately after purchase.</p>
-
 <h2>2. Right of withdrawal</h2>
 <p>Under EU consumer law you normally have 14 days to withdraw from an online purchase. For digital content that is supplied immediately, this right ends once delivery begins — and by starting your reading you ask us to begin right away and acknowledge you lose the 14-day withdrawal right for that content. This is standard for instant digital goods.</p>
-
 <h2>3. We still want you happy</h2>
 <p>If something went wrong — you didn't receive your result, or there was a technical problem — contact us within 14 days at <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> and we'll make it right or issue a refund.</p>
-
 <h2>4. How refunds are processed</h2>
-<p>Because Paddle is our Merchant of Record, refunds are issued through Paddle back to your original payment method. You can contact us or reply to your Paddle receipt to request one.</p>
-
+<p>Because Gumroad is our Merchant of Record, refunds are issued through Gumroad back to your original payment method. You can contact us or reply to your Gumroad receipt to request one.</p>
 <h2>5. Contact</h2>
 <p>${LEGAL_COMPANY} — <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
 `)));
@@ -397,18 +346,14 @@ app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact U
 <p><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>
 <h2>Who we are</h2>
 <p>${LEGAL_COMPANY}<br>${LEGAL_ADDRESS}</p>
-<p>Soulmate is an entertainment and self-reflection experience. Payments are handled by Paddle.com, our Merchant of Record.</p>
+<p>Soulmate is an entertainment and self-reflection experience. Payments are handled by Gumroad, our Merchant of Record.</p>
 `)));
 
-if (require.main === module) {
-  app.listen(PORT, () => console.log(`Soulmate server on :${PORT} (support ${SUPPORT_EMAIL})`));
-}
-
-/* ---- Pricing page (public prices, required for Paddle verification) ---- */
+/* ---- Pricing page (public prices) ---- */
 app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
-<p>All Soulmate purchases are one-time digital payments in euro (€). You choose your reading, plus any optional add-ons. Prices are also shown at checkout, where payment is processed securely by Paddle.com, our Merchant of Record.</p>
+<p>All Soulmate purchases are one-time digital payments. You choose your reading, plus any optional add-ons. Prices are also shown at checkout, where payment is processed securely by Gumroad, our Merchant of Record.</p>
 <h2>Soulmate Reading — €17</h2>
-<p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly online. One-time payment.</p>
+<p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly by email. One-time payment.</p>
 <h2>Keepsake Pack — +€9 (optional add-on)</h2>
 <p>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait.</p>
 <h2>Deep Soulmate Report — €27 (optional)</h2>
@@ -417,28 +362,74 @@ app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <p>A "you two together" portrait, plus a short cinematic story of your first meeting.</p>
 <p>These are digital products offered for entertainment and self-reflection only — not predictions or advice.</p>
 `)));
+
 /* ---- Free readings (no payment needed) ---- */
 app.get('/love-archetype', (_req, res) => res.sendFile(path.join(__dirname, 'reading_love_archetype.html')));
 app.get('/past-life', (_req, res) => res.sendFile(path.join(__dirname, 'reading_past_life.html')));
 app.get('/tarot', (_req, res) => res.sendFile(path.join(__dirname, 'reading_tarot.html')));
 app.get('/compatibility', (_req, res) => res.sendFile(path.join(__dirname, 'reading_compatibility.html')));
-/* ---- Email capture -> Resend audience ---- */
+
+/* ---- Email capture -> Resend contacts ---- */
 app.post('/api/subscribe', express.json(), async (req, res) => {
   try {
     const email = String((req.body && req.body.email) || '').trim();
     const source = String((req.body && req.body.source) || 'site');
     if (!email || !email.includes('@')) return res.status(400).json({ ok: false });
-    const key = process.env.RESEND_API_KEY, aud = process.env.RESEND_AUDIENCE_ID;
-if (key) {const r = await fetch('https://api.resend.com/contacts', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, unsubscribed: false }) });      if (!r.ok && r.status !== 409) console.error('[subscribe] resend', r.status, await r.text());
+    const key = process.env.RESEND_API_KEY;
+    if (key) {
+      const r = await fetch('https://api.resend.com/contacts', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, unsubscribed: false }),
+      });
+      if (!r.ok && r.status !== 409) console.error('[subscribe] resend', r.status, await r.text());
     }
     console.log('[subscribe]', source, email);
     res.json({ ok: true });
   } catch (e) { console.error('[subscribe] fail', e); res.json({ ok: true }); }
 });
 
+/* ---- Gumroad checkout -> deliver reading ---- */
+const processedSales = new Set();
+async function handleGumroadSale(answers, email, saleId) {
+  const seed = seedFrom(saleId || email || 'x');
+  const result = { txnId: saleId, email: email, sections: {}, images: [] };
+  console.log('[gumroad] writing reading…');
+  result.sections.reading = await generateText(buildReadingPrompt(answers, { deep: false }));
+  console.log('[gumroad] painting portrait…');
+  result.images.push(await generateImage(buildPortraitPrompt(answers), { seed: seed, hd: false }));
+  await storeResult(saleId, result);
+  if (email) await deliverEmail(email, result, { keepsakePdf: false });
+  console.log('[gumroad] delivered to', email);
+  return result;
+}
+
+app.post('/webhook/gumroad', express.urlencoded({ extended: true }), async (req, res) => {
+  res.status(200).send('ok'); // ack fast, work after
+  try {
+    const b = req.body || {};
+    if (b.product_permalink && b.product_permalink !== 'otxhdek') return;
+    const saleId = b.sale_id || b.order_number || String(Date.now());
+    if (processedSales.has(saleId)) return;
+    processedSales.add(saleId);
+    const p = b.url_params || {};
+    const email = b.email || p.email;
+    const answers = {
+      name: p.name || '', meet: p.meet || '', age: p.age || '',
+      energy: p.energy || '', look: p.look || '', value: p.value || '',
+      lightning: p.lightning || '',
+    };
+    console.log('[gumroad] sale', saleId, 'email', email, 'seller', b.seller_id);
+    await handleGumroadSale(answers, email, saleId);
+  } catch (e) { console.error('[gumroad] fail', e); }
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Soulmate server on :${PORT} (support ${SUPPORT_EMAIL})`));
+}
 
 module.exports = {
-  verifyPaddleSignature, handleCompletedTransaction,
+  verifyPaddleSignature, handleCompletedTransaction, handleGumroadSale,
   buildReadingPrompt, buildPortraitPrompt, seedFrom,
   generateText, generateImage,
 };

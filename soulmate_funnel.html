@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Your Soulmate Reading</title>
-<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<!-- payments: Gumroad (hosted checkout) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -179,11 +179,6 @@
         <li>✅ Delivered on screen + emailed to you</li>
       </ul>
       <div class="price">€17 <small>one-time</small></div>
-      <label class="bump">
-        <input type="checkbox" id="bump">
-        <span class="t"><b>Yes — add my Keepsake Pack (+€9)</b><br>
-          <span>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait. Most people add this.</span></span>
-      </label>
       <button class="cta" id="payBtn" onclick="openCheckout()">Reveal my soulmate →</button>
       <div class="reassure">🔒 Secure checkout · For entertainment &amp; self-reflection</div>
     </div>
@@ -247,14 +242,6 @@
 
 <script>
 /* ============ CONFIG ============ */
-const PADDLE_ENV = 'sandbox';
-const PADDLE_TOKEN = 'test_16c433d7e8b65d97a86dd2c8927';
-const PRICE = {
-  entry:   'pri_01kyht5cwvdz9fqhxxq8pm6syj',
-  bump:    'pri_01kyhtpesj5kxtx6zm783cx06e',
-  deep:    'pri_01kyhv0vqw1jdz1wtaqh8p2sz1',
-  reunion: 'pri_01kyhv3t0a8xtdms2afkskhx8d',
-};
 const GEN_MIN_MS = 60000;   // deliberate "crafting" delay so it feels real, not instant
 
 /* ============ QUIZ STATE ============ */
@@ -323,18 +310,8 @@ function goCheckout(){
   show('s-checkout');
 }
 
-/* ============ PADDLE ============ */
-let paddleReady=false, stage='entry', lastTxn=null;
-function initPaddle(){
-  if(typeof Paddle==='undefined') return;
-  if(PADDLE_ENV==='sandbox') Paddle.Environment.set('sandbox');
-  Paddle.Initialize({ token: PADDLE_TOKEN, eventCallback:(d)=>{
-    if(d.name==='checkout.completed'){ lastTxn = (d.data && (d.data.transaction_id || d.data.id)) || lastTxn; advanceAfterPaid(); }
-  }});
-  paddleReady=true;
-}
-window.addEventListener('load', initPaddle);
-function currentItems(){ const items=[{priceId:PRICE.entry,quantity:1}]; if($('bump').checked) items.push({priceId:PRICE.bump,quantity:1}); return items; }
+/* ============ CHECKOUT (Gumroad) ============ */
+let stage='entry', lastTxn=null;
 function cleanData(extra){
   return Object.assign({
     name:String(quiz.name||''), meet:String(quiz.meet||''), age:String(quiz.age||''),
@@ -342,10 +319,16 @@ function cleanData(extra){
     lightning:(quiz.lightning||[]).join(','), email:String(quiz.email||''), consent:quiz.consent?'yes':'no'
   }, extra||{});
 }
-function openCheckout(){ if(!paddleReady){ alert('Payment is still loading — one moment.'); return; }
-  Paddle.Checkout.open({ items:currentItems(), customData:cleanData(), settings:{displayMode:'overlay'} }); }
-function buyUpsell(which,next){ if(!paddleReady){ declineTo(next); return; }
-  Paddle.Checkout.open({ items:[{priceId:PRICE[which],quantity:1}], customData:cleanData({upsell:which}), settings:{displayMode:'overlay'} }); }
+const GUMROAD_URL = 'https://lidiaserban.gumroad.com/l/otxhdek';
+function openCheckout(){
+  const d = cleanData();
+  const p = new URLSearchParams({
+    name:d.name, meet:d.meet, age:d.age, energy:d.energy,
+    look:d.look, value:d.value, lightning:d.lightning, email:d.email
+  });
+  window.location.href = GUMROAD_URL + '?' + p.toString();
+}
+function buyUpsell(which,next){ declineTo(next); } /* upsells not on Gumroad yet */
 function declineTo(id){ if(id==='s-upsell2') stage='upsell2'; if(id==='s-result'){ show('s-result'); startGenerating(); return; } show(id); }
 function advanceAfterPaid(){
   if(stage==='entry'){ stage='upsell1'; show('s-upsell1'); }
