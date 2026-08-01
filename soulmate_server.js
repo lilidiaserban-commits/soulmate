@@ -352,13 +352,13 @@ app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact U
 /* ---- Pricing page (public prices) ---- */
 app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <p>All Soulmate purchases are one-time digital payments. You choose your reading, plus any optional add-ons. Prices are also shown at checkout, where payment is processed securely by Gumroad, our Merchant of Record.</p>
-<h2>Soulmate Reading — €17</h2>
+<h2>Soulmate Reading — $16.99</h2>
 <p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly by email. One-time payment.</p>
-<h2>Keepsake Pack — +€9 (optional add-on)</h2>
+<h2>Keepsake Pack — +$8.99 (optional add-on)</h2>
 <p>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait.</p>
-<h2>Deep Soulmate Report — €27 (optional)</h2>
+<h2>Deep Soulmate Report — $26.99 (optional)</h2>
 <p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, and three additional portraits.</p>
-<h2>The Reunion Portrait — €19 (optional)</h2>
+<h2>The Reunion Portrait — $18.99 (optional)</h2>
 <p>A "you two together" portrait, plus a short cinematic story of your first meeting.</p>
 <p>These are digital products offered for entertainment and self-reflection only — not predictions or advice.</p>
 `)));
