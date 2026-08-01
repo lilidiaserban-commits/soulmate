@@ -596,6 +596,17 @@ app.get('/preview', async (req, res) => {
     }
   }
   const inp = (n,ph) => `<label>${n}<input name="${n}" value="${escHtml(q[n]||'')}" placeholder="${escHtml(ph||'')}"></label>`;
+  const exLink = o => '?' + Object.entries(o).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&');
+  const K = 'li2026';
+  const examples = [
+    ['Soulmate', { ptype:'soulmate', key:K, name:'Ana', meet:'woman', age:'25-34', energy:'warm', look:'soft', value:'loyalty and real depth', lightning:'deep late-night talks; someone who chooses me back' }],
+    ['Soulmate Premium', { ptype:'soulmate-deep', key:K, name:'Ana', meet:'woman', age:'25-34', energy:'warm', look:'soft', value:'loyalty and real depth', lightning:'deep late-night talks; someone who chooses me back' }],
+    ['Love Archetype', { ptype:'archetype', key:K, archetype:'The Dreamer', profile:'The Dreamer (3/6), The Muse (2/6), The Flame (1/6)', answers:'Deep talks under the stars | Making something beautiful together', pref:'woman', focus:'Will I find someone who really gets me?' }],
+    ['Past Life', { ptype:'pastlife', key:K, persona:'The Renaissance Painter — Florence', profile:'The Painter (3/6), The Mystic (2/6)', answers:'Making something beautiful | A quiet life of craft', gender:'woman', focus:"I've always been drawn to old art and Italy" }],
+    ['Tarot', { ptype:'tarot', key:K, cards:'The Star, The Lovers, The Sun', focus:'What is coming for me in love?' }],
+    ['Compatibility', { ptype:'compat', key:K, n1:'Ana', n2:'Mihai', z1:'Leo', z2:'Scorpio', status:'together', score:'78', focus:'Will we last long-term?' }],
+  ];
+  const exHtml = examples.map(([label, o]) => `<a href="${exLink(o)}" style="color:#7a3f9d;text-decoration:underline;white-space:nowrap">${label}</a>`).join(' &nbsp;·&nbsp; ');
   res.send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reading preview</title>
 <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#241033;background:#faf7fc}
 h1{font-family:Georgia,serif}label{display:block;font-size:13px;color:#6b5a78;margin:8px 0 2px}
@@ -606,7 +617,8 @@ button{margin-top:16px;background:#7a3f9d;color:#fff;border:0;border-radius:999p
 .reading h2{font-family:Georgia,serif;color:#7a3f9d}.err{background:#fdecea;color:#b5372e;padding:12px;border-radius:8px;margin-top:16px}
 .hint{font-size:12px;color:#8a7a95}</style>
 <h1>🔮 Reading preview — test tool</h1>
-<p class="hint">Alege tipul, completează câmpurile relevante, Generate. Fără plată, fără email — doar textul. Portretul e sărit aici. Rulează același test de mai multe ori sau schimbă răspunsurile ca să compari.</p>
+<p class="hint">Alege tipul, completează câmpurile relevante, apoi „Preview text" (doar text pe ecran) sau „Trimite pe email" (identic, cu portret). Rulează de câte ori vrei.</p>
+<div style="font-size:13.5px;color:#3d2d49;background:#f0e7f8;border-radius:12px;padding:12px 14px;margin:2px 0 18px;line-height:1.9">👉 <b>Exemple</b> (click ca să completeze formularul, apoi apeși Preview sau Trimite): ${exHtml}</div>
 <form method="get">
 <label>Reading type<select name="ptype">${types.map(t=>`<option ${t===ptype?'selected':''}>${t}</option>`).join('')}</select></label>
 <div class="row">${inp('archetype','ex: The Devoted')}${inp('persona','ex: The Desert Nomad — Silk Road')}</div>
@@ -616,6 +628,11 @@ ${inp('answers','răspunsurile din test, separate cu |')}
 <div class="row">${inp('n1','nume 1')}${inp('n2','nume 2')}</div>
 <div class="row">${inp('z1','zodie 1')}${inp('z2','zodie 2')}</div>
 <div class="row">${inp('status','status relație')}${inp('score','ex: 78')}</div>
+<div class="row">${inp('gender','past life — tu azi: woman / man')}${inp('pref','archetype ideal: woman / man / either')}</div>
+<div class="row">${inp('name','soulmate — numele tău')}${inp('meet','soulmate e: woman / man')}</div>
+<div class="row">${inp('age','soulmate: 18-24 / 25-34 / 35-44 / 45+')}${inp('energy','soulmate: grounded / adventurous / warm / mysterious')}</div>
+<div class="row">${inp('look','soulmate: soft / bold / natural / dark')}${inp('value','soulmate: ce prețuiești')}</div>
+${inp('lightning','soulmate: răspunsuri scurte, ce cauți')}
 <label>email (pentru varianta identică, cu portret)<input name="email" value="${escHtml(q.email||'')}" placeholder="li.lidiaserban@gmail.com"></label>
 <label>key<input name="key" value="${escHtml(q.key||'')}" placeholder="preview key"></label>
 <button type="submit" name="go" value="1">Preview text →</button>
