@@ -24,92 +24,29 @@ const fs = require('fs');
 const app = express();
 
 const {
-  PADDLE_WEBHOOK_SECRET,
-  PRICE_ENTRY, PRICE_BUMP, PRICE_DEEP, PRICE_REUNION,
   OPENAI_API_KEY,
   TEXT_MODEL = 'gpt-4.1-mini',
   IMAGE_MODEL = 'gpt-image-1',
   RESEND_API_KEY,
   EMAIL_FROM = 'onboarding@resend.dev',
-  SUPPORT_EMAIL = 'hello@yourdomain.com',
+  SUPPORT_EMAIL = 'hello@discoversoulmate.com',
   PORT = 3000,
 } = process.env;
 
-/* ===============================================================
- * 1. Signature verification (Paddle Billing) — legacy, unused
- * =============================================================== */
-function verifyPaddleSignature(rawBody, header, secret) {
-  if (!header || !secret) return false;
-  const parts = Object.fromEntries(header.split(';').map(kv => kv.split('=').map(s => s.trim())));
-  const { ts, h1 } = parts;
-  if (!ts || !h1) return false;
-  const ageSec = Math.abs(Date.now() / 1000 - Number(ts));
-  if (Number.isNaN(ageSec) || ageSec > 300) return false; // reject stale (>5 min)
-  const expected = crypto.createHmac('sha256', secret).update(`${ts}:${rawBody}`).digest('hex');
-  const a = Buffer.from(expected, 'hex');
-  const b = Buffer.from(h1, 'hex');
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-/* ===============================================================
- * 2. Idempotency
- * =============================================================== */
 const processedEvents = new Set();
-
-/* ===============================================================
- * 3. What we bought → what we generate (shared)
- * =============================================================== */
-async function handleCompletedTransaction(txn) {
-  const priceIds = (txn.items || []).map(i => i.price?.id).filter(Boolean);
-  const answers = txn.custom_data || {};
-  const email = txn.custom_data?.email || txn.billing_details?.email || txn.customer?.email;
-  const customerId = txn.customer_id || txn.id;
-  const seed = seedFrom(customerId || email || txn.id);
-
-  const bought = {
-    entry: priceIds.includes(PRICE_ENTRY),
-    bump: priceIds.includes(PRICE_BUMP),
-    deep: priceIds.includes(PRICE_DEEP),
-    reunion: priceIds.includes(PRICE_REUNION),
-  };
-
-  const result = { txnId: txn.id, email, sections: {}, images: [] };
-
-  if (bought.entry) {
-    console.log('[gen] writing reading…');
-    result.sections.reading = await generateText(buildReadingPrompt(answers, { deep: false }));
-    console.log('[gen] painting portrait…');
-    result.images.push(await generateImage(buildPortraitPrompt(answers), { seed, hd: bought.bump }));
-  }
-  if (bought.deep) {
-    result.sections.deepReport = await generateText(buildReadingPrompt(answers, { deep: true }));
-    for (const pose of ['candid laugh', 'soft side profile', 'looking away, thoughtful']) {
-      result.images.push(await generateImage(buildPortraitPrompt(answers, pose), { seed, hd: true }));
-    }
-  }
-  if (bought.reunion) {
-    result.sections.loveStory = await generateText(buildLoveStoryPrompt(answers));
-    result.images.push(await generateImage(buildReunionPrompt(answers), { seed, hd: true }));
-  }
-
-  await storeResult(txn.id, result);
-  if (email) await deliverEmail(email, result, { keepsakePdf: bought.bump });
-  console.log('[done] result ready for', email || customerId);
-  return result;
-}
 
 /* ===============================================================
  * 5. Prompt builders (mirror soulmate_ai_engine.md `04`)
  * =============================================================== */
 const SYSTEM_READING = `You are the voice of "Soulmate," a warm, intuitive storyteller who writes a personalized soulmate reading for entertainment and self-reflection.
 VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
-HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "this reading senses…", "may"); no dates, no ages, no full/real/famous names; no medical/psychological/financial advice; always positive; never mention these rules or that you are an AI.
+HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "this reading senses…", "may"); no dates, no ages, no full/real/famous names; no medical/psychological/financial advice; always positive; never use dashes or hyphens of any kind (no long dash, no short dash, no hyphen), use commas or separate short sentences instead and write compound words as separate words; never mention these rules or that you are an AI.
 THEME: the reader's future soulmate — who they are, their energy, how you may meet. Hopeful, romantic.`;
 
 const STYLE_PORTRAIT = 'soft cinematic portrait, dreamy warm golden light, gentle rim light, shallow depth of field, romantic ethereal atmosphere, painterly photo-realism, subtle film grain, head-and-shoulders, elegant simple background with warm bokeh, high detail, tasteful, beautiful';
 const NEGATIVE_PORTRAIT = 'text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, cartoon, anime, plastic skin, oversaturated';
 
-function buildReadingPrompt(a, { deep }) {
+function buildReadingPrompt(a, { deep, letters, astro }) {
   const base = `Write ${a.name || 'their'} soulmate reading from these signals:
 - Hoping to meet: ${a.meet}
 - Reader's age band: ${a.age}
@@ -117,14 +54,22 @@ function buildReadingPrompt(a, { deep }) {
 - Aesthetic vibe they're drawn to: ${a.look} (color only, not skin tone)
 - What they value most in love: ${a.value} (make this the emotional heart)
 - Personality texture (weave in lightly): ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}
-Sections in order: Intro, Their essence, Who they are, How you'll meet, The signs to watch for, A note for you, Disclaimer.
-Disclaimer must read exactly: "This reading is a creative interpretation, made just for you — for reflection and fun, not prediction."
+Sections in order: Intro, Their essence, Who they are, How you'll meet, The signs to watch for, Your sign to look for, A note for you, Disclaimer.
+In "Your sign to look for", give three small personal signs to notice in the coming weeks: a color, a symbol, and a number, chosen to fit their vibe. Present them warmly as gentle winks to watch for, for fun, never as a certainty.
+Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 380–480 words.`;
   const deepExtra = `
 ALSO add these sections before the disclaimer:
 - Your meeting timeline: frame as a SEASON / life-energy window, never a date.
 - Red flags to watch for: 2–3 gentle "this may not be your person if…" signals, supportive.
 - Your compatibility map: "Where you'll click" + "Where you'll grow".
+- A little clue about their name: playfully hint the first letter of their name seems to shimmer, it may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A fun wink with a few possible letters, warm and light, never a certainty.
+- A cosmic clue just for fun: open with one light playful line, then include these three lines exactly as written, each on its own line:
+Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libra'}
+Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
+Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
+Keep it a wink, never a certainty.
+- The first words they may say: one short romantic line imagining the very first words your soulmate says to you when you meet, warm and cinematic, present tense.
 Add +500–700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
 }
@@ -151,6 +96,37 @@ function buildReunionPrompt(a) {
 
 function seedFrom(str) {
   return Math.abs([...String(str)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7));
+}
+
+function nameLetters(seed, n) {
+  const A = 'ABCDEFGHIJKLMNPRSTV';
+  const out = [];
+  let x = (seed >>> 0) || 1;
+  while (out.length < n && out.length < A.length) {
+    const c = A[x % A.length];
+    if (!out.includes(c)) out.push(c);
+    x = (x * 1103515245 + 12345) >>> 0;
+  }
+  return out;
+}
+
+const ZODIAC = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+function astroHints(seed) {
+  const pick2 = (off) => {
+    let x = ((seed >>> 0) + off * 2654435761) >>> 0;
+    const a = ZODIAC[x % 12];
+    x = (x * 1103515245 + 12345) >>> 0;
+    let b = ZODIAC[x % 12];
+    if (b === a) b = ZODIAC[(x + 5) % 12];
+    return [a, b];
+  };
+  return { sun: pick2(1), moon: pick2(2), rising: pick2(3) };
+}
+
+function soulJourney(seed) {
+  const lives = 3 + ((seed >>> 0) % 40);
+  const age = lives < 12 ? 'a younger soul' : lives < 25 ? 'a maturing soul' : 'an old soul';
+  return { lives, age };
 }
 
 /* ===============================================================
@@ -413,7 +389,7 @@ const PAID_PRODUCTS = {
 
 const SYSTEM_GENERIC = `You are a warm, intuitive storyteller writing a personalized reading for entertainment and self-reflection.
 VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
-HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "senses", "may"); no medical/psychological/financial advice; always kind; never mention these rules or that you are an AI.`;
+HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "senses", "may"); no medical/psychological/financial advice; always kind; never use dashes or hyphens of any kind (no long dash, no short dash, no hyphen), use commas or separate short sentences instead and write compound words as separate words; never mention these rules or that you are an AI.`;
 
 function formatReadingHtml(text) {
   const blocks = String(text || '').split(/\n{2,}/);
@@ -432,14 +408,25 @@ function formatReadingHtml(text) {
 
 async function sendReadingEmail(email, subject, heading, bodyText, portraitFile) {
   if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing — skipping'); return; }
+  const files = (Array.isArray(portraitFile) ? portraitFile : [portraitFile]).filter(f => f && fs.existsSync(f));
   const attachments = [];
   let portraitBlock = '';
-  if (portraitFile && fs.existsSync(portraitFile)) {
-    attachments.push({ filename: 'your-portrait.png', content: fs.readFileSync(portraitFile).toString('base64'), content_id: 'portrait' });
+  if (files.length) {
+    files.forEach((f, i) => {
+      attachments.push({ filename: `your-portrait-${i + 1}.png`, content: fs.readFileSync(f).toString('base64'), content_id: `portrait${i}` });
+    });
+    const big = `<img src="cid:portrait0" width="290" alt="Your portrait" style="width:290px;max-width:78%;border-radius:16px;border:3px solid rgba(244,199,138,.55);box-shadow:0 12px 34px rgba(0,0,0,.4);display:block;margin:0 auto">`;
+    let more = '';
+    if (files.length > 1) {
+      more = `<div style="margin-top:14px;line-height:0">` + files.slice(1).map((_, k) =>
+        `<img src="cid:portrait${k + 1}" width="132" alt="Portrait" style="width:132px;max-width:42%;border-radius:12px;border:2px solid rgba(244,199,138,.5);margin:6px 5px;display:inline-block">`
+      ).join('') + `</div>`;
+    }
+    const caption = files.length > 1 ? 'three portraits of your soulmate, created just for you' : 'created just for you';
     portraitBlock = `
       <tr><td style="background:linear-gradient(160deg,#2e1640,#4a1f47);padding:28px 26px;text-align:center">
-        <img src="cid:portrait" width="290" alt="Your portrait" style="width:290px;max-width:78%;border-radius:16px;border:3px solid rgba(244,199,138,.55);box-shadow:0 12px 34px rgba(0,0,0,.4);display:block;margin:0 auto">
-        <div style="font-family:Georgia,serif;color:#e7dcf1;font-size:13px;font-style:italic;margin-top:15px">— created just for you —</div>
+        ${big}${more}
+        <div style="font-family:Georgia,serif;color:#e7dcf1;font-size:13px;font-style:italic;margin-top:15px">${caption}</div>
       </td></tr>`;
   }
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1eaf7">
@@ -456,7 +443,7 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile)
       </td></tr>
       <tr><td style="background:#faf7fc;padding:24px 30px;text-align:center;border-top:1px solid #eee3f2">
         <div style="font-family:Georgia,serif;color:#7a3f9d;font-size:16px">Discover Soulmate<span style="color:#e7b6c9">.</span></div>
-        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#9a8aa5;font-size:12px;margin-top:9px;line-height:1.6">For entertainment &amp; self-reflection only — a creative interpretation made just for you, not a prediction or advice.<br>Questions? ${SUPPORT_EMAIL}</div>
+        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#9a8aa5;font-size:12px;margin-top:9px;line-height:1.6">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice.<br>Questions? ${SUPPORT_EMAIL}</div>
       </td></tr>
     </table>
     <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#b3a6c0;font-size:11px;margin-top:16px">© 2026 Discover Soulmate</div>
@@ -474,6 +461,17 @@ async function themedPortrait(promptCore, seed) {
   return generateImage({ prompt: `${promptCore}, ${STYLE_PORTRAIT}`, negative: NEGATIVE_PORTRAIT, aspect: '4:5' }, { seed, hd: true });
 }
 
+function noDashes(s) {
+  return String(s == null ? '' : s)
+    .replace(/\s*[—–]\s*/g, ', ')
+    .replace(/ -+ /g, ', ')
+    .replace(/(\p{L})-(\p{L})/gu, '$1 $2')
+    .replace(/-/g, ' ')
+    .replace(/\s+,/g, ',')
+    .replace(/,\s*,/g, ',')
+    .replace(/[ \t]{2,}/g, ' ');
+}
+
 async function generateForType(type, p, email, saleId, opts = {}) {
   const media = !opts.textOnly;
   const seed = seedFrom(saleId || email || 'x');
@@ -484,12 +482,28 @@ async function generateForType(type, p, email, saleId, opts = {}) {
   if (type === 'soulmate' || type === 'soulmate-deep') {
     const a = { name:p.name||'', meet:p.meet||'', age:p.age||'', energy:p.energy||'', look:p.look||'', value:p.value||'', lightning:p.lightning||'' };
     const deep = type === 'soulmate-deep';
-    const smPrompt = buildReadingPrompt(a, { deep });
+    const letters = nameLetters(seed, deep ? 4 : 3);
+    const astro = deep ? astroHints(seed) : null;
+    const smPrompt = buildReadingPrompt(a, { deep, letters, astro });
     if (focus && smPrompt && smPrompt.user) smPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
     text = await generateText(smPrompt);
-    if (media) portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: deep });
+    if (media) {
+      if (deep) {
+        const poses = [
+          'looking softly toward the viewer',
+          'a gentle three quarter view, gazing thoughtfully to the side',
+          'a warm candid half smile in a relaxed natural moment'
+        ];
+        portrait = [];
+        for (let i = 0; i < poses.length; i++) {
+          portrait.push(await generateImage(buildPortraitPrompt(a, poses[i]), { seed: seed + i, hd: true }));
+        }
+      } else {
+        portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: false });
+      }
+    }
     if (deep) {
-      text += '\n\n— Your Premium package includes this hi-res soulmate portrait and a keepsake copy of this reading to save or print.';
+      text += '\n\nYour Premium package includes three high resolution portraits of your soulmate, the same person in different moments, plus a keepsake copy of this reading to save or print.';
     }
     subject = deep ? 'Your Premium Soulmate Reading is inside ✨' : 'Your Soulmate Reading is inside ✨';
     heading = deep ? 'Your Premium Soulmate Reading ✨' : 'Your Soulmate Reading ✨';
@@ -498,9 +512,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const arch = p.archetype || 'your love archetype';
     const profLine = p.profile ? ` Their full quiz profile (result scores): ${p.profile}. Use their secondary leanings to make this specific to THEM, not generic.` : '';
     const ansLine = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Reference these real choices naturally so the reading feels personally theirs.` : '';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose primary archetype is "${arch}".${profLine}${ansLine} Sections: Who you are in love (go deep), Your hidden patterns, Your shadow side (what quietly trips you up in love — be honest but kind), The partner who truly fits you, Which archetypes you click with and which you clash with (reference types like The Devoted, Free Spirit, Dreamer, Flame, Anchor, Muse), How to recognise & attract your match in real life, A small ritual for your love life, Disclaimer. 700-900 words. Warm and specific.${focusLine}` });
-    const prefG = p.pref === 'man' ? 'man' : p.pref === 'woman' ? 'woman' : 'partner';
-    if (media) portrait = await themedPortrait(`a dreamy romantic portrait of an ideal ${prefG}, soft warm golden light, head and shoulders`, seed);
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose primary archetype is "${arch}". This is a self knowledge reading about HOW they love, grounded in the six love styles (Eros passionate, Ludus playful, Storge friendship based, Pragma practical, Mania all in, Agape selfless). Name the love style behind their archetype naturally, without jargon. It is about them, not about finding a specific partner.${profLine}${ansLine} Sections in order: What your type really means (core traits of your archetype), Your light (your strengths in love), Your shadow (your weaknesses and the traps your type falls into, honest but kind), What you need to feel loved, Who you harmonize with and who you clash with (which love styles fit yours and which create friction), How to grow into the best version of your type, Your love blend (show their mix as playful percentages across the styles, based on their scores), Your love motto (one memorable line). Disclaimer. 800-1000 words. Warm, specific, never clinical.${focusLine}` });
     subject = 'Your extended Love Archetype reading ✨';
     heading = `Your Love Archetype: ${arch}`;
   }
@@ -508,28 +520,42 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const persona = p.persona || 'your past life';
     const profLineP = p.profile ? ` Their full quiz profile (persona scores): ${p.profile}. Blend in their secondary leanings so this life feels uniquely theirs.` : '';
     const ansLineP = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Weave these real choices into the story so it feels personally theirs.` : '';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}".${profLineP}${ansLineP} Sections: The world you lived in, Who you were and your daily life, A defining moment of that life, How that life ended, What your soul carried forward, How it echoes in your life today, A message from that self, Disclaimer. 700-900 words, vivid and warm.${focusLine}` });
+    const sj = (p.lives && p.soulage) ? { lives: parseInt(p.lives, 10) || soulJourney(seed).lives, age: p.soulage } : soulJourney(seed);
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Ground it in karmic astrology, where the South Node represents the soul's past life signature and its karmic lesson. This person is ${sj.age} whose soul has lived roughly ${sj.lives} lifetimes.${profLineP}${ansLineP} Sections in order: The world you lived in (the era and place), Who you were and your daily life, How that life ended, What your soul carried forward (a gift and a wound), Your karmic lesson (frame it through the South Node, the pattern your soul is here to grow beyond), Your soul age (weave in that you are ${sj.age} of about ${sj.lives} lifetimes), How it echoes in you today (an unexplained fear, a natural talent, a place you are drawn to), A message from that self, Disclaimer. 800-1000 words, vivid and warm.${focusLine}` });
     const selfG = p.gender === 'woman' ? 'woman' : p.gender === 'man' ? 'man' : 'person';
     if (media) portrait = await themedPortrait(`a cinematic period-accurate portrait of a ${selfG} who lived as ${persona}, atmospheric, head and shoulders`, seed);
     subject = 'Your extended Past Life reading ✨';
     heading = `Your Past Life: ${persona}`;
   }
   else if (type === 'tarot') {
-    const cards = p.cards || 'three cards';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, personalized tarot reading for someone who drew: ${cards}. For each card give a rich interpretation for the season they're in, then weave the three into one story (where you are, your path, what's emerging), then gentle practical guidance and a closing affirmation. Frame as reflection, not fortune-telling. Disclaimer. 700-900 words.${focusLine}` });
-    subject = 'Your extended Tarot reading 🔮';
-    heading = 'Your Personal Tarot Reading';
+    const cards = p.cards || 'seven cards';
+    const sit = p.situation ? ` Their situation in love: ${p.situation}.` : '';
+    const mind = p.mind ? ` On their mind: ${p.mind}.` : '';
+    const want = p.want ? ` They most want to know: ${p.want}.` : '';
+    const feel = p.feel ? ` Lately they feel: ${p.feel}.` : '';
+    const help = p.help ? ` What would help them most: ${p.help}.` : '';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write a deep, personal LOVE tarot reading about this person's love life.${sit}${mind}${want}${feel}${help} The cards drawn, in order, are: ${cards}. Do not use fixed position labels. Weave all the cards together into ONE flowing, tailored answer to their exact question and situation. Cover naturally: where their heart is now, what the cards reveal about their question, an honest read of the light and the shadow, a sense of love timing (a season or window, never a date), and one clear next step. Frame as reflection and entertainment, not fortune telling. Disclaimer. 800-1000 words. Warm and specific.${focusLine}` });
+    subject = 'Your Love Tarot reading 🔮';
+    heading = 'Your Love Tarot Reading';
   }
   else if (type === 'compat') {
     const n1 = p.n1 || 'You', n2 = p.n2 || 'Them', z1 = p.z1 || '', z2 = p.z2 || '', status = p.status || 'together', score = p.score || '';
-    const bd1 = [p.b1, p.p1, p.t1].filter(Boolean).join(' · '), bd2 = [p.b2, p.p2, p.t2].filter(Boolean).join(' · ');
-    const birthLine = (bd1 || bd2) ? ` Birth details — ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}. Weave in sun-sign and (where birth time/place are given) a light rising-sign flavour.` : '';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended love-compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${birthLine} Sections: Your dynamic (name it in one vivid phrase, e.g. "the Sun & the Deep Water"), Where you flow, Where the friction is (be honest), Your communication styles + a short "translation guide" (how to reach each other when you clash), What each of you needs to feel loved, Your growth path together, An honest read on where this could go given the status, Disclaimer. Balanced and honest, not all-positive. 700-900 words.${focusLine}` });
-    // Compatibility is text-only — a generic couple portrait wouldn't be truly "them".
-    subject = `Your extended compatibility reading — ${n1} & ${n2} 💞`;
+    const want = p.want ? ` They most want to know: ${p.want}.` : '';
+    const feel = p.feel ? ` It usually feels: ${p.feel}.` : '';
+    const hard = p.hard ? ` The hardest part between them: ${p.hard}.` : '';
+    const rel = p.relsign ? ` Their relationship's own composite sign is ${p.relsign}, use exactly this in the relationship sign section.` : '';
+    const more = p.more ? ` More context they shared: ${p.more}.` : '';
+    const bd1 = [p.p1, p.t1].filter(Boolean).join(', '), bd2 = [p.p2, p.t2].filter(Boolean).join(', ');
+    const bl = (bd1 || bd2) ? ` Birth places and times, use them for a light rising sign flavour where given, ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}.` : '';
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended LOVE compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%. Ground it in astrology, their signs and elements.${want}${feel}${hard}${rel}${more}${bl} Tailor everything to their status and question, do not force sections that do not fit. Cover naturally: Your relationship's own sign (treat the relationship itself as its own being with a composite zodiac personality, name it), Your dynamic in one vivid phrase, Your elemental chemistry, Where you flow, Where the friction is (honest), A translation guide (how to reach each other when you clash), What each of you needs to feel loved, Your connection type (say whether you read as soulmates, twin flames, karmic partners, or kindred souls, and why), Your karmic connection (whether your souls may have met before and what you are here to teach each other), Your growth path, An honest read on where this could go, and one clear next step. Balanced and honest, not all positive. Disclaimer. 900-1100 words.${focusLine}` });
+    subject = `Your Love Compatibility reading, ${n1} & ${n2} 💞`;
     heading = `${n1} & ${n2}: Your Compatibility`;
   }
   else { console.warn('[gumroad] no generator for', type); return null; }
+
+  text = noDashes(text);
+  heading = noDashes(heading);
+  subject = noDashes(subject);
 
   if (media && email) await sendReadingEmail(email, subject, heading, text, portrait);
   if (media) console.log('[paid] delivered', type, 'to', email);
@@ -646,7 +672,7 @@ if (require.main === module) {
 }
 
 module.exports = {
-  verifyPaddleSignature, handleCompletedTransaction, generateForType,
+  generateForType,
   buildReadingPrompt, buildPortraitPrompt, seedFrom,
   generateText, generateImage,
 };

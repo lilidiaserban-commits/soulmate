@@ -3,16 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Free Tarot Reading (just for fun) — Discover Soulmate</title>
-<meta name="description" content="Draw three cards and get a warm, entertainment-style tarot reading for the season you're in. Free to try — for reflection, not prediction.">
+<title>Free Love Tarot, Discover Soulmate</title>
+<meta name="description" content="Draw your cards for a warm love tarot reading about where your heart is headed. Free to try, for reflection not prediction.">
 <style>
-  :root{
-    --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
-    --accent-soft:#efe3f6; --rose:#e7b6c9; --gold:#e9c98a; --card:#fff; --line:#eee3f2;
-  }
+  :root{--bg:#faf7fc;--ink:#241033;--muted:#8a7a95;--accent:#7a3f9d;--accent-soft:#efe3f6;--rose:#e7b6c9;--gold:#e9c98a;--card:#fff;--line:#eee3f2;}
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
   h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
   a{color:var(--accent);text-decoration:none}
   .wrap{max-width:660px;margin:0 auto;padding:0 20px}
@@ -20,8 +16,7 @@
   .topbar .brand{font-family:Georgia,serif;font-weight:600;font-size:17px}
   .topbar .brand .dot{color:var(--accent)}
   .topbar .home{position:absolute;left:18px;font-size:20px;color:var(--muted);text-decoration:none}
-  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:14px 26px;border-radius:999px;
-    font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .12s;font-family:inherit}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:14px 26px;border-radius:999px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .12s;font-family:inherit}
   .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(122,63,157,.28)}
   .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
   .glow{position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;z-index:-1}
@@ -36,30 +31,28 @@
   .intro p{font-size:18px;color:#4a3b55;max-width:46ch;margin:0 auto 26px}
   .intro .meta{margin-top:16px;font-size:13px;color:var(--muted)}
   .stars{color:var(--gold);letter-spacing:2px;font-size:18px}
-
-  /* draw screen */
+  .qcount{font-size:13px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:8px;text-align:center}
+  .qtext{font-family:Georgia,serif;font-size:26px;line-height:1.25;margin:0 0 24px;text-align:center}
+  .opts{display:flex;flex-direction:column;gap:12px}
+  .opt{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;font-size:16px;cursor:pointer;transition:border-color .12s,background .12s,transform .1s;text-align:left}
+  .opt:hover{border-color:var(--accent);background:#fbf6ff;transform:translateY(-1px)}
   .draw{text-align:center}
   .draw h2{font-size:26px;margin:0 0 6px}
   .draw .hint{color:var(--muted);font-size:15px;margin:0 0 26px}
   .deck{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:10px}
-  .facedown{width:76px;height:120px;border-radius:12px;cursor:pointer;
-    background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;
-    display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:24px;
-    box-shadow:0 6px 16px rgba(60,25,90,.25);transition:transform .15s, box-shadow .15s}
+  .facedown{width:76px;height:120px;border-radius:12px;cursor:pointer;background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:24px;box-shadow:0 6px 16px rgba(60,25,90,.25);transition:transform .15s, box-shadow .15s}
   .facedown:hover{transform:translateY(-8px)}
   .facedown.picked{opacity:.35;pointer-events:none;transform:translateY(-4px)}
   .picked-count{font-size:14px;color:var(--accent);font-weight:600;margin-top:8px;min-height:20px}
-
-  /* result */
-  .result h1{font-size:34px;text-align:center;margin:0 0 4px}
+  .result h1{font-size:32px;text-align:center;margin:0 0 4px}
   .result .kicker{text-align:center;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:8px}
   .cardrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:22px 0 8px}
-  @media(max-width:560px){.cardrow{grid-template-columns:1fr}}
-  .tcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 14px;text-align:center}
-  .tcard .pos{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
-  .tcard .face{font-size:40px;margin:8px 0 4px}
-  .tcard .nm{font-family:Georgia,serif;font-size:19px;margin-bottom:6px}
-  .tcard .mn{font-size:14px;color:#5b4b66}
+  @media(max-width:560px){.cardrow{grid-template-columns:1fr 1fr}}
+  .tcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 12px;text-align:center}
+  .tcard .pos{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .tcard .face{font-size:36px;margin:8px 0 4px}
+  .tcard .nm{font-family:Georgia,serif;font-size:18px;margin-bottom:6px}
+  .tcard .mn{font-size:13px;color:#5b4b66}
   .summary{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-top:8px}
   .summary h3{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
   .summary p{margin:0;color:#3d2d49;font-size:16px}
@@ -71,61 +64,93 @@
   .capture .btn{background:#fff;color:var(--accent)}
   .capture .note{margin-top:12px;font-size:12px;color:#c9b6e0}
   .capture .ok{color:#d8ffe9;font-weight:600;margin-top:6px}
+  .textfield{width:100%;max-width:480px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block}
   .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
   .disclaimer{color:var(--muted);font-size:12.5px;margin-top:30px;text-align:center;max-width:60ch;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
 <span class="glow a"></span><span class="glow b"></span>
-<div class="topbar">
-  <a class="home" href="/" title="Home">←</a>
-  <span class="brand">Discover&nbsp;Soulmate<span class="dot">.</span></span>
-</div>
+<div class="topbar"><a class="home" href="/" title="Home">←</a><span class="brand">Discover&nbsp;Soulmate<span class="dot">.</span></span></div>
 <div class="wrap">
 
   <section class="screen intro active" id="intro">
-    <div class="eyebrow">Free · Tarot, just for fun</div>
-    <h1>Pull three cards.</h1>
-    <p>Take a breath, hold a question in your heart, and draw three cards for the season you're in — a warm little reading, just for reflection.</p>
-    <button class="btn" onclick="toDraw()">Shuffle &amp; draw →</button>
+    <div class="eyebrow">Free · Love Tarot</div>
+    <h1>What do the cards say about your love life?</h1>
+    <p>Take a breath, hold your love life in your heart, and draw your cards for a warm reading, just for reflection.</p>
+    <button class="btn" onclick="show('situation')">Begin →</button>
     <div class="meta"><span class="stars">★★★★★</span><br>free · for reflection, not prediction</div>
+  </section>
+
+  <section class="screen" id="situation">
+    <div class="qcount">First, set the scene</div>
+    <h2 class="qtext">Where are you in love right now?</h2>
+    <div class="opts">
+      <button class="opt" onclick="setSituation('Single and open')">Single and open</button>
+      <button class="opt" onclick="setSituation('Talking to someone')">Talking to someone</button>
+      <button class="opt" onclick="setSituation('Dating')">Dating</button>
+      <button class="opt" onclick="setSituation('In a relationship')">In a relationship</button>
+      <button class="opt" onclick="setSituation('Healing from something')">Healing from something</button>
+      <button class="opt" onclick="setSituation('It is complicated')">It is complicated</button>
+    </div>
   </section>
 
   <section class="screen draw" id="draw">
     <h2>Pick your three cards</h2>
-    <p class="hint">Trust your gut — tap any three.</p>
+    <p class="hint">Trust your gut, tap any three.</p>
     <div class="deck" id="deck"></div>
     <div class="picked-count" id="pickedCount">0 of 3 chosen</div>
   </section>
 
   <section class="screen result" id="result">
-    <div class="kicker">Your three-card reading</div>
+    <div class="kicker">Your love reading</div>
     <h1>The cards you drew</h1>
     <div class="cardrow" id="cardrow"></div>
     <div class="summary"><h3>What they whisper together</h3><p id="summaryText"></p></div>
     <div class="capture">
-      <h3>Unlock your full tarot reading</h3>
-      <p>An extended, personalized reading of your three cards — what they mean for love, timing and the season you're stepping into — delivered to your inbox in minutes.</p>
-      <input type="text" id="focus" maxlength="300" placeholder="Type your question for the cards…" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
-      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading — $14.99 →</button>
-      <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
-      <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
-        <p style="font-size:13.5px;color:#d6c6ea;margin:0 0 12px">Not ready? Leave your email and I'll send you a little something first.</p>
-        <div class="row">
-          <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-          <button class="btn" onclick="capture()" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)">Notify me</button>
-        </div>
-        <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
-      </div>
+      <h3>Go deeper into your love reading</h3>
+      <p>Answer a few questions and I'll draw four more cards, then write one full reading that answers your exact question, with a sense of love timing and a clear next step.</p>
+      <button class="btn" onclick="goExtended()" style="font-size:17px;padding:16px 30px">Continue to my full reading →</button>
     </div>
-    <div class="actions">
-      <button class="btn ghost" onclick="restart()">↺ Draw again</button>
-      <a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a>
-    </div>
-    <p class="disclaimer">For entertainment and self-reflection only — a creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+    <div class="actions"><button class="btn ghost" onclick="restart()">↺ Draw again</button><a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a></div>
+    <p class="disclaimer">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
   </section>
-</div>
 
+  <section class="screen" id="lovequestion">
+    <div class="qcount">Your question</div>
+    <h2 class="qtext">What is your love question for the cards?</h2>
+    <input type="text" id="focus" maxlength="300" placeholder="Ask the cards anything about your love life…" class="textfield">
+    <div style="text-align:center"><button class="btn" onclick="startExSteps()">Continue →</button></div>
+  </section>
+
+  <section class="screen" id="extended">
+    <div class="qcount" id="exqcount"></div>
+    <h2 class="qtext" id="exqtext"></h2>
+    <div class="opts" id="exopts"></div>
+  </section>
+
+  <section class="screen draw" id="exdraw">
+    <h2>Pick four more cards</h2>
+    <p class="hint">Trust your gut, tap any four.</p>
+    <div class="deck" id="exdeck"></div>
+    <div class="picked-count" id="exPickedCount">0 of 4 chosen</div>
+  </section>
+
+  <section class="screen result" id="exfinal">
+    <div class="kicker">Your seven cards</div>
+    <h1 style="font-size:28px">Four more cards drawn</h1>
+    <div class="cardrow" id="excardrow" style="grid-template-columns:1fr 1fr"></div>
+    <div class="capture">
+      <h3>Unlock your full Love Tarot reading</h3>
+      <p>One deep reading across all seven cards, tailored to your exact question and where you are, with a sense of love timing and a clear next step. Delivered to your inbox in minutes.</p>
+      <input type="email" id="email" placeholder="Where should we send your reading? your@email.com" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
+      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading, $14.99 →</button>
+      <div class="note" style="margin-top:14px">One time payment · instant delivery · secure checkout via Gumroad</div>
+    </div>
+    <p class="disclaimer">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  </section>
+
+</div>
 <script>
   const deckCards = [
     {face:'✨', nm:'The Star', mn:'hope, healing and a fresh sense of faith'},
@@ -141,53 +166,83 @@
     {face:'🕊️', nm:'Temperance', mn:'balance, calm and finding your center'},
     {face:'⭐', nm:'The Wish', mn:'a heartfelt hope that is closer than it feels'},
   ];
-  const positions = ['Where you are', 'Your path', 'What’s coming'];
-  const posLead = [
-    'Right now, you are held by',
-    'The way forward is lit by',
-    'Moving toward you is'
+  const positions = ['Your heart now','What is shifting','What is coming in love'];
+  const posLead = ['Right now, your heart is held by','What is shifting is lit by','Moving toward you in love is'];
+
+  const exQuestions = [
+    { key:'mind', q:"Who or what is on your mind?", o:["A specific person","Someone I have not met yet","An ex","My current relationship","My love life in general"] },
+    { key:'want', q:"What do you most want to know?", o:["Where this is going","How they really feel","Whether to stay or go","If love is near","How to heal","What choice to make"] },
+    { key:'feel', q:"How have you felt about it lately?", o:["Hopeful","Anxious","Stuck","Hurt","Excited","Confused"] },
+    { key:'help', q:"What would help you most?", o:["Reassurance","An honest truth","A gentle warning","A clear next step"] },
   ];
-  const NUM_FACEDOWN = 7;
-  let picks = [], pool = [];
+
+  let situationVal=''; let pool=[]; let picks=[]; let extraPicks=[]; let exi=0; const exAns={};
+
+  function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+  function restart(){ show('intro'); }
+  function setSituation(v){ situationVal=v; toDraw(); }
 
   function toDraw(){
-    picks = [];
-    // shuffle a fresh pool
-    pool = deckCards.slice().sort(()=>Math.random()-0.5);
-    const deck = document.getElementById('deck'); deck.innerHTML='';
-    for(let i=0;i<NUM_FACEDOWN;i++){
-      const c=document.createElement('div'); c.className='facedown'; c.textContent='✦';
-      c.onclick=()=>pick(c);
-      deck.appendChild(c);
-    }
+    picks=[]; pool=deckCards.slice().sort(()=>Math.random()-0.5);
+    const deck=document.getElementById('deck'); deck.innerHTML='';
+    for(let i=0;i<7;i++){ const c=document.createElement('div'); c.className='facedown'; c.textContent='✦'; c.onclick=()=>pick(c); deck.appendChild(c); }
     document.getElementById('pickedCount').textContent='0 of 3 chosen';
     show('draw');
   }
   function pick(el){
     if(picks.length>=3 || el.classList.contains('picked')) return;
-    el.classList.add('picked');
-    picks.push(pool[picks.length]);
-    document.getElementById('pickedCount').textContent = picks.length+' of 3 chosen';
-    if(picks.length===3) setTimeout(reveal, 450);
+    el.classList.add('picked'); picks.push(pool[picks.length]);
+    document.getElementById('pickedCount').textContent=picks.length+' of 3 chosen';
+    if(picks.length===3) setTimeout(reveal,450);
   }
   function reveal(){
     const row=document.getElementById('cardrow'); row.innerHTML='';
-    picks.forEach((card,i)=>{
-      const d=document.createElement('div'); d.className='tcard';
-      d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="face">'+card.face+'</div>'+
-                  '<div class="nm">'+card.nm+'</div><div class="mn">'+posLead[i]+' '+card.mn+'.</div>';
-      row.appendChild(d);
-    });
-    const s = "Your cards trace a gentle arc: from "+picks[0].nm+", through "+picks[1].nm+", toward "+picks[2].nm+
-      ". The thread between them is simple — trust where you are, keep walking your path, and stay open to what's arriving. Something is quietly shifting in your favor.";
-    document.getElementById('summaryText').textContent = s;
+    picks.forEach((card,i)=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="face">'+card.face+'</div><div class="nm">'+card.nm+'</div><div class="mn">'+posLead[i]+' '+card.mn+'.</div>'; row.appendChild(d); });
+    document.getElementById('summaryText').textContent="Your cards trace a gentle arc in love: from "+picks[0].nm+", through "+picks[1].nm+", toward "+picks[2].nm+". Something in your love life is quietly shifting. The full reading below answers your exact question.";
     show('result');
   }
-  function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
-  function restart(){ show('intro'); }
+
+  function goExtended(){ show('lovequestion'); }
+  function startExSteps(){ exi=0; show('extended'); renderEx(); }
+  function renderEx(){
+    const item=exQuestions[exi];
+    document.getElementById('exqcount').textContent='A little deeper · '+(exi+1)+' of '+exQuestions.length;
+    document.getElementById('exqtext').textContent=item.q;
+    const box=document.getElementById('exopts'); box.innerHTML='';
+    item.o.forEach(label=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=label; b.onclick=()=>{ exAns[item.key]=label; nextEx(); }; box.appendChild(b); });
+  }
+  function nextEx(){ exi++; if(exi<exQuestions.length){ renderEx(); } else { openExDraw(); } }
+  let exPool=[];
+  function openExDraw(){
+    extraPicks=[];
+    exPool=deckCards.filter(c=>!picks.includes(c)).sort(()=>Math.random()-0.5);
+    const deck=document.getElementById('exdeck'); deck.innerHTML='';
+    for(let i=0;i<7;i++){ const c=document.createElement('div'); c.className='facedown'; c.textContent='✦'; c.onclick=()=>pickExtra(c); deck.appendChild(c); }
+    document.getElementById('exPickedCount').textContent='0 of 4 chosen';
+    show('exdraw');
+  }
+  function pickExtra(el){
+    if(extraPicks.length>=4 || el.classList.contains('picked')) return;
+    el.classList.add('picked'); extraPicks.push(exPool[extraPicks.length]);
+    document.getElementById('exPickedCount').textContent=extraPicks.length+' of 4 chosen';
+    if(extraPicks.length===4) setTimeout(revealExtra,450);
+  }
+  function revealExtra(){
+    const row=document.getElementById('excardrow'); row.innerHTML='';
+    extraPicks.forEach(card=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="face">'+card.face+'</div><div class="nm">'+card.nm+'</div><div class="mn">'+card.mn+'.</div>'; row.appendChild(d); });
+    show('exfinal');
+  }
+
   function buyExtended(){
-    const cards = picks.map(c=>c.nm).join(', ');
-    const p=new URLSearchParams({ptype:'tarot',cards:cards,focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()});
+    const cards=picks.concat(extraPicks).map(c=>c.nm).join(', ');
+    const p=new URLSearchParams({
+      ptype:'tarot',
+      situation:situationVal,
+      cards:cards,
+      mind:exAns.mind||'', want:exAns.want||'', feel:exAns.feel||'', help:exAns.help||'',
+      focus:(document.getElementById('focus').value||'').trim(),
+      email:(document.getElementById('email').value||'').trim()
+    });
     window.location.href='https://discoversoulmate.gumroad.com/l/ecdzzj?'+p.toString();
   }
   function capture(){

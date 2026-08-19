@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Love Compatibility — Discover Soulmate</title>
-<meta name="description" content="Two people, two birth charts, one honest reading — your spark, where you click, and where you clash. Free to try.">
+<title>Love Compatibility, Discover Soulmate</title>
+<meta name="description" content="Two people, two birth charts, one honest reading, your spark, where you click, and where you clash. Free to try.">
 <style>
   :root{
     --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
@@ -87,6 +87,12 @@
   .capture .ok{color:#d8ffe9;font-weight:600;margin-top:6px}
   .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
   .disclaimer{color:var(--muted);font-size:12.5px;margin-top:30px;text-align:center;max-width:60ch;margin-left:auto;margin-right:auto}
+  .qtext{font-family:Georgia,serif;font-size:26px;line-height:1.25;margin:0 0 24px;text-align:center}
+  .qcount{font-size:13px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:8px;text-align:center}
+  .opts{display:flex;flex-direction:column;gap:12px}
+  .opt{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;font-size:16px;cursor:pointer;text-align:left;transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--accent);background:#fbf6ff}
+  .cxfield{width:100%;max-width:480px;border:1.5px solid var(--line);border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 18px;display:block}
 </style>
 </head>
 <body>
@@ -99,8 +105,8 @@
 
   <section class="screen intro active" id="intro">
     <div class="eyebrow">Free · Love Compatibility</div>
-    <h1>How compatible are you two — really?</h1>
-    <p class="sub">Add both birthdays and your relationship status for an honest reading — the good, and the parts worth knowing.</p>
+    <h1>How compatible are you two, really?</h1>
+    <p class="sub">Add both birthdays and your relationship status for an honest reading, the good, and the parts worth knowing.</p>
 
     <div class="people">
       <div class="person">
@@ -145,6 +151,8 @@
     <div class="meter"><i id="meterFill"></i></div>
     <div class="matchtype" id="matchType"></div>
 
+    <div class="rcard" style="text-align:center;border-color:#e2cdef;background:#fbf6ff"><h3>Your relationship's sign</h3><p id="r-relsign"></p></div>
+
     <div class="rcard"><h3>Your spark</h3><p id="r-spark"></p></div>
     <div class="rgrid">
       <div class="rcard"><h3>Where you click</h3><p id="r-click"></p></div>
@@ -153,25 +161,41 @@
     <div class="rcard honest"><h3>The honest read</h3><p id="r-honest"></p></div>
 
     <div class="capture">
-      <h3>Get your full birth-chart reading</h3>
-      <p>The extended reading maps your complete compatibility from both birth charts — your dynamic named, where you flow, where the friction is, your communication styles and how to navigate it all. A deep, honest read in your inbox in minutes.</p>
-      <input type="text" id="focus" maxlength="300" placeholder="What's your biggest question about the two of you?" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
-      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get our full reading — $16.99 →</button>
-      <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
-      <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
-        <p style="font-size:13.5px;color:#d6c6ea;margin:0 0 12px">Not ready? Leave your email and I'll send you a little something first.</p>
-        <div class="row">
-          <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-          <button class="btn" onclick="capture()" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)">Notify me</button>
-        </div>
-        <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
-      </div>
+      <h3>Go deeper into the two of you</h3>
+      <p>Answer a few questions and unlock your full reading: your dynamic, your elemental chemistry, your connection type (soulmates, twin flames, karmic or kindred), your karmic bond, and where this could go.</p>
+      <button class="btn" onclick="goExtended()" style="font-size:17px;padding:16px 30px">Continue to our full reading →</button>
     </div>
     <div class="actions">
       <button class="btn ghost" onclick="restart()">↺ Try another pair</button>
       <a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a>
     </div>
-    <p class="disclaimer">For entertainment and self-reflection only — a creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+    <p class="disclaimer">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  </section>
+
+  <section class="screen" id="cxq">
+    <div class="qcount">Your question</div>
+    <h2 class="qtext">What is your biggest question about the two of you?</h2>
+    <input type="text" id="cfocus" maxlength="300" placeholder="Ask anything about the two of you…" class="cxfield">
+    <div style="text-align:center"><button class="btn" onclick="cxStart()">Continue →</button></div>
+  </section>
+
+  <section class="screen" id="cextended">
+    <div class="qcount" id="cxqcount"></div>
+    <h2 class="qtext" id="cxqtext"></h2>
+    <div class="opts" id="cxopts"></div>
+  </section>
+
+  <section class="screen result" id="cxfinal">
+    <div class="kicker" style="text-align:center;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:8px">One last step</div>
+    <h1 style="text-align:center;font-size:30px;margin:0 0 12px">Your full reading is ready</h1>
+    <div class="capture">
+      <h3>Unlock your full Compatibility reading</h3>
+      <p>Your dynamic, your elemental chemistry, where you flow and where you clash, a translation guide, your connection type and karmic bond, and an honest read on where this could go. Delivered to your inbox in minutes.</p>
+      <input type="email" id="email" placeholder="Where should we send your reading? your@email.com" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
+      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get our full reading, $16.99 →</button>
+      <div class="note" style="margin-top:14px">One time payment · instant delivery · secure checkout via Gumroad</div>
+    </div>
+    <p class="disclaimer">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
   </section>
 </div>
 
@@ -196,31 +220,33 @@
     Gemini:'air',Libra:'air',Aquarius:'air',Cancer:'water',Scorpio:'water',Pisces:'water'};
 
   const PAIRS={
-    'fire|fire':{base:82,spark:"Two big, bright energies — passion, adventure and a shared hunger for life.",click:"You match each other's fire; life together is exciting and rarely dull.",clash:"Two flames burn hot and fast — egos, pride and stubbornness need room to breathe or you scorch each other."},
-    'earth|earth':{base:84,spark:"A grounded, dependable pull — you want to build something that lasts.",click:"Loyalty, comfort and shared goals; you feel genuinely safe with each other.",clash:"Comfort can slide into routine and stubbornness — you'll have to keep courting each other on purpose."},
-    'air|air':{base:79,spark:"Instant mental spark — endless talk, ideas and curiosity.",click:"You get each other's minds and never run out of things to say.",clash:"Lots of head, less heart — feelings get analysed instead of felt, and follow-through can slip."},
-    'water|water':{base:82,spark:"A deep, wordless emotional understanding — you feel each other.",click:"Real intimacy and empathy; you're each other's soft place to land.",clash:"Two deep oceans can drown in moods — someone has to come up for air and stay honest."},
-    'air|fire':{base:88,spark:"Air feeds fire — playful, electric and full of momentum.",click:"You energise each other; it's fun, fast and full of spark.",clash:"So busy being exciting you can skip the deeper, quieter intimacy underneath."},
-    'earth|water':{base:86,spark:"Water softens earth, earth steadies water — tender and safe.",click:"Nurturing and secure; you take good care of each other.",clash:"So cozy you may dodge the hard truths — don't let comfort quietly mute honesty."},
-    'fire|water':{base:60,spark:"Real chemistry and intensity — steam when it's good.",click:"Opposite energies that fascinate; the attraction is undeniable.",clash:"Fire and water can cancel each other out — hot reactions vs. big feelings, and someone often gets burned or flooded."},
-    'earth|fire':{base:63,spark:"Earth gives fire something real to build; fire brings earth to life.",click:"One dreams big, the other makes it real — powerful when aligned.",clash:"Very different speeds — one wants to leap, the other to plan. Impatience is the trap."},
-    'air|water':{base:59,spark:"A dreamy, imaginative attraction — you pull each other into another world.",click:"Creative and gentle; you can be lovely and unexpected together.",clash:"Head vs. heart — you can genuinely struggle to speak the same emotional language."},
-    'air|earth':{base:62,spark:"Ideas meet action — together you can actually make things happen.",click:"You balance freedom and stability when you respect the difference.",clash:"Different priorities: one craves space and novelty, the other security and routine."}
+    'fire|fire':{base:82,spark:"Two big, bright energies, passion, adventure and a shared hunger for life.",click:"You match each other's fire; life together is exciting and rarely dull.",clash:"Two flames burn hot and fast, egos, pride and stubbornness need room to breathe or you scorch each other."},
+    'earth|earth':{base:84,spark:"A grounded, dependable pull, you want to build something that lasts.",click:"Loyalty, comfort and shared goals; you feel genuinely safe with each other.",clash:"Comfort can slide into routine and stubbornness, you'll have to keep courting each other on purpose."},
+    'air|air':{base:79,spark:"Instant mental spark, endless talk, ideas and curiosity.",click:"You get each other's minds and never run out of things to say.",clash:"Lots of head, less heart, feelings get analysed instead of felt, and follow-through can slip."},
+    'water|water':{base:82,spark:"A deep, wordless emotional understanding, you feel each other.",click:"Real intimacy and empathy; you're each other's soft place to land.",clash:"Two deep oceans can drown in moods, someone has to come up for air and stay honest."},
+    'air|fire':{base:88,spark:"Air feeds fire, playful, electric and full of momentum.",click:"You energise each other; it's fun, fast and full of spark.",clash:"So busy being exciting you can skip the deeper, quieter intimacy underneath."},
+    'earth|water':{base:86,spark:"Water softens earth, earth steadies water, tender and safe.",click:"Nurturing and secure; you take good care of each other.",clash:"So cozy you may dodge the hard truths, don't let comfort quietly mute honesty."},
+    'fire|water':{base:60,spark:"Real chemistry and intensity, steam when it's good.",click:"Opposite energies that fascinate; the attraction is undeniable.",clash:"Fire and water can cancel each other out, hot reactions vs. big feelings, and someone often gets burned or flooded."},
+    'earth|fire':{base:63,spark:"Earth gives fire something real to build; fire brings earth to life.",click:"One dreams big, the other makes it real, powerful when aligned.",clash:"Very different speeds, one wants to leap, the other to plan. Impatience is the trap."},
+    'air|water':{base:59,spark:"A dreamy, imaginative attraction, you pull each other into another world.",click:"Creative and gentle; you can be lovely and unexpected together.",clash:"Head vs. heart, you can genuinely struggle to speak the same emotional language."},
+    'air|earth':{base:62,spark:"Ideas meet action, together you can actually make things happen.",click:"You balance freedom and stability when you respect the difference.",clash:"Different priorities: one craves space and novelty, the other security and routine."}
   };
   function pairData(e1,e2){ return PAIRS[e1+'|'+e2] || PAIRS[e2+'|'+e1]; }
 
   const STATUS_READ={
-    together:"You're already in it — so the honest part is this: the clash above is the real work, not something to gloss over. Choose each other on the ordinary, unglamorous days and you'll be fine.",
-    dating:"It's early and unproven — which is exciting, but don't let the spark do all the talking. Watch how they show up when it's inconvenient; that tells you more than any chemistry.",
-    situationship:"Let's be honest: 'undefined' is its own answer for now. The real question isn't whether you're compatible — it's whether you're both actually choosing this, out loud.",
+    together:"You're already in it, so the honest part is this: the clash above is the real work, not something to gloss over. Choose each other on the ordinary, unglamorous days and you'll be fine.",
+    dating:"It's early and unproven, which is exciting, but don't let the spark do all the talking. Watch how they show up when it's inconvenient; that tells you more than any chemistry.",
+    situationship:"Let's be honest: 'undefined' is its own answer for now. The real question isn't whether you're compatible, it's whether you're both actually choosing this, out loud.",
     crushing:"Right now this mostly lives in your head, and imagination flatters everything. The only way to know what's real is to give it a genuine chance in the real world.",
-    friends:"There's a real foundation here — which is exactly why crossing the line is a risk. It's worth it only if you're both ready to lose the safety of 'just friends'.",
-    nocontact:"The silence might be doing something useful. Space isn't always the enemy — sometimes it's how two people heal or finally see clearly. Don't rush to fill it just because it aches.",
-    brokeup:"Be honest about why it ended — chemistry probably wasn't the problem, the pattern was. Nothing here changes unless the thing that broke it has actually changed.",
+    friends:"There's a real foundation here, which is exactly why crossing the line is a risk. It's worth it only if you're both ready to lose the safety of 'just friends'.",
+    nocontact:"The silence might be doing something useful. Space isn't always the enemy, sometimes it's how two people heal or finally see clearly. Don't rush to fill it just because it aches.",
+    brokeup:"Be honest about why it ended, chemistry probably wasn't the problem, the pattern was. Nothing here changes unless the thing that broke it has actually changed.",
     complicated:"'Complicated' usually means something's gone unspoken. The connection is real, but it won't matter much until the conversation you're both avoiding finally happens."
   };
 
-  const MATCH=[[85,'A rare, magnetic match'],[72,'Strong potential'],[60,'Real, but it takes work'],[0,'Challenging — not impossible']];
+  const MATCH=[[85,'A rare, magnetic match'],[72,'Strong potential'],[60,'Real, but it takes work'],[0,'Challenging, not impossible']];
+  const REL_LIST=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const RELSIGN={Aries:'bold, fiery and always on the move',Taurus:'steady, sensual and built to last',Gemini:'playful, talkative and endlessly curious',Cancer:'tender, deep and fiercely protective',Leo:'warm, dramatic and full of heart',Virgo:'thoughtful, devoted and quietly caring',Libra:'romantic, balanced and harmony seeking',Scorpio:'intense, private and transformative',Sagittarius:'adventurous, free and honest',Capricorn:'grounded, loyal and in it for the long haul',Aquarius:'unconventional, independent and mind first',Pisces:'dreamy, soulful and deeply romantic'};
 
   function nameHash(a,b){ const s=(a+'&'+b).toLowerCase().replace(/[^a-z]/g,''); let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
   function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -248,6 +274,9 @@
     document.getElementById('r-click').textContent = pd.click;
     document.getElementById('r-clash').textContent = pd.clash;
     document.getElementById('r-honest').textContent = STATUS_READ[status];
+    const relKey = REL_LIST[nameHash(n1+z1, n2+z2) % 12];
+    relSignVal = relKey;
+    document.getElementById('r-relsign').textContent = 'Your relationship is a '+relKey+': '+RELSIGN[relKey]+'.';
     lastResult = {
       n1:n1, n2:n2, z1:z1, z2:z2, status:status, score:String(score),
       b1:document.getElementById('b1').value||'', b2:document.getElementById('b2').value||'',
@@ -260,8 +289,33 @@
   let lastResult={};
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function restart(){ show('intro'); }
+  let cxi=0; const cxAns={}; let relSignVal='';
+  const cxQuestions=[
+    {key:'want',q:'What do you most want to know?',o:['Where this is going','If they are right for me','Why we clash','Whether we will last','How to fix things','Whether to let go']},
+    {key:'feel',q:'How does it feel most of the time?',o:['Passionate','Safe and steady','Confusing','Distant','Exciting','On and off']},
+    {key:'hard',q:'What is the hardest part between you?',o:['Communication','Trust','Timing','Different needs','Distance','Mixed signals']},
+    {key:'drew',q:'What first pulled you toward them?',o:['Their looks','Their energy','How they made me feel','Our conversations','Something I cannot explain','We just clicked']},
+    {key:'backforth',q:'What do you keep going back and forth on?',o:['Whether they feel the same','Whether we want the same things','Whether to trust them','Whether the timing is right','Whether to walk away']},
+    {key:'gut',q:'What is your gut quietly telling you?',o:['This one is different','Be careful','Give it time','Let go','I already know the answer','I honestly cannot tell']},
+    {key:'hope',q:'If it worked out, what would it look like?',o:['A calm, steady life','A passionate great love','Best friends for life','A family','Freedom together','I try not to hope']}
+  ];
+  function goExtended(){ show('cxq'); }
+  function cxStart(){ cxi=0; show('cextended'); renderCx(); }
+  function renderCx(){
+    const item=cxQuestions[cxi];
+    document.getElementById('cxqcount').textContent='A little deeper · '+(cxi+1)+' of '+cxQuestions.length;
+    document.getElementById('cxqtext').textContent=item.q;
+    const box=document.getElementById('cxopts'); box.innerHTML='';
+    item.o.forEach(label=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=label; b.onclick=()=>{ cxAns[item.key]=label; cxi++; if(cxi<cxQuestions.length){ renderCx(); } else { show('cxfinal'); } }; box.appendChild(b); });
+  }
   function buyExtended(){
-    const p=new URLSearchParams(Object.assign({ptype:'compat'}, lastResult, {focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()}));
+    const p=new URLSearchParams(Object.assign({ptype:'compat'}, lastResult, {
+      relsign:relSignVal,
+      want:cxAns.want||'', feel:cxAns.feel||'', hard:cxAns.hard||'',
+      more:[cxAns.drew,cxAns.backforth,cxAns.gut,cxAns.hope].filter(Boolean).join(' | '),
+      focus:(document.getElementById('cfocus').value||'').trim(),
+      email:(document.getElementById('email').value||'').trim()
+    }));
     window.location.href='https://discoversoulmate.gumroad.com/l/tabntc?'+p.toString();
   }
   function capture(){

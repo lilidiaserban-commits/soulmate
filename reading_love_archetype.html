@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Love Archetype — Discover Soulmate</title>
-<meta name="description" content="A playful 6-question quiz that reveals how you love, what you need, and the connection you quietly long for. Free to try.">
+<title>Your Love Archetype, Discover Soulmate</title>
+<meta name="description" content="A quick quiz that reveals your love style, grounded in the six real love styles. Free to try.">
 <style>
   :root{
     --bg:#faf7fc; --ink:#241033; --muted:#8a7a95; --accent:#7a3f9d;
@@ -28,12 +28,10 @@
   .glow.a{width:320px;height:320px;background:var(--rose);top:-40px;left:-60px}
   .glow.b{width:280px;height:280px;background:var(--gold);top:30px;right:-60px;opacity:.3}
 
-  /* screens */
   .screen{display:none;padding:44px 0 70px;animation:fade .4s ease}
   .screen.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-  /* intro */
   .intro{text-align:center}
   .intro .eyebrow{letter-spacing:.24em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:16px}
   .intro h1{font-size:40px;line-height:1.1;margin:0 0 14px}
@@ -41,7 +39,6 @@
   .intro .meta{margin-top:16px;font-size:13px;color:var(--muted)}
   .stars{color:var(--gold);letter-spacing:2px;font-size:18px}
 
-  /* quiz */
   .progress{height:6px;background:var(--accent-soft);border-radius:999px;overflow:hidden;margin-bottom:28px}
   .progress > i{display:block;height:100%;background:var(--accent);width:0;transition:width .35s ease}
   .qcount{font-size:13px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
@@ -51,7 +48,6 @@
     transition:border-color .12s,background .12s,transform .1s;text-align:left}
   .opt:hover{border-color:var(--accent);background:#fbf6ff;transform:translateY(-1px)}
 
-  /* result */
   .result{text-align:center}
   .result .emblem{font-size:60px;margin-bottom:6px}
   .result .kicker{letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:6px}
@@ -60,18 +56,17 @@
   .rcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 24px;text-align:left;margin-bottom:16px}
   .rcard h3{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
   .rcard p{margin:0;color:#3d2d49;font-size:16px}
-  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:520px){.rgrid{grid-template-columns:1fr}}
+  .blend{font-size:13.5px;color:var(--muted);margin:2px 0 20px}
 
-  /* email capture */
   .capture{background:linear-gradient(135deg,#2b1440,#4a2470);color:#fff;border-radius:20px;padding:30px 26px;text-align:center;margin:22px 0}
   .capture h3{color:#fff;font-size:23px;margin:0 0 8px}
-  .capture p{color:#e7dcf1;margin:0 auto 18px;max-width:40ch;font-size:15px}
+  .capture p{color:#e7dcf1;margin:0 auto 18px;max-width:42ch;font-size:15px}
   .capture .row{display:flex;gap:10px;max-width:420px;margin:0 auto;flex-wrap:wrap}
   .capture input{flex:1;min-width:190px;border:none;border-radius:999px;padding:14px 18px;font-size:15px;font-family:inherit}
   .capture .btn{background:#fff;color:var(--accent)}
   .capture .note{margin-top:12px;font-size:12px;color:#c9b6e0}
   .capture .ok{color:#d8ffe9;font-weight:600;margin-top:6px}
+  .textfield{width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block}
 
   .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
   .disclaimer{color:var(--muted);font-size:12.5px;margin-top:30px;text-align:center;max-width:60ch;margin-left:auto;margin-right:auto}
@@ -90,13 +85,13 @@
   <!-- INTRO -->
   <section class="screen intro active" id="intro">
     <div class="eyebrow">Free · Love Archetype</div>
-    <h1>What's your love archetype?</h1>
-    <p>Six quick questions reveal how you love, what you secretly need, and the kind of connection your heart is drawn to.</p>
-    <button class="btn" onclick="start()">Reveal my archetype →</button>
-    <div class="meta"><span class="stars">★★★★★</span><br>60 seconds · free · just for fun</div>
+    <h1>What's your love style?</h1>
+    <p>Five quick questions reveal how you love, grounded in the six real love styles. Discover the type your heart runs on.</p>
+    <button class="btn" onclick="start()">Reveal my type →</button>
+    <div class="meta"><span class="stars">★★★★★</span><br>Under a minute · free · just for fun</div>
   </section>
 
-  <!-- QUIZ -->
+  <!-- FREE QUIZ -->
   <section class="screen" id="quiz">
     <div class="progress"><i id="bar"></i></div>
     <div class="qcount" id="qcount"></div>
@@ -104,156 +99,185 @@
     <div class="opts" id="opts"></div>
   </section>
 
-  <!-- RESULT -->
+  <!-- FREE RESULT -->
   <section class="screen result" id="result">
     <div class="emblem" id="r-emblem"></div>
-    <div class="kicker">Your love archetype is</div>
+    <div class="kicker">Your love style is</div>
     <h1 id="r-name"></h1>
     <p class="tagline" id="r-tagline"></p>
-
     <div class="rcard"><h3>Who you are in love</h3><p id="r-desc"></p></div>
-    <div class="rgrid">
-      <div class="rcard"><h3>Your gift</h3><p id="r-gift"></p></div>
-      <div class="rcard"><h3>What you need</h3><p id="r-need"></p></div>
-    </div>
-    <div class="rcard"><h3>Your ideal match</h3><p id="r-match"></p></div>
+    <div class="blend" id="r-blend"></div>
 
     <div class="capture">
-      <h3>Unlock your full Love Archetype reading</h3>
-      <p>A personalized deep-dive written just for your archetype — plus an AI portrait of your ideal match, delivered to your inbox in minutes.</p>
-      <select id="pref" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 10px;display:block;color:#241033;background:#fff">
-        <option value="">Your ideal match is… (for the portrait)</option>
-        <option value="woman">A woman</option>
-        <option value="man">A man</option>
-        <option value="either">Either</option>
-      </select>
-      <input type="text" id="focus" maxlength="300" placeholder="A pattern in your love life you'd love to understand? (optional)" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
-      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading — $14.99 →</button>
-      <div class="note" style="margin-top:14px">One-time payment · instant delivery · secure checkout via Gumroad</div>
-      <div style="border-top:1px solid rgba(255,255,255,.15);margin:20px auto 0;max-width:420px;padding-top:18px">
-        <p style="font-size:13.5px;color:#d6c6ea;margin:0 0 12px">Not ready? Leave your email and I'll send you a little something first.</p>
-        <div class="row">
-          <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-          <button class="btn" onclick="capture()" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)">Notify me</button>
-        </div>
-        <div class="ok" id="capok" style="display:none">✓ You're on the list — talk soon 💜</div>
-      </div>
+      <h3>Go deeper into your type</h3>
+      <p>Answer a few honest questions and unlock your full reading: your light, your shadow, who you match with and who you clash with, how you grow, and your love blend in percentages.</p>
+      <button class="btn" onclick="goExtended()" style="font-size:17px;padding:16px 30px">Continue to my full reading →</button>
     </div>
 
     <div class="actions">
       <button class="btn ghost" onclick="restart()">↺ Retake</button>
       <a class="btn ghost" href="/soulmate">Try the Soulmate reading →</a>
     </div>
+    <p class="disclaimer">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  </section>
 
-    <p class="disclaimer">For entertainment and self-reflection only — a creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
+  <!-- EXTENDED QUIZ -->
+  <section class="screen" id="extended">
+    <div class="progress"><i id="exbar"></i></div>
+    <div class="qcount" id="exqcount"></div>
+    <h2 class="qtext" id="exqtext"></h2>
+    <div class="opts" id="exopts"></div>
+  </section>
+
+  <!-- EXTENDED FINAL + PAY -->
+  <section class="screen result" id="exfinal">
+    <div class="kicker">One last thing</div>
+    <h1 style="font-size:30px">Your deep reading is ready</h1>
+    <p class="tagline">Anything you most want to understand?</p>
+    <input type="text" id="exfocus" maxlength="300" placeholder="What do you most want to understand about how you love?" class="textfield" style="max-width:480px">
+
+    <div class="capture">
+      <h3>Unlock your full Love Archetype reading</h3>
+      <p>Your complete type in depth: what it really means, your light, your shadow, what you need, who you harmonize with and who you clash with, how to grow, and your love blend in percentages. Delivered to your inbox in minutes.</p>
+      <input type="email" id="email" placeholder="Where should we send your reading? your@email.com" style="width:100%;max-width:440px;border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-family:inherit;margin:0 auto 14px;display:block">
+      <button class="btn" onclick="buyExtended()" style="font-size:17px;padding:16px 30px">Get my full reading, $14.99 →</button>
+      <div class="note" style="margin-top:14px">One time payment · instant delivery · secure checkout via Gumroad</div>
+    </div>
+    <p class="disclaimer">For entertainment and self reflection only. A creative interpretation made just for you, not a prediction or advice. © 2026 Discover Soulmate.</p>
   </section>
 
 </div>
 
 <script>
-  // ---- Quiz data: each option adds points to archetypes ----
-  const A = { devoted:'devoted', spirit:'spirit', dreamer:'dreamer', flame:'flame', anchor:'anchor', muse:'muse' };
+  // ---- Free quiz: each option maps to one of the six love styles ----
   const questions = [
-    { q:"You feel most loved when someone…",
-      o:[["Shows up for you, every single day", A.devoted],
-         ["Whisks you into a spontaneous adventure", A.spirit],
-         ["Stays up late talking about everything", A.dreamer],
-         ["Looks at you like you're the only person alive", A.flame]] },
-    { q:"Your ideal Sunday together is…",
-      o:[["Cozy at home, no plans, just us", A.anchor],
-         ["Somewhere new we've never been", A.spirit],
-         ["Making something beautiful together", A.muse],
-         ["A long, deep, honest conversation", A.dreamer]] },
-    { q:"In love, your superpower is…",
-      o:[["Loyalty — I'm all in", A.devoted],
-         ["Passion — I love with my whole chest", A.flame],
-         ["Calm — I'm someone's safe place", A.anchor],
-         ["Imagination — I make ordinary moments magic", A.muse]] },
-    { q:"The thing you secretly crave most is…",
-      o:[["To be truly seen and understood", A.dreamer],
-         ["Freedom to be fully myself", A.spirit],
-         ["To be someone's home", A.anchor],
-         ["To feel wanted, intensely", A.flame]] },
-    { q:"When you fall, you fall…",
-      o:[["Slowly and completely — and forever", A.devoted],
-         ["Fast, bright, all at once", A.flame],
-         ["Through the mind first — ideas, words, dreams", A.dreamer],
-         ["Like inspiration — they bring out my art", A.muse]] },
-    { q:"Your love language is basically…",
-      o:[["Acts of devotion", A.devoted],
-         ["Wild, shared experiences", A.spirit],
-         ["Deep talks under the stars", A.dreamer],
-         ["Steady, quiet presence", A.anchor]] },
+    { q:"When you fall for someone, it usually…",
+      o:[["Hits fast and intense","eros"],
+         ["Starts as fun and flirtation","ludus"],
+         ["Grows slowly out of friendship","storge"],
+         ["Happens once they tick what matters to you","pragma"],
+         ["Takes over your whole mind","mania"],
+         ["Begins when you want to take care of them","agape"]] },
+    { q:"Your idea of perfect love is…",
+      o:[["Passion and deep connection","eros"],
+         ["Freedom, laughter, adventure","ludus"],
+         ["Your best friend and your partner in one","storge"],
+         ["A sensible match that fits your life","pragma"],
+         ["Total closeness, thinking of them always","mania"],
+         ["Giving them everything they need","agape"]] },
+    { q:"In a relationship, you most need…",
+      o:[["To feel desired","eros"],
+         ["Space and lightness","ludus"],
+         ["Trust and easy companionship","storge"],
+         ["Stability and shared plans","pragma"],
+         ["Constant reassurance you are wanted","mania"],
+         ["To feel needed","agape"]] },
+    { q:"Your friends would say you love…",
+      o:[["With your whole heart, fast","eros"],
+         ["Like it is a fun game","ludus"],
+         ["Like a loyal best friend","storge"],
+         ["With your head as much as your heart","pragma"],
+         ["Intensely, sometimes too much","mania"],
+         ["By always putting others first","agape"]] },
+    { q:"When you picture forever, it looks like…",
+      o:[["Never losing the spark","eros"],
+         ["Two free people choosing each other daily","ludus"],
+         ["Growing old with your best friend","storge"],
+         ["A steady life built on purpose","pragma"],
+         ["Two souls completely intertwined","mania"],
+         ["A love where you give and protect","agape"]] },
   ];
 
   const results = {
-    devoted:{ emblem:'💞', name:'The Devoted', tagline:'You love like it means forever.',
-      desc:"When you give your heart, you give it fully. You're the one who remembers the little things, shows up in the hard moments, and loves with a steadiness most people only dream about.",
-      gift:"Unshakable loyalty — being loved by you feels like coming home.",
-      need:"A partner who chooses you back, just as deliberately, every day.",
-      match:"Someone grounded and sincere who treasures consistency — an Anchor or a Flame who's ready to settle deep." },
-    spirit:{ emblem:'🦋', name:'The Free Spirit', tagline:'You love wide open, like the sky.',
-      desc:"You need love that feels like freedom, not a cage. Curious and alive, you fall for people who make the world bigger — and you love hardest when you're growing side by side.",
-      gift:"You keep love exciting — every day with you is a little adventure.",
-      need:"Space to be fully yourself, with someone who runs toward life with you.",
-      match:"A fellow adventurer or a Dreamer who finds you fascinating and never tries to clip your wings." },
-    dreamer:{ emblem:'🌙', name:'The Dreamer', tagline:'You love with your whole imagination.',
-      desc:"For you, connection lives in the mind and soul first. You crave 3am conversations, inside worlds, and someone who gets the version of you that lives behind your eyes.",
-      gift:"You make people feel deeply understood — rare and unforgettable.",
-      need:"A meeting of minds — depth, honesty, and someone who dreams out loud with you.",
-      match:"A soulful, curious partner — another Dreamer or a Muse who speaks your secret language." },
-    flame:{ emblem:'🔥', name:'The Flame', tagline:'You love bright, bold, and all in.',
-      desc:"When you love, you burn. Passionate and magnetic, you want a love with heat and intensity — the kind that makes ordinary life feel like a great romance.",
-      gift:"You make love feel electric — no one forgets how you make them feel.",
-      need:"To be wanted with the same intensity you give.",
-      match:"Someone brave enough to match your fire — a Devoted heart or another Flame who won't cool down." },
-    anchor:{ emblem:'⚓', name:'The Anchor', tagline:'You are someone’s calm in the storm.',
-      desc:"You love through steadiness and care. You're the safe harbor, the deep breath, the one who makes a chaotic world feel manageable. Your love is quiet, but it holds everything up.",
-      gift:"You make love feel safe — and safety is the rarest luxury of all.",
-      need:"To be appreciated, not taken for granted — softness in return.",
-      match:"A tender, loyal partner — a Devoted or a Dreamer who cherishes the peace you bring." },
-    muse:{ emblem:'✨', name:'The Muse', tagline:'You love, and the world turns to art.',
-      desc:"You inspire. People become their best, most creative selves around you. You love beauty, meaning, and moments that feel like scenes from a film — and you turn everyday love into something luminous.",
-      gift:"You bring magic — you make people feel more alive and more themselves.",
-      need:"To be adored and truly seen for the wonder you carry.",
-      match:"A soulful admirer — a Dreamer or a Free Spirit who's endlessly enchanted by you." },
+    eros:{ emblem:'🌹', name:'The Romantic', tagline:"You love like it's a great romance.",
+      desc:"You love with fire. Passionate and all heart, you crave real chemistry and a connection that feels alive." },
+    ludus:{ emblem:'🦋', name:'The Free Spirit', tagline:"You love wide open, like the sky.",
+      desc:"You love light and free. Playful and curious, you want love to feel like fun, not a cage." },
+    storge:{ emblem:'🫂', name:'The Companion', tagline:"You love like a best friend, for life.",
+      desc:"You love like a best friend. Warm and steady, your deepest bonds grow from real friendship and trust." },
+    pragma:{ emblem:'🧭', name:'The Planner', tagline:"You love with your heart and your head.",
+      desc:"You love with clear eyes. Grounded and intentional, you want a partner who truly fits your life." },
+    mania:{ emblem:'💞', name:'The Devoted', tagline:"You love with your whole heart, all in.",
+      desc:"You love all in. Deeply devoted, you give your whole heart and long to feel completely wanted." },
+    agape:{ emblem:'🕊️', name:'The Giver', tagline:"You love by giving everything.",
+      desc:"You love by giving. Tender and selfless, you show love through care and putting your person first." },
   };
 
-  let qi = 0; const scores = {}; let resultName = ''; let resultProfile = ''; const chosen = [];
-  function start(){ qi=0; chosen.length=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
+  const exQuestions = [
+    { q:"Honestly, what quietly trips you up in love?",
+      o:["I give too much and lose myself","I pull back when it gets real","I hold on too tight out of fear of losing them","I overthink instead of feeling"] },
+    { q:"When do you feel most loved?",
+      o:["When I am truly seen and understood","When there is passion and desire","When someone stays, steady and reliable","When someone lets me take care of them"] },
+    { q:"What are you most afraid of in love?",
+      o:["Being rejected or not enough","Losing my freedom","Being bored or settling","Being betrayed"] },
+    { q:"When conflict comes up, you usually…",
+      o:["Want to talk it out right away","Go quiet and need space","Give in to keep the peace","Get cool and analyze"] },
+    { q:"The sign you have fallen is…",
+      o:["I feel everything intensely","I never get bored with them","I feel safe and at home","I start planning a future"] },
+    { q:"What was hardest to forgive in the past?",
+      o:["Being left first","Being controlled","Being taken for granted","Being lied to"] },
+    { q:"What would you love to change about how you love?",
+      o:["To stop losing myself","To let myself be more vulnerable","To have more patience","To trust more"] },
+  ];
+
+  let qi=0; const scores={}; const chosen=[]; let resultStyle=''; let resultName=''; let resultProfile='';
+  let exi=0; const exAnswers=[];
+
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+  function start(){ qi=0; chosen.length=0; for(const k in results) scores[k]=0; show('quiz'); render(); }
   function render(){
-    const item = questions[qi];
-    document.getElementById('bar').style.width = ((qi)/questions.length*100)+'%';
-    document.getElementById('qcount').textContent = 'Question '+(qi+1)+' of '+questions.length;
-    document.getElementById('qtext').textContent = item.q;
-    const box = document.getElementById('opts'); box.innerHTML='';
+    const item=questions[qi];
+    document.getElementById('bar').style.width=((qi)/questions.length*100)+'%';
+    document.getElementById('qcount').textContent='Question '+(qi+1)+' of '+questions.length;
+    document.getElementById('qtext').textContent=item.q;
+    const box=document.getElementById('opts'); box.innerHTML='';
     item.o.forEach(([label,key])=>{
       const b=document.createElement('button'); b.className='opt'; b.textContent=label;
       b.onclick=()=>{ scores[key]=(scores[key]||0)+1; chosen.push(label); next(); };
       box.appendChild(b);
     });
   }
-  function next(){ qi++; if(qi<questions.length){ render(); } else { finish(); } }
-  function finish(){
+  function next(){ qi++; if(qi<questions.length){ render(); } else { finishFree(); } }
+  function finishFree(){
     document.getElementById('bar').style.width='100%';
     let best=null,max=-1; for(const k in scores){ if(scores[k]>max){ max=scores[k]; best=k; } }
-    const r=results[best];
-    resultName = r.name;
-    const ranked = Object.keys(scores).filter(k=>scores[k]>0).sort((a,b)=>scores[b]-scores[a]);
-    resultProfile = ranked.map(k=>results[k].name+' ('+scores[k]+'/'+questions.length+')').join(', ');
+    resultStyle=best; const r=results[best]; resultName=r.name;
+    const ranked=Object.keys(scores).filter(k=>scores[k]>0).sort((a,b)=>scores[b]-scores[a]);
+    resultProfile=ranked.map(k=>results[k].name+' ('+scores[k]+'/'+questions.length+')').join(', ');
     document.getElementById('r-emblem').textContent=r.emblem;
     document.getElementById('r-name').textContent=r.name;
     document.getElementById('r-tagline').textContent=r.tagline;
     document.getElementById('r-desc').textContent=r.desc;
-    document.getElementById('r-gift').textContent=r.gift;
-    document.getElementById('r-need').textContent=r.need;
-    document.getElementById('r-match').textContent=r.match;
+    document.getElementById('r-blend').textContent='Your blend: '+ranked.slice(0,3).map(k=>results[k].name).join(' · ');
     show('result');
   }
   function restart(){ show('intro'); }
+
+  function goExtended(){ exi=0; exAnswers.length=0; show('extended'); renderEx(); }
+  function renderEx(){
+    const item=exQuestions[exi];
+    document.getElementById('exbar').style.width=((exi)/exQuestions.length*100)+'%';
+    document.getElementById('exqcount').textContent='A little deeper · '+(exi+1)+' of '+exQuestions.length;
+    document.getElementById('exqtext').textContent=item.q;
+    const box=document.getElementById('exopts'); box.innerHTML='';
+    item.o.forEach(label=>{
+      const b=document.createElement('button'); b.className='opt'; b.textContent=label;
+      b.onclick=()=>{ exAnswers.push(label); nextEx(); };
+      box.appendChild(b);
+    });
+  }
+  function nextEx(){ exi++; if(exi<exQuestions.length){ renderEx(); } else { document.getElementById('exbar').style.width='100%'; show('exfinal'); } }
+
   function buyExtended(){
-    const p=new URLSearchParams({ptype:'archetype',archetype:resultName||'',profile:resultProfile||'',answers:chosen.join(' | '),pref:(document.getElementById('pref').value||''),focus:(document.getElementById('focus').value||'').trim(),email:(document.getElementById('email').value||'').trim()});
+    const allAnswers=chosen.concat(exAnswers).join(' | ');
+    const p=new URLSearchParams({
+      ptype:'archetype',
+      archetype:resultName||'',
+      profile:resultProfile||'',
+      answers:allAnswers,
+      focus:(document.getElementById('exfocus').value||'').trim(),
+      email:(document.getElementById('email').value||'').trim()
+    });
     window.location.href='https://discoversoulmate.gumroad.com/l/kvkwy?'+p.toString();
   }
   function capture(){
