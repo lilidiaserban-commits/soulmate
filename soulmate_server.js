@@ -28,8 +28,8 @@ const {
   TEXT_MODEL = 'gpt-4.1-mini',
   IMAGE_MODEL = 'gpt-image-1',
   RESEND_API_KEY,
-  EMAIL_FROM = 'onboarding@resend.dev',
-  SUPPORT_EMAIL = 'hello@discoversoulmate.com',
+  EMAIL_FROM = 'Discover Soulmate <team@discoversoulmate.com>',
+  SUPPORT_EMAIL = 'team@discoversoulmate.com',
   PORT = 3000,
 } = process.env;
 
@@ -73,6 +73,32 @@ Keep it a wink, never a certainty.
 - The first words they may say: one short romantic line imagining the very first words your soulmate says to you when you meet, warm and cinematic, present tense.
 Add +500 to 700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
+}
+
+function buildUpgradePrompt(a, { letters, astro }) {
+  const signals = `Signals about the reader and their future soulmate:
+- Hoping to meet: ${a.meet}
+- Reader's age band: ${a.age}
+- Soulmate's core energy: ${a.energy}
+- Aesthetic vibe they're drawn to: ${a.look} (color only, not skin tone)
+- What they value most in love: ${a.value}
+- Personality texture: ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}`;
+  const user = `${a.name ? a.name + ' ' : 'The reader '}already received their base soulmate reading and their first portrait. Now write ONLY the deeper, extended premium layers they just unlocked. Do NOT repeat the base reading and do NOT reintroduce their soulmate from scratch. Open with one short warm line saying this is the deeper layer they unlocked.
+${signals}
+Sections in order, each with its own title:
+- Your meeting timeline: frame as a SEASON or life energy window, never a date.
+- Gentle signs to watch for: 2 to 3 supportive "this may not be your person if…" signals, kind and caring.
+- Your compatibility map: "Where you'll click" and "Where you'll grow".
+- A little clue about their name: playfully hint the first letter of their name may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A warm wink with a few possible letters, never a certainty.
+- A cosmic clue just for fun: open with one light playful line, then include these three lines exactly as written, each on its own line:
+Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libra'}
+Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
+Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
+Keep it a wink, never a certainty.
+- The first words they may say: one short romantic line imagining the very first words your soulmate says when you meet, warm and cinematic, present tense.
+Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
+Length 500 to 700 words.`;
+  return { system: SYSTEM_READING, user };
 }
 
 function buildLoveStoryPrompt(a) {
@@ -230,7 +256,7 @@ app.get('/portrait/:file', (req, res) => {
  * =============================================================== */
 const LEGAL_COMPANY = 'VIRALMOSAIC IMPACT SRL';
 const LEGAL_ADDRESS = 'Strada Ghiocului 24, 051404, Bucharest, Romania';
-const CONTACT_EMAIL = 'contact@viralmosaic.com';
+const CONTACT_EMAIL = 'team@discoversoulmate.com';
 const LEGAL_UPDATED = '28 July 2026';
 
 function legalPage(title, bodyHtml) {
@@ -386,7 +412,12 @@ const PAID_PRODUCTS = {
   'ecdzzj':       'tarot',          'tarotreading': 'tarot',
   // Compatibility Extended $16.99
   'tabntc':       'compat',         'lovematch':    'compat',
+  // Soulmate -> Premium UPGRADE $9.99 (only shown in the base reading email)
+  'smupgrade':    'soulmate-upgrade','soulmateupgrade':'soulmate-upgrade',
 };
+
+// Permalink of the Gumroad upgrade product, used to build the button in the base email.
+const UPGRADE_PERMALINK = 'smupgrade';
 
 const SYSTEM_GENERIC = `You are a warm, intuitive storyteller writing a personalized reading for entertainment and self-reflection.
 VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
@@ -419,7 +450,7 @@ function formatReadingHtml(text) {
   }).join('');
 }
 
-async function sendReadingEmail(email, subject, heading, bodyText, portraitFile) {
+async function sendReadingEmail(email, subject, heading, bodyText, portraitFile, opts = {}) {
   if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing, skipping'); return; }
   const files = (Array.isArray(portraitFile) ? portraitFile : [portraitFile]).filter(f => f && fs.existsSync(f));
   const attachments = [];
@@ -442,6 +473,16 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile)
         <div style="font-family:Georgia,serif;color:#e7dcf1;font-size:13px;font-style:italic;margin-top:15px">${caption}</div>
       </td></tr>`;
   }
+  let upgradeBlock = '';
+  if (opts.upgradeUrl) {
+    upgradeBlock = `
+      <div style="margin:30px 0 4px;padding:24px 22px;background:linear-gradient(160deg,#2e1640,#4a1f47);border-radius:16px;text-align:center">
+        <div style="font-family:Georgia,serif;color:#f4c78a;font-size:18px;line-height:1.35;margin-bottom:8px">Want to go deeper?</div>
+        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#e7dcf1;font-size:14px;line-height:1.7;margin-bottom:18px">Unlock the extended reading: the season you may meet, gentle signs to watch for, your compatibility map, a playful clue about their name and their stars, and two more portraits of your soulmate.</div>
+        <a href="${opts.upgradeUrl}" style="display:inline-block;background:#f4c78a;color:#3a1550;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:15px;text-decoration:none;padding:14px 30px;border-radius:999px">Get the extended version, 9.99 &rarr;</a>
+        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#b9a6cf;font-size:11px;margin-top:12px">You only pay the difference, your base reading and portrait stay yours.</div>
+      </div>`;
+  }
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1eaf7">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1eaf7;margin:0;padding:0">
   <tr><td align="center" style="padding:26px 12px">
@@ -453,6 +494,7 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile)
       ${portraitBlock}
       <tr><td style="padding:32px 34px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
         ${formatReadingHtml(bodyText)}
+        ${upgradeBlock}
       </td></tr>
       <tr><td style="background:#faf7fc;padding:24px 30px;text-align:center;border-top:1px solid #eee3f2">
         <div style="font-family:Georgia,serif;color:#7a3f9d;font-size:16px">Discover Soulmate<span style="color:#e7b6c9">.</span></div>
@@ -490,7 +532,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
   const seed = seedFrom(saleId || email || 'x');
   const focus = String(p.focus || '').trim().slice(0, 400);
   const focusLine = focus ? ` The person especially wants this reading to speak to: "${focus}". Address that directly and warmly within the reading.` : '';
-  let subject, heading, text, portrait = null;
+  let subject, heading, text, portrait = null, emailOpts = {};
 
   if (type === 'soulmate' || type === 'soulmate-deep') {
     const a = { name:p.name||'', meet:p.meet||'', age:p.age||'', energy:p.energy||'', look:p.look||'', value:p.value||'', lightning:p.lightning||'' };
@@ -520,6 +562,42 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     }
     subject = deep ? 'Your Premium Soulmate Reading is inside ✨' : 'Your Soulmate Reading is inside ✨';
     heading = deep ? 'Your Premium Soulmate Reading ✨' : 'Your Soulmate Reading ✨';
+    // Base buyers get an "upgrade to Premium" button in their email. It carries their
+    // answers plus the base sale id, so the upgrade reuses the same seed (letters, astro, faces).
+    if (!deep) {
+      const up = new URLSearchParams({
+        ptype: 'soulmate-upgrade', baseid: String(saleId || ''),
+        name: a.name, meet: a.meet, age: a.age, energy: a.energy,
+        look: a.look, value: a.value,
+        lightning: Array.isArray(a.lightning) ? a.lightning.join(',') : String(a.lightning || ''),
+        email: String(email || ''),
+      });
+      emailOpts.upgradeUrl = `https://discoversoulmate.gumroad.com/l/${UPGRADE_PERMALINK}?wanted=true&` + up.toString();
+    }
+  }
+  else if (type === 'soulmate-upgrade') {
+    // The customer already has their base reading and first portrait. Deliver only the
+    // deeper premium layers plus two NEW portraits (same person, new moments) = three total.
+    const a = { name:p.name||'', meet:p.meet||'', age:p.age||'', energy:p.energy||'', look:p.look||'', value:p.value||'', lightning:p.lightning||'' };
+    const baseSeed = seedFrom(p.baseid || saleId || email || 'x');
+    const letters = nameLetters(baseSeed, 4);
+    const astro = astroHints(baseSeed);
+    const upPrompt = buildUpgradePrompt(a, { letters, astro });
+    if (focus) upPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
+    text = await generateText(upPrompt);
+    if (media) {
+      const poses = [
+        'a gentle three quarter view, gazing thoughtfully to the side',
+        'a warm candid half smile in a relaxed natural moment'
+      ];
+      portrait = [];
+      for (let i = 0; i < poses.length; i++) {
+        portrait.push(await generateImage(buildPortraitPrompt(a, poses[i]), { seed: baseSeed + 1 + i, hd: true }));
+      }
+    }
+    text += '\n\nHere are two more portraits of your soulmate, the same person in new moments. Together with the first portrait from your base reading, you now have all three.';
+    subject = 'Your extended Soulmate reading is inside ✨';
+    heading = 'Your Extended Soulmate Reading ✨';
   }
   else if (type === 'archetype') {
     const arch = p.archetype || 'your love archetype';
@@ -570,7 +648,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
   heading = noDashes(heading);
   subject = noDashes(subject);
 
-  if (media && email) await sendReadingEmail(email, subject, heading, text, portrait);
+  if (media && email) await sendReadingEmail(email, subject, heading, text, portrait, emailOpts);
   if (media) console.log('[paid] delivered', type, 'to', email);
   return { subject, heading, text, portrait };
 }
