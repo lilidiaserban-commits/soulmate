@@ -39,12 +39,18 @@
   .draw{text-align:center}
   .draw h2{font-size:26px;margin:0 0 6px}
   .draw .hint{color:var(--muted);font-size:15px;margin:0 0 26px}
-  .deck{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:10px}
-  .deck{max-width:600px;margin-left:auto;margin-right:auto}
-  .facedown{width:54px;height:84px;border-radius:9px;cursor:pointer;background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:18px;box-shadow:0 5px 13px rgba(60,25,90,.25);transition:transform .15s, box-shadow .15s}
-  .facedown:hover{transform:translateY(-8px)}
-  .facedown.picked{opacity:.35;pointer-events:none;transform:translateY(-4px)}
-  .picked-count{font-size:14px;color:var(--accent);font-weight:600;margin-top:8px;min-height:20px}
+  .deck{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;max-width:600px;margin-left:auto;margin-right:auto}
+  .pick{width:64px;height:104px;perspective:800px;cursor:pointer}
+  .pick .flip{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+  .pick.flipped .flip{transform:rotateY(180deg)}
+  .pick .cf{position:absolute;inset:0;border-radius:9px;overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 5px 13px rgba(60,25,90,.28)}
+  .pick .back{background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:20px}
+  .pick .front{transform:rotateY(180deg);background:#fff;border:1.5px solid var(--gold)}
+  .pick .front img{width:100%;height:100%;object-fit:cover;display:block}
+  .pick .front.rev img{transform:rotate(180deg)}
+  .pick:not(.flipped):hover .flip{transform:translateY(-8px)}
+  .pick.done{pointer-events:none}
+  .picked-count{font-size:14px;color:var(--accent);font-weight:600;margin-top:16px;min-height:20px}
   .result h1{font-size:32px;text-align:center;margin:0 0 4px}
   .result .kicker{text-align:center;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:8px}
   .cardrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:22px 0 8px}
@@ -52,6 +58,9 @@
   .tcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 12px;text-align:center}
   .tcard .pos{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
   .tcard .face{font-size:36px;margin:8px 0 4px}
+  .tcard .cimg{width:100%;max-width:118px;aspect-ratio:5/8.6;margin:0 auto 10px;border-radius:10px;overflow:hidden;border:1px solid var(--gold);box-shadow:0 4px 12px rgba(60,25,90,.18)}
+  .tcard .cimg img{width:100%;height:100%;object-fit:cover;display:block}
+  .tcard .cimg.rev img{transform:rotate(180deg)}
   .tcard .nm{font-family:Georgia,serif;font-size:18px;margin-bottom:6px}
   .tcard .mn{font-size:13px;color:#5b4b66}
   .summary{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-top:8px}
@@ -178,6 +187,17 @@
     {face:'📯', nm:'Judgement', up:'a wake up call, renewal, a second chance at love', rev:'self judgment, hesitation, ignoring the call'},
     {face:'🌍', nm:'The World', up:'completion, wholeness and new horizons', rev:'a chapter not yet closed, unfinished business'},
   ];
+  // Real Rider Waite art (public domain), served from Wikimedia by exact file name.
+  const CARD_IMG={
+    'The Fool':'RWS_Tarot_00_Fool.jpg','The Magician':'RWS_Tarot_01_Magician.jpg','The High Priestess':'RWS_Tarot_02_High_Priestess.jpg',
+    'The Empress':'RWS_Tarot_03_Empress.jpg','The Emperor':'RWS_Tarot_04_Emperor.jpg','The Hierophant':'RWS_Tarot_05_Hierophant.jpg',
+    'The Lovers':'RWS_Tarot_06_Lovers.jpg','The Chariot':'RWS_Tarot_07_Chariot.jpg','Strength':'RWS_Tarot_08_Strength.jpg',
+    'The Hermit':'RWS_Tarot_09_Hermit.jpg','Wheel of Fortune':'RWS_Tarot_10_Wheel_of_Fortune.jpg','Justice':'RWS_Tarot_11_Justice.jpg',
+    'The Hanged Man':'RWS_Tarot_12_Hanged_Man.jpg','Death':'RWS_Tarot_13_Death.jpg','Temperance':'RWS_Tarot_14_Temperance.jpg',
+    'The Devil':'RWS_Tarot_15_Devil.jpg','The Tower':'RWS_Tarot_16_Tower.jpg','The Star':'RWS_Tarot_17_Star.jpg',
+    'The Moon':'RWS_Tarot_18_Moon.jpg','The Sun':'RWS_Tarot_19_Sun.jpg','Judgement':'RWS_Tarot_20_Judgement.jpg','The World':'RWS_Tarot_21_World.jpg'
+  };
+  function imgUrl(card){ return 'https://commons.wikimedia.org/wiki/Special:FilePath/'+CARD_IMG[card.nm]+'?width=400'; }
   const positions = ['Your heart now','What is shifting','What is coming in love'];
   const posLead = ['Right now, your heart is held by','What is shifting is lit by','Moving toward you in love is'];
   const REV_CHANCE = 0.4;
@@ -189,7 +209,8 @@
     const shuffled=sourceCards.slice().sort(()=>Math.random()-0.5);
     shuffled.forEach(card=>{
       const slot={card, reversed:Math.random()<REV_CHANCE};
-      const el=document.createElement('div'); el.className='facedown'; el.textContent='✦';
+      const el=document.createElement('div'); el.className='pick';
+      el.innerHTML='<div class="flip"><div class="cf back">✦</div><div class="cf front'+(slot.reversed?' rev':'')+'"><img loading="lazy" src="'+imgUrl(card)+'" alt="'+card.nm+'"></div></div>';
       el.onclick=()=>onPick(el, slot);
       container.appendChild(el);
     });
@@ -215,14 +236,14 @@
     show('draw');
   }
   function pick(el, slot){
-    if(picks.length>=3 || el.classList.contains('picked')) return;
-    el.classList.add('picked'); picks.push(slot);
+    if(picks.length>=3 || el.classList.contains('flipped')) return;
+    el.classList.add('flipped','done'); picks.push(slot);
     document.getElementById('pickedCount').textContent=picks.length+' of 3 chosen';
-    if(picks.length===3) setTimeout(reveal,450);
+    if(picks.length===3) setTimeout(reveal,1150);
   }
   function reveal(){
     const row=document.getElementById('cardrow'); row.innerHTML='';
-    picks.forEach((slot,i)=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="face">'+faceHtml(slot)+'</div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+posLead[i]+' '+meaningOf(slot)+'.</div>'; row.appendChild(d); });
+    picks.forEach((slot,i)=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="cimg'+(slot.reversed?' rev':'')+'"><img src="'+imgUrl(slot.card)+'" alt="'+slot.card.nm+'"></div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+posLead[i]+' '+meaningOf(slot)+'.</div>'; row.appendChild(d); });
     document.getElementById('summaryText').textContent="Your cards trace a gentle arc in love: from "+picks[0].card.nm+", through "+picks[1].card.nm+", toward "+picks[2].card.nm+". Something in your love life is quietly shifting. The full reading below answers your exact question.";
     show('result');
   }
@@ -246,14 +267,14 @@
     show('exdraw');
   }
   function pickExtra(el, slot){
-    if(extraPicks.length>=4 || el.classList.contains('picked')) return;
-    el.classList.add('picked'); extraPicks.push(slot);
+    if(extraPicks.length>=4 || el.classList.contains('flipped')) return;
+    el.classList.add('flipped','done'); extraPicks.push(slot);
     document.getElementById('exPickedCount').textContent=extraPicks.length+' of 4 chosen';
-    if(extraPicks.length===4) setTimeout(revealExtra,450);
+    if(extraPicks.length===4) setTimeout(revealExtra,1150);
   }
   function revealExtra(){
     const row=document.getElementById('excardrow'); row.innerHTML='';
-    extraPicks.forEach(slot=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="face">'+faceHtml(slot)+'</div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+meaningOf(slot)+'.</div>'; row.appendChild(d); });
+    extraPicks.forEach(slot=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="cimg'+(slot.reversed?' rev':'')+'"><img src="'+imgUrl(slot.card)+'" alt="'+slot.card.nm+'"></div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+meaningOf(slot)+'.</div>'; row.appendChild(d); });
     show('exfinal');
   }
 
