@@ -40,7 +40,8 @@
   .draw h2{font-size:26px;margin:0 0 6px}
   .draw .hint{color:var(--muted);font-size:15px;margin:0 0 26px}
   .deck{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:10px}
-  .facedown{width:76px;height:120px;border-radius:12px;cursor:pointer;background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:24px;box-shadow:0 6px 16px rgba(60,25,90,.25);transition:transform .15s, box-shadow .15s}
+  .deck{max-width:600px;margin-left:auto;margin-right:auto}
+  .facedown{width:54px;height:84px;border-radius:9px;cursor:pointer;background:linear-gradient(150deg,#3a1d5c,#7a3f9d);border:1.5px solid #caa8e6;display:flex;align-items:center;justify-content:center;color:#e9c98a;font-size:18px;box-shadow:0 5px 13px rgba(60,25,90,.25);transition:transform .15s, box-shadow .15s}
   .facedown:hover{transform:translateY(-8px)}
   .facedown.picked{opacity:.35;pointer-events:none;transform:translateY(-4px)}
   .picked-count{font-size:14px;color:var(--accent);font-weight:600;margin-top:8px;min-height:20px}
@@ -152,22 +153,47 @@
 
 </div>
 <script>
+  // The 22 Major Arcana, each with an upright and a reversed love meaning.
   const deckCards = [
-    {face:'✨', nm:'The Star', mn:'hope, healing and a fresh sense of faith'},
-    {face:'💞', nm:'The Lovers', mn:'connection, a meaningful choice, coming together'},
-    {face:'🌙', nm:'The Moon', mn:'intuition, dreams and trusting what you sense'},
-    {face:'☀️', nm:'The Sun', mn:'joy, clarity and things finally going right'},
-    {face:'🎡', nm:'The Wheel', mn:'change, luck and a turning point'},
-    {face:'🌹', nm:'The Empress', mn:'love, warmth and quiet abundance'},
-    {face:'🔮', nm:'The Magician', mn:'your own power to make it happen'},
-    {face:'🦁', nm:'Strength', mn:'courage, patience and gentle inner power'},
-    {face:'🌍', nm:'The World', mn:'completion, wholeness and new horizons'},
-    {face:'🕯️', nm:'The Hermit', mn:'reflection, wisdom and a needed pause'},
-    {face:'🕊️', nm:'Temperance', mn:'balance, calm and finding your center'},
-    {face:'⭐', nm:'The Wish', mn:'a heartfelt hope that is closer than it feels'},
+    {face:'🃏', nm:'The Fool', up:'a fresh start, a leap of faith in love', rev:'fear of the leap, hesitation, holding yourself back'},
+    {face:'🔮', nm:'The Magician', up:'your power to make love happen, real magnetism', rev:'mixed signals, scattered energy, being led on'},
+    {face:'🌙', nm:'The High Priestess', up:'intuition, a quiet knowing, a secret near the surface', rev:'ignoring your gut, something being kept from you'},
+    {face:'🌹', nm:'The Empress', up:'love, warmth and sensual abundance', rev:'self doubt, giving so much you forget your own needs'},
+    {face:'🛡️', nm:'The Emperor', up:'stability, commitment, a steady presence', rev:'control, coldness, someone who cannot soften'},
+    {face:'🕊️', nm:'The Hierophant', up:'a committed bond, shared values, the real thing', rev:'an unconventional love that breaks the usual mold'},
+    {face:'💞', nm:'The Lovers', up:'connection, a meaningful choice, coming together', rev:'disharmony, a hard choice, values that clash'},
+    {face:'🎠', nm:'The Chariot', up:'drive, moving forward together with purpose', rev:'pulling in different directions, losing the thread'},
+    {face:'🦁', nm:'Strength', up:'courage, patience and gentle inner power', rev:'self doubt, forcing it, running low on patience'},
+    {face:'🕯️', nm:'The Hermit', up:'reflection, wisdom and a needed pause', rev:'loneliness, hiding away, pulling back too far'},
+    {face:'🎡', nm:'Wheel of Fortune', up:'change, luck and a turning point', rev:'a setback, off timing, resisting a shift'},
+    {face:'⚖️', nm:'Justice', up:'fairness, truth, cause and effect catching up', rev:'imbalance, avoidance, something left unresolved'},
+    {face:'🙃', nm:'The Hanged Man', up:'a fresh perspective, letting go, a meaningful pause', rev:'stalling, feeling stuck, a sacrifice with no reward'},
+    {face:'🦋', nm:'Death', up:'an ending that clears space for something new', rev:'clinging to what is already over, fear of the change'},
+    {face:'🌗', nm:'Temperance', up:'balance, calm and finding your center', rev:'impatience, extremes, a bond out of balance'},
+    {face:'🔥', nm:'The Devil', up:'passion, magnetic attachment, sweet temptation', rev:'breaking free, releasing what quietly binds you'},
+    {face:'⚡', nm:'The Tower', up:'a sudden shake up, a truth breaking through', rev:'avoiding the inevitable, bracing against upheaval'},
+    {face:'✨', nm:'The Star', up:'hope, healing and a fresh sense of faith', rev:'doubt, discouragement, faith running thin'},
+    {face:'🌚', nm:'The Moon', up:'dreams, mystery, trusting what you sense', rev:'confusion clearing, the truth coming to light'},
+    {face:'☀️', nm:'The Sun', up:'joy, clarity and things finally going right', rev:'a passing cloud, happiness that is only delayed'},
+    {face:'📯', nm:'Judgement', up:'a wake up call, renewal, a second chance at love', rev:'self judgment, hesitation, ignoring the call'},
+    {face:'🌍', nm:'The World', up:'completion, wholeness and new horizons', rev:'a chapter not yet closed, unfinished business'},
   ];
   const positions = ['Your heart now','What is shifting','What is coming in love'];
   const posLead = ['Right now, your heart is held by','What is shifting is lit by','Moving toward you in love is'];
+  const REV_CHANCE = 0.4;
+  function meaningOf(slot){ return slot.reversed ? slot.card.rev : slot.card.up; }
+  function orientTag(slot){ return slot.reversed ? ' <span style="color:#a0417a;font-size:11px">(reversed)</span>' : ''; }
+  function faceHtml(slot){ return slot.reversed ? '<span style="display:inline-block;transform:rotate(180deg)">'+slot.card.face+'</span>' : slot.card.face; }
+  function buildDeck(container, sourceCards, onPick){
+    container.innerHTML='';
+    const shuffled=sourceCards.slice().sort(()=>Math.random()-0.5);
+    shuffled.forEach(card=>{
+      const slot={card, reversed:Math.random()<REV_CHANCE};
+      const el=document.createElement('div'); el.className='facedown'; el.textContent='✦';
+      el.onclick=()=>onPick(el, slot);
+      container.appendChild(el);
+    });
+  }
 
   const exQuestions = [
     { key:'mind', q:"Who or what is on your mind?", o:["A specific person","Someone I have not met yet","An ex","My current relationship","My love life in general"] },
@@ -176,29 +202,28 @@
     { key:'help', q:"What would help you most?", o:["Reassurance","An honest truth","A gentle warning","A clear next step"] },
   ];
 
-  let situationVal=''; let pool=[]; let picks=[]; let extraPicks=[]; let exi=0; const exAns={};
+  let situationVal=''; let picks=[]; let extraPicks=[]; let exi=0; const exAns={};
 
   function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
   function restart(){ show('intro'); }
   function setSituation(v){ situationVal=v; toDraw(); }
 
   function toDraw(){
-    picks=[]; pool=deckCards.slice().sort(()=>Math.random()-0.5);
-    const deck=document.getElementById('deck'); deck.innerHTML='';
-    for(let i=0;i<7;i++){ const c=document.createElement('div'); c.className='facedown'; c.textContent='✦'; c.onclick=()=>pick(c); deck.appendChild(c); }
+    picks=[];
+    buildDeck(document.getElementById('deck'), deckCards, pick);
     document.getElementById('pickedCount').textContent='0 of 3 chosen';
     show('draw');
   }
-  function pick(el){
+  function pick(el, slot){
     if(picks.length>=3 || el.classList.contains('picked')) return;
-    el.classList.add('picked'); picks.push(pool[picks.length]);
+    el.classList.add('picked'); picks.push(slot);
     document.getElementById('pickedCount').textContent=picks.length+' of 3 chosen';
     if(picks.length===3) setTimeout(reveal,450);
   }
   function reveal(){
     const row=document.getElementById('cardrow'); row.innerHTML='';
-    picks.forEach((card,i)=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="face">'+card.face+'</div><div class="nm">'+card.nm+'</div><div class="mn">'+posLead[i]+' '+card.mn+'.</div>'; row.appendChild(d); });
-    document.getElementById('summaryText').textContent="Your cards trace a gentle arc in love: from "+picks[0].nm+", through "+picks[1].nm+", toward "+picks[2].nm+". Something in your love life is quietly shifting. The full reading below answers your exact question.";
+    picks.forEach((slot,i)=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="face">'+faceHtml(slot)+'</div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+posLead[i]+' '+meaningOf(slot)+'.</div>'; row.appendChild(d); });
+    document.getElementById('summaryText').textContent="Your cards trace a gentle arc in love: from "+picks[0].card.nm+", through "+picks[1].card.nm+", toward "+picks[2].card.nm+". Something in your love life is quietly shifting. The full reading below answers your exact question.";
     show('result');
   }
 
@@ -212,29 +237,28 @@
     item.o.forEach(label=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=label; b.onclick=()=>{ exAns[item.key]=label; nextEx(); }; box.appendChild(b); });
   }
   function nextEx(){ exi++; if(exi<exQuestions.length){ renderEx(); } else { openExDraw(); } }
-  let exPool=[];
   function openExDraw(){
     extraPicks=[];
-    exPool=deckCards.filter(c=>!picks.includes(c)).sort(()=>Math.random()-0.5);
-    const deck=document.getElementById('exdeck'); deck.innerHTML='';
-    for(let i=0;i<7;i++){ const c=document.createElement('div'); c.className='facedown'; c.textContent='✦'; c.onclick=()=>pickExtra(c); deck.appendChild(c); }
+    const pickedNames=picks.map(s=>s.card.nm);
+    const remaining=deckCards.filter(c=>!pickedNames.includes(c.nm));
+    buildDeck(document.getElementById('exdeck'), remaining, pickExtra);
     document.getElementById('exPickedCount').textContent='0 of 4 chosen';
     show('exdraw');
   }
-  function pickExtra(el){
+  function pickExtra(el, slot){
     if(extraPicks.length>=4 || el.classList.contains('picked')) return;
-    el.classList.add('picked'); extraPicks.push(exPool[extraPicks.length]);
+    el.classList.add('picked'); extraPicks.push(slot);
     document.getElementById('exPickedCount').textContent=extraPicks.length+' of 4 chosen';
     if(extraPicks.length===4) setTimeout(revealExtra,450);
   }
   function revealExtra(){
     const row=document.getElementById('excardrow'); row.innerHTML='';
-    extraPicks.forEach(card=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="face">'+card.face+'</div><div class="nm">'+card.nm+'</div><div class="mn">'+card.mn+'.</div>'; row.appendChild(d); });
+    extraPicks.forEach(slot=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="face">'+faceHtml(slot)+'</div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+meaningOf(slot)+'.</div>'; row.appendChild(d); });
     show('exfinal');
   }
 
   function buyExtended(){
-    const cards=picks.concat(extraPicks).map(c=>c.nm).join(', ');
+    const cards=picks.concat(extraPicks).map(s=>s.card.nm+(s.reversed?' (reversed)':' (upright)')).join(', ');
     const p=new URLSearchParams({
       ptype:'tarot',
       situation:situationVal,
@@ -243,7 +267,7 @@
       focus:(document.getElementById('focus').value||'').trim(),
       email:(document.getElementById('email').value||'').trim()
     });
-    window.location.href='https://discoversoulmate.gumroad.com/l/ecdzzj?'+p.toString();
+    window.location.href='https://discoversoulmate.gumroad.com/l/ecdzzj?wanted=true&'+p.toString();
   }
   function capture(){
     const e=document.getElementById('email').value.trim();

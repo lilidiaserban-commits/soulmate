@@ -126,13 +126,13 @@
     <div class="hero">
       <div class="heart">💫</div>
       <h1>See the face of your soulmate.</h1>
-      <p class="sub">Take a 60-second test and get a personalized reading of who your soulmate is — their energy, their personality, and how you'll meet — plus an AI portrait of their face.</p>
+      <p class="sub">Take a 60-second test and get a personalized reading of who your soulmate is, their energy, their personality, and how you'll meet, plus an AI portrait of their face.</p>
       <div class="stars">★★★★★</div>
       <div class="proof">Over <b>50,000</b> readings created · "Genuinely gave me chills."</div>
       <div class="steps">
-        <div class="step"><div class="n">1</div><p><b>Answer 7 quick questions</b> — no overthinking, just go with your gut.</p></div>
-        <div class="step"><div class="n">2</div><p><b>We read the signals</b> — your answers shape a one-of-a-kind reading.</p></div>
-        <div class="step"><div class="n">3</div><p><b>Meet them</b> — see their portrait and read their story.</p></div>
+        <div class="step"><div class="n">1</div><p><b>Answer 7 quick questions</b>, no overthinking, just go with your gut.</p></div>
+        <div class="step"><div class="n">2</div><p><b>We read the signals</b>, your answers shape a one-of-a-kind reading.</p></div>
+        <div class="step"><div class="n">3</div><p><b>Meet them</b>, see their portrait and read their story.</p></div>
       </div>
       <p class="teaser">Your soulmate already has a face. Ready to see it?</p>
     </div>
@@ -174,13 +174,13 @@
     <div class="card">
       <ul class="incl">
         <li>✅ Your personalized <b>Soulmate Reading</b></li>
-        <li>✅ Their <b>AI portrait</b> — the face of your soulmate</li>
+        <li>✅ Their <b>AI portrait</b>, the face of your soulmate</li>
         <li>✅ How you'll meet & the signs to look for</li>
         <li>✅ Delivered on screen + emailed to you</li>
       </ul>
       <div class="price">$16.99 <small>one-time</small></div>
       <button class="cta" id="payBtn" onclick="openCheckout('otxhdek')">Reveal my soulmate → $16.99</button>
-      <button class="cta" style="margin-top:10px;background:linear-gradient(135deg,#5a2a7a,#2b1440);color:#fff" onclick="openCheckout('soulmatedeep')">✦ Premium — deep report + 3 portraits + reunion · $26.99</button>
+      <button class="cta" style="margin-top:10px;background:linear-gradient(135deg,#5a2a7a,#2b1440);color:#fff" onclick="openCheckout('soulmatedeep')">✦ Premium, deep report + 3 portraits + reunion · $26.99</button>
       <div class="reassure">🔒 Secure checkout · For entertainment &amp; self-reflection</div>
     </div>
     <div class="footer">For entertainment and self-reflection only.<br><a href="/privacy" target="_blank">Privacy</a> · <a href="/terms" target="_blank">Terms</a> · <a href="/refund" target="_blank">Refunds</a> · <a href="/contact-us" target="_blank">Contact</a></div>
@@ -189,15 +189,15 @@
   <!-- UPSELL 1 -->
   <section class="screen co" id="s-upsell1">
     <div class="eyebrow"><span class="tag">One-time offer</span></div>
-    <h1>Wait, <span class="uName">friend</span> — there's more to their story.</h1>
+    <h1>Wait, <span class="uName">friend</span>, there's more to their story.</h1>
     <p class="sub">Your reading covered <i>who</i> they are. The Deep Soulmate Report reveals <i>when, where, and how</i> it all unfolds.</p>
     <div class="card">
       <ul class="incl">
-        <li>📖 An extended reading — twice the depth</li>
-        <li>⏳ Your meeting timeline — the season it begins</li>
+        <li>📖 An extended reading, twice the depth</li>
+        <li>⏳ Your meeting timeline, the season it begins</li>
         <li>🚩 Red flags to watch for</li>
         <li>💞 Your compatibility map</li>
-        <li>🎨 3 more portraits — new angles of them</li>
+        <li>🎨 3 more portraits, new angles of them</li>
       </ul>
       <div class="price">€27 <small>one-click</small></div>
       <button class="cta" onclick="buyUpsell('deep','s-upsell2')">Yes, unlock the Deep Report →</button>
@@ -227,7 +227,7 @@
     <div class="gen" id="genBox">
       <div class="spinner"></div>
       <h2 id="genMsg">Reading the signals…</h2>
-      <p>Your reading is being crafted just for you. This takes a moment — good things are worth the wait. ✨</p>
+      <p>Your reading is being crafted just for you. This takes a moment, good things are worth the wait. ✨</p>
     </div>
     <div id="resultBox" style="display:none">
       <div class="eyebrow">Meet your soulmate</div>
@@ -236,7 +236,7 @@
       <div class="reading" id="resultReading"></div>
       <p class="reassure">A copy is on its way to your inbox.</p>
     </div>
-    <div class="footer">Your reading and portrait are creative interpretations, made just for you — for reflection and fun, not prediction.</div>
+    <div class="footer">Your reading and portrait are creative interpretations, made just for you, for reflection and fun, not prediction.</div>
   </section>
 
 </div>
@@ -252,11 +252,11 @@ let step = 0;
 const questions = [
   { key:'meet', type:'single', q:"Who are you hoping to meet?", hint:"", opts:[["man","A man"],["woman","A woman"],["surprise","Surprise me"]] },
   { key:'name', type:'name', q:"What's your first name?", hint:"We'll make the reading personal." },
-  { key:'age', type:'single', q:"How old are you?", hint:"", opts:[["18-24","18–24"],["25-34","25–34"],["35-44","35–44"],["45+","45+"]] },
+  { key:'age', type:'single', q:"How old are you?", hint:"", opts:[["18-24","18 to 24"],["25-34","25 to 34"],["35-44","35 to 44"],["45+","45+"]] },
   { key:'energy', type:'single', q:"Which energy pulls you in?", hint:"", opts:[["grounded","Grounded & calm"],["adventurous","Adventurous & wild"],["warm","Warm & nurturing"],["mysterious","Mysterious & deep"]] },
   { key:'look', type:'tiles', q:"Which look makes your heart skip?", hint:"Go with your first instinct.", opts:[["soft","Soft & radiant","sw-soft"],["bold","Bold & striking","sw-bold"],["natural","Effortless & natural","sw-nat"],["dark","Dark & magnetic","sw-dark"]] },
   { key:'value', type:'single', q:"In love, what matters most to you?", hint:"", opts:[["loyalty","Loyalty"],["passion","Passion"],["humor","Humor"],["ambition","Ambition"],["calm","Calm"]] },
-  { key:'lightning', type:'lightning', q:"Lightning round", hint:"Tap fast — first instinct.", pairs:[["Coffee","Wine"],["Mountains","Ocean"],["Texter","Caller"],["Night owl","Early bird"]] },
+  { key:'lightning', type:'lightning', q:"Lightning round", hint:"Tap fast, first instinct.", pairs:[["Coffee","Wine"],["Mountains","Ocean"],["Texter","Caller"],["Night owl","Early bird"]] },
 ];
 const $ = id => document.getElementById(id);
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); }

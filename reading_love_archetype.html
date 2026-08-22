@@ -190,17 +190,17 @@
 
   const results = {
     eros:{ emblem:'🌹', name:'The Romantic', tagline:"You love like it's a great romance.",
-      desc:"You love with fire. Passionate and all heart, you crave real chemistry and a connection that feels alive." },
+      desc:"You love with fire. For you, love is meant to feel alive, full of chemistry, passion and that electric sense of being truly chosen. You give your whole heart when something feels real, and you would rather feel everything than settle for lukewarm. Your gift is intensity, the way you make a person feel wanted and seen. Your extended reading shows where that fire lifts you, where it can burn you, and the kind of love that finally matches it." },
     ludus:{ emblem:'🦋', name:'The Free Spirit', tagline:"You love wide open, like the sky.",
-      desc:"You love light and free. Playful and curious, you want love to feel like fun, not a cage." },
+      desc:"You love light and free. Playful, curious and a little untamed, you want love to feel like joy and adventure, never a cage. You keep things warm, flirtatious and open, and you fall for people who let you breathe. Your gift is freshness, you make love feel like play again. Your extended reading reveals what you are quietly protecting under all that lightness, and the kind of person who can hold you close without ever clipping your wings." },
     storge:{ emblem:'🫂', name:'The Companion', tagline:"You love like a best friend, for life.",
-      desc:"You love like a best friend. Warm and steady, your deepest bonds grow from real friendship and trust." },
+      desc:"You love like a best friend. Warm, steady and loyal, your deepest bonds grow slowly, out of real friendship, trust and time. You are the safe harbor, the one who stays, and you want a love that feels like home. Your gift is constancy, few people love as reliably as you do. Your extended reading shows the quiet strength of your style, the trap it can fall into, and how to keep your own spark alive inside all that comfort." },
     pragma:{ emblem:'🧭', name:'The Planner', tagline:"You love with your heart and your head.",
-      desc:"You love with clear eyes. Grounded and intentional, you want a partner who truly fits your life." },
+      desc:"You love with clear eyes. Grounded and intentional, you lead with both heart and head, and you want a partner who genuinely fits the life you are building. You notice values, effort and compatibility, and you would rather choose well than chase a passing thrill. Your gift is wisdom, you love in a way that is built to last. Your extended reading shows where your head protects you, where it holds you back, and how to let love surprise you." },
     mania:{ emblem:'💞', name:'The Devoted', tagline:"You love with your whole heart, all in.",
-      desc:"You love all in. Deeply devoted, you give your whole heart and long to feel completely wanted." },
+      desc:"You love all in. Deeply devoted and tender, you give your whole heart and long to feel completely wanted in return. When you love, you love with everything, and closeness matters to you more than almost anything. Your gift is depth, no one ever doubts they are loved by you. Your extended reading gently shows where devotion turns into fear, what you truly need to feel secure, and how to hold on to yourself while you hold on to them." },
     agape:{ emblem:'🕊️', name:'The Giver', tagline:"You love by giving everything.",
-      desc:"You love by giving. Tender and selfless, you show love through care and putting your person first." },
+      desc:"You love by giving. Tender, generous and a little selfless, you show love through care, showing up, and quietly putting your person first. You feel most like yourself when you are making someone else's world softer and warmer. Your gift is grace, your love asks for so little and offers so much. Your extended reading shows the beauty of this, the quiet cost when you give past empty, and how to let yourself be cared for too." },
   };
 
   const exQuestions = [
@@ -278,7 +278,7 @@
       focus:(document.getElementById('exfocus').value||'').trim(),
       email:(document.getElementById('email').value||'').trim()
     });
-    window.location.href='https://discoversoulmate.gumroad.com/l/kvkwy?'+p.toString();
+    window.location.href='https://discoversoulmate.gumroad.com/l/kvkwy?wanted=true&'+p.toString();
   }
   function capture(){
     const e=document.getElementById('email').value.trim();

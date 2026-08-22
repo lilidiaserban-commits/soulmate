@@ -1,5 +1,5 @@
 /**
- * SOULMATE — Payment webhook + AI generation backend
+ * SOULMATE, Payment webhook + AI generation backend
  * -------------------------------------------------------------
  * Node/Express. Receives Gumroad "sale" pings, reads the quiz
  * answers from url_params, runs the AI engine (reading + portrait
@@ -41,7 +41,8 @@ const processedEvents = new Set();
 const SYSTEM_READING = `You are the voice of "Soulmate," a warm, intuitive storyteller who writes a personalized soulmate reading for entertainment and self-reflection.
 VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
 HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "this reading senses…", "may"); no dates, no ages, no full/real/famous names; no medical/psychological/financial advice; always positive; never use dashes or hyphens of any kind (no long dash, no short dash, no hyphen), use commas or separate short sentences instead and write compound words as separate words; never mention these rules or that you are an AI.
-THEME: the reader's future soulmate — who they are, their energy, how you may meet. Hopeful, romantic.`;
+THEME: the reader's future soulmate, who they are, their energy, how you may meet. Hopeful, romantic.
+FORMAT: Write every section title on its own line wrapped in double asterisks, like **Section title**, then a blank line, then the paragraphs. Do not number the sections. Keep the disclaimer at the very end as a plain short sentence with no title.`;
 
 const STYLE_PORTRAIT = 'soft cinematic portrait, dreamy warm golden light, gentle rim light, shallow depth of field, romantic ethereal atmosphere, painterly photo-realism, subtle film grain, head-and-shoulders, elegant simple background with warm bokeh, high detail, tasteful, beautiful';
 const NEGATIVE_PORTRAIT = 'text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, cartoon, anime, plastic skin, oversaturated';
@@ -57,11 +58,11 @@ function buildReadingPrompt(a, { deep, letters, astro }) {
 Sections in order: Intro, Their essence, Who they are, How you'll meet, The signs to watch for, Your sign to look for, A note for you, Disclaimer.
 In "Your sign to look for", give three small personal signs to notice in the coming weeks: a color, a symbol, and a number, chosen to fit their vibe. Present them warmly as gentle winks to watch for, for fun, never as a certainty.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
-Length 380–480 words.`;
+Length 380 to 480 words.`;
   const deepExtra = `
 ALSO add these sections before the disclaimer:
 - Your meeting timeline: frame as a SEASON / life-energy window, never a date.
-- Red flags to watch for: 2–3 gentle "this may not be your person if…" signals, supportive.
+- Red flags to watch for: 2 to 3 gentle "this may not be your person if…" signals, supportive.
 - Your compatibility map: "Where you'll click" + "Where you'll grow".
 - A little clue about their name: playfully hint the first letter of their name seems to shimmer, it may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A fun wink with a few possible letters, warm and light, never a certainty.
 - A cosmic clue just for fun: open with one light playful line, then include these three lines exactly as written, each on its own line:
@@ -70,7 +71,7 @@ Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
 - The first words they may say: one short romantic line imagining the very first words your soulmate says to you when you meet, warm and cinematic, present tense.
-Add +500–700 words.`;
+Add +500 to 700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
 }
 
@@ -135,7 +136,7 @@ function soulJourney(seed) {
 
 // --- TEXT (OpenAI Chat Completions) ---
 async function generateText({ system, user }) {
-  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing — check your .env file');
+  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing, check your .env file');
   const r = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
@@ -152,7 +153,7 @@ async function generateText({ system, user }) {
 
 // --- IMAGE (OpenAI Images) ---
 async function generateImage({ prompt, negative, aspect }, { seed, hd }) {
-  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing — check your .env file');
+  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing, check your .env file');
   const size = aspect === '4:5' ? '1024x1536' : '1024x1024';
   const fullPrompt = `${prompt}. Avoid: ${negative}.`;
   const r = await fetch('https://api.openai.com/v1/images/generations', {
@@ -178,7 +179,7 @@ async function storeResult(customerId, result) {
 
 // --- EMAIL (Resend) ---
 async function deliverEmail(email, result, { keepsakePdf }) {
-  if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing — skipping email'); return; }
+  if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing, skipping email'); return; }
   const reading = (result.sections.reading || result.sections.deepReport || '').replace(/\n/g, '<br>');
   const portrait = result.images[0];
   const attachments = [];
@@ -188,7 +189,7 @@ async function deliverEmail(email, result, { keepsakePdf }) {
   const html = `<div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#2a1030">
     <h1 style="font-family:Georgia,serif">Your Soulmate Reading ✨</h1>
     <p style="line-height:1.7">${reading}</p>
-    <p style="font-size:12px;color:#888">Your portrait is attached. For entertainment &amp; self-reflection only — not a prediction. Questions? ${SUPPORT_EMAIL}</p>
+    <p style="font-size:12px;color:#888">Your portrait is attached. For entertainment &amp; self-reflection only, not a prediction. Questions? ${SUPPORT_EMAIL}</p>
   </div>`;
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -285,9 +286,9 @@ app.get('/terms', (_req, res) => res.type('html').send(legalPage('Terms &amp; Co
 app.get('/privacy', (_req, res) => res.type('html').send(legalPage('Privacy Policy', `
 <p>This Privacy Policy explains how ${LEGAL_COMPANY} ("we") handles your personal data when you use the Soulmate service. We are the data controller.</p>
 <h2>1. Data we collect</h2>
-<p>We collect: (a) the answers you give in the quiz; (b) your email address, so we can send you your result; and (c) purchase information, which is handled by our payment provider, Gumroad. We do not ask for or store your card details — Gumroad handles payment securely.</p>
+<p>We collect: (a) the answers you give in the quiz; (b) your email address, so we can send you your result; and (c) purchase information, which is handled by our payment provider, Gumroad. We do not ask for or store your card details, Gumroad handles payment securely.</p>
 <h2>2. Why we use it &amp; legal basis</h2>
-<p>We use your data to create and deliver your reading and portrait and to email it to you — this is necessary to perform the service you purchased (contract). We keep data collection to the minimum needed for this.</p>
+<p>We use your data to create and deliver your reading and portrait and to email it to you, this is necessary to perform the service you purchased (contract). We keep data collection to the minimum needed for this.</p>
 <h2>3. Who we share it with (processors)</h2>
 <p>We use a small number of trusted providers to run the Service: <strong>OpenAI</strong> (to generate the reading and portrait), <strong>Resend</strong> (to email your result), and <strong>Gumroad</strong> (to process payment as Merchant of Record). They process data on our behalf under their own security terms. <strong>We never sell your personal data.</strong></p>
 <h2>4. International transfers</h2>
@@ -299,7 +300,7 @@ app.get('/privacy', (_req, res) => res.type('html').send(legalPage('Privacy Poli
 <h2>7. Cookies</h2>
 <p>We use only the minimal cookies/technology needed for the site to work. We do not use them to build advertising profiles of you.</p>
 <h2>8. Contact</h2>
-<p>${LEGAL_COMPANY}, ${LEGAL_ADDRESS} — <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+<p>${LEGAL_COMPANY}, ${LEGAL_ADDRESS}, <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
 `)));
 
 app.get('/refund', (_req, res) => res.type('html').send(legalPage('Refund &amp; Cancellation Policy', `
@@ -307,13 +308,13 @@ app.get('/refund', (_req, res) => res.type('html').send(legalPage('Refund &amp; 
 <h2>1. Digital product, delivered on demand</h2>
 <p>Your reading and portrait are personalized digital content, generated specifically for you and delivered immediately after purchase.</p>
 <h2>2. Right of withdrawal</h2>
-<p>Under EU consumer law you normally have 14 days to withdraw from an online purchase. For digital content that is supplied immediately, this right ends once delivery begins — and by starting your reading you ask us to begin right away and acknowledge you lose the 14-day withdrawal right for that content. This is standard for instant digital goods.</p>
+<p>Under EU consumer law you normally have 14 days to withdraw from an online purchase. For digital content that is supplied immediately, this right ends once delivery begins, and by starting your reading you ask us to begin right away and acknowledge you lose the 14-day withdrawal right for that content. This is standard for instant digital goods.</p>
 <h2>3. We still want you happy</h2>
-<p>If something went wrong — you didn't receive your result, or there was a technical problem — contact us within 14 days at <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> and we'll make it right or issue a refund.</p>
+<p>If something went wrong, you didn't receive your result, or there was a technical problem, contact us within 14 days at <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> and we'll make it right or issue a refund.</p>
 <h2>4. How refunds are processed</h2>
 <p>Because Gumroad is our Merchant of Record, refunds are issued through Gumroad back to your original payment method. You can contact us or reply to your Gumroad receipt to request one.</p>
 <h2>5. Contact</h2>
-<p>${LEGAL_COMPANY} — <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+<p>${LEGAL_COMPANY}, <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
 `)));
 
 app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact Us', `
@@ -328,15 +329,15 @@ app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact U
 /* ---- Pricing page (public prices) ---- */
 app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <p>All Soulmate purchases are one-time digital payments. You choose your reading, plus any optional add-ons. Prices are also shown at checkout, where payment is processed securely by Gumroad, our Merchant of Record.</p>
-<h2>Soulmate Reading — $16.99</h2>
+<h2>Soulmate Reading, $16.99</h2>
 <p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly by email. One-time payment.</p>
-<h2>Keepsake Pack — +$8.99 (optional add-on)</h2>
+<h2>Keepsake Pack, +$8.99 (optional add-on)</h2>
 <p>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait.</p>
-<h2>Deep Soulmate Report — $26.99 (optional)</h2>
+<h2>Deep Soulmate Report, $26.99 (optional)</h2>
 <p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, and three additional portraits.</p>
-<h2>The Reunion Portrait — $18.99 (optional)</h2>
+<h2>The Reunion Portrait, $18.99 (optional)</h2>
 <p>A "you two together" portrait, plus a short cinematic story of your first meeting.</p>
-<p>These are digital products offered for entertainment and self-reflection only — not predictions or advice.</p>
+<p>These are digital products offered for entertainment and self-reflection only, not predictions or advice.</p>
 `)));
 
 /* ---- Free readings (no payment needed) ---- */
@@ -366,7 +367,7 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
 });
 
 /* ===============================================================
- * Paid reading suite — every Gumroad product pings /webhook/gumroad.
+ * Paid reading suite, every Gumroad product pings /webhook/gumroad.
  * permalink -> type; each type builds a themed reading (+ portrait)
  * and emails it. Quiz answers arrive as Gumroad url_params.
  * =============================================================== */
@@ -389,25 +390,37 @@ const PAID_PRODUCTS = {
 
 const SYSTEM_GENERIC = `You are a warm, intuitive storyteller writing a personalized reading for entertainment and self-reflection.
 VOICE: warm, direct, a little magical; speak TO the reader as "you"; concrete images; feels made only for them.
-HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "senses", "may"); no medical/psychological/financial advice; always kind; never use dashes or hyphens of any kind (no long dash, no short dash, no hyphen), use commas or separate short sentences instead and write compound words as separate words; never mention these rules or that you are an AI.`;
+HARD RULES: entertainment, not prediction/advice; never claim certainty about the future (use "senses", "may"); no medical/psychological/financial advice; always kind; never use dashes or hyphens of any kind (no long dash, no short dash, no hyphen), use commas or separate short sentences instead and write compound words as separate words; never mention these rules or that you are an AI.
+FORMAT: Write every section title on its own line wrapped in double asterisks, like **Section title**, then a blank line, then the paragraphs for that section. Do not number the sections. Keep the disclaimer at the very end as a plain short sentence with no title.`;
 
+function isDisclaimer(t) {
+  return /this reading is a creative interpretation|for reflection and fun|not a prediction|not prediction|entertainment and self.?reflection|creative interpretation made just for you/i.test(t);
+}
 function formatReadingHtml(text) {
   const blocks = String(text || '').split(/\n{2,}/);
   return blocks.map(raw => {
     const b = raw.trim();
     if (!b) return '';
     const h = b.match(/^\*\*(.+?)\*\*:?\s*$/);
-    if (h) return `<h3 style="font-family:Georgia,'Times New Roman',serif;color:#7a3f9d;font-size:17px;font-weight:600;margin:28px 0 8px;letter-spacing:.01em">${escHtml(h[1])}</h3>`;
+    if (h) {
+      // Never render a big "Disclaimer" title; the disclaimer text styles itself below.
+      if (/^disclaimer\b/i.test(h[1].trim())) return '';
+      return `<h3 style="font-family:Georgia,'Times New Roman',serif;color:#8a4bbd;font-size:19px;font-weight:700;margin:30px 0 10px;letter-spacing:.2px">${escHtml(h[1])}</h3>`;
+    }
     let html = escHtml(b)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/\n/g, '<br>');
+    // The closing disclaimer renders small and gray, like a footnote.
+    if (isDisclaimer(b)) {
+      return `<p style="margin:22px 0 0;color:#9a8aa5;font-size:12px;line-height:1.6">${html}</p>`;
+    }
     return `<p style="margin:0 0 15px;color:#3d2d49;font-size:16px;line-height:1.78">${html}</p>`;
   }).join('');
 }
 
 async function sendReadingEmail(email, subject, heading, bodyText, portraitFile) {
-  if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing — skipping'); return; }
+  if (!RESEND_API_KEY) { console.warn('[email] RESEND_API_KEY missing, skipping'); return; }
   const files = (Array.isArray(portraitFile) ? portraitFile : [portraitFile]).filter(f => f && fs.existsSync(f));
   const attachments = [];
   let portraitBlock = '';
@@ -534,7 +547,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const want = p.want ? ` They most want to know: ${p.want}.` : '';
     const feel = p.feel ? ` Lately they feel: ${p.feel}.` : '';
     const help = p.help ? ` What would help them most: ${p.help}.` : '';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write a deep, personal LOVE tarot reading about this person's love life.${sit}${mind}${want}${feel}${help} The cards drawn, in order, are: ${cards}. Do not use fixed position labels. Weave all the cards together into ONE flowing, tailored answer to their exact question and situation. Cover naturally: where their heart is now, what the cards reveal about their question, an honest read of the light and the shadow, a sense of love timing (a season or window, never a date), and one clear next step. Frame as reflection and entertainment, not fortune telling. Disclaimer. 800-1000 words. Warm and specific.${focusLine}` });
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write a deep, personal LOVE tarot reading about this person's love life.${sit}${mind}${want}${feel}${help} The cards drawn, in order, are: ${cards}. Each card is marked (upright) or (reversed); an upright card carries its open, flowing meaning, and a reversed card carries its shadow, blocked or inward meaning, so read each card in the orientation given. Do not use fixed position labels. Weave all the cards together into ONE flowing, tailored answer to their exact question and situation. Cover naturally: where their heart is now, what the cards reveal about their question, an honest read of the light and the shadow, a sense of love timing (a season or window, never a date), and one clear next step. Frame as reflection and entertainment, not fortune telling. Disclaimer. 800-1000 words. Warm and specific.${focusLine}` });
     subject = 'Your Love Tarot reading 🔮';
     heading = 'Your Love Tarot Reading';
   }
@@ -545,9 +558,9 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const hard = p.hard ? ` The hardest part between them: ${p.hard}.` : '';
     const rel = p.relsign ? ` Their relationship's own composite sign is ${p.relsign}, use exactly this in the relationship sign section.` : '';
     const more = p.more ? ` More context they shared: ${p.more}.` : '';
-    const bd1 = [p.p1, p.t1].filter(Boolean).join(', '), bd2 = [p.p2, p.t2].filter(Boolean).join(', ');
-    const bl = (bd1 || bd2) ? ` Birth places and times, use them for a light rising sign flavour where given, ${n1}: ${bd1 || 'unknown'}; ${n2}: ${bd2 || 'unknown'}.` : '';
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended LOVE compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%. Ground it in astrology, their signs and elements.${want}${feel}${hard}${rel}${more}${bl} Tailor everything to their status and question, do not force sections that do not fit. Cover naturally: Your relationship's own sign (treat the relationship itself as its own being with a composite zodiac personality, name it), Your dynamic in one vivid phrase, Your elemental chemistry, Where you flow, Where the friction is (honest), A translation guide (how to reach each other when you clash), What each of you needs to feel loved, Your connection type (say whether you read as soulmates, twin flames, karmic partners, or kindred souls, and why), Your karmic connection (whether your souls may have met before and what you are here to teach each other), Your growth path, An honest read on where this could go, and one clear next step. Balanced and honest, not all positive. Disclaimer. 900-1100 words.${focusLine}` });
+    const signRule = ` STRICT ASTROLOGY RULES: ${n1}'s only zodiac sign is ${z1}, and ${n2}'s only zodiac sign is ${z2}. Use these exact Sun signs and their elements, consistently, in every section. Never mention any other zodiac sign for either person and never contradict these. Do NOT invent Moon signs or Rising signs. Do NOT turn anyone's birth city into a personality trait, a city is only a place, not a character. Base all the astrology only on these two Sun signs and their elements.`;
+    const audience = ` AUDIENCE: the reader is ${n1}; ${n2} is not reading this. Write the ENTIRE reading addressed to ${n1} as "you". Give advice, guidance and the next step ONLY to ${n1}. You may describe what ${n2} needs and how ${n2} feels, so ${n1} understands ${n2} better, but never give instructions, tasks or advice to ${n2}.`;
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended LOVE compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${signRule}${audience}${want}${feel}${hard}${rel}${more} Tailor everything to their status and question, do not force sections that do not fit. Cover naturally, all written to ${n1}: Your relationship's own sign (treat the relationship itself as its own being with a composite zodiac personality, name it), Your dynamic in one vivid phrase, Your elemental chemistry (from the two Sun signs only), Where you flow, Where the friction is (honest), How to reach ${n2} when you clash (written for you, practical, only your side to work on), What you need to feel loved and what ${n2} needs (describe ${n2}'s needs so you understand them, do not instruct ${n2}), Your connection type (say whether you two read as soulmates, twin flames, karmic partners, or kindred souls, and why), Your karmic connection (whether your souls may have met before and what this bond is here to teach you), Your growth path, An honest read on where this could go, and one clear next step for you. Balanced and honest, not all positive. Disclaimer. 900-1100 words.${focusLine}` });
     subject = `Your Love Compatibility reading, ${n1} & ${n2} 💞`;
     heading = `${n1} & ${n2}: Your Compatibility`;
   }
@@ -604,14 +617,14 @@ app.get('/preview', async (req, res) => {
   const act = q.send ? 'send' : (q.go ? 'go' : '');
   if (act) {
     if (q.key !== PKEY) out = `<div class="err">Wrong key.</div>`;
-    else if (previewCount >= PREVIEW_MAX) out = `<div class="err">Limit reached for now — try again later.</div>`;
+    else if (previewCount >= PREVIEW_MAX) out = `<div class="err">Limit reached for now, try again later.</div>`;
     else if (act === 'send' && !String(q.email||'').includes('@')) out = `<div class="err">Adaugă emailul tău ca să primești varianta completă (cu portret).</div>`;
     else {
       previewCount++;
       try {
         if (act === 'send') {
           await generateForType(ptype, q, q.email, 'sim-' + previewCount, {});
-          out = `<div class="reading"><h2>✓ Trimis</h2><p>Readingul complet (cu portret) a plecat către <b>${escHtml(q.email)}</b>. Ajunge în 1–2 minute — verifică și spam/promotions. E identic cu ce primește un client care plătește.</p></div>`;
+          out = `<div class="reading"><h2>✓ Trimis</h2><p>Readingul complet (cu portret) a plecat către <b>${escHtml(q.email)}</b>. Ajunge în 1 to 2 minute, verifică și spam/promotions. E identic cu ce primește un client care plătește.</p></div>`;
         } else {
           const r = await generateForType(ptype, q, null, 'preview', { textOnly: true });
           const body = (r && r.text) ? r.text : '(no text generated)';
@@ -628,7 +641,7 @@ app.get('/preview', async (req, res) => {
     ['Soulmate', { ptype:'soulmate', key:K, name:'Ana', meet:'woman', age:'25-34', energy:'warm', look:'soft', value:'loyalty and real depth', lightning:'deep late-night talks; someone who chooses me back' }],
     ['Soulmate Premium', { ptype:'soulmate-deep', key:K, name:'Ana', meet:'woman', age:'25-34', energy:'warm', look:'soft', value:'loyalty and real depth', lightning:'deep late-night talks; someone who chooses me back' }],
     ['Love Archetype', { ptype:'archetype', key:K, archetype:'The Dreamer', profile:'The Dreamer (3/6), The Muse (2/6), The Flame (1/6)', answers:'Deep talks under the stars | Making something beautiful together', pref:'woman', focus:'Will I find someone who really gets me?' }],
-    ['Past Life', { ptype:'pastlife', key:K, persona:'The Renaissance Painter — Florence', profile:'The Painter (3/6), The Mystic (2/6)', answers:'Making something beautiful | A quiet life of craft', gender:'woman', focus:"I've always been drawn to old art and Italy" }],
+    ['Past Life', { ptype:'pastlife', key:K, persona:'The Renaissance Painter, Florence', profile:'The Painter (3/6), The Mystic (2/6)', answers:'Making something beautiful | A quiet life of craft', gender:'woman', focus:"I've always been drawn to old art and Italy" }],
     ['Tarot', { ptype:'tarot', key:K, cards:'The Star, The Lovers, The Sun', focus:'What is coming for me in love?' }],
     ['Compatibility', { ptype:'compat', key:K, n1:'Ana', n2:'Mihai', z1:'Leo', z2:'Scorpio', status:'together', score:'78', focus:'Will we last long-term?' }],
   ];
@@ -642,20 +655,20 @@ button{margin-top:16px;background:#7a3f9d;color:#fff;border:0;border-radius:999p
 .reading{background:#fff;border:1px solid #eee3f2;border-radius:16px;padding:22px 26px;margin-top:26px;line-height:1.65}
 .reading h2{font-family:Georgia,serif;color:#7a3f9d}.err{background:#fdecea;color:#b5372e;padding:12px;border-radius:8px;margin-top:16px}
 .hint{font-size:12px;color:#8a7a95}</style>
-<h1>🔮 Reading preview — test tool</h1>
+<h1>🔮 Reading preview, test tool</h1>
 <p class="hint">Alege tipul, completează câmpurile relevante, apoi „Preview text" (doar text pe ecran) sau „Trimite pe email" (identic, cu portret). Rulează de câte ori vrei.</p>
 <div style="font-size:13.5px;color:#3d2d49;background:#f0e7f8;border-radius:12px;padding:12px 14px;margin:2px 0 18px;line-height:1.9">👉 <b>Exemple</b> (click ca să completeze formularul, apoi apeși Preview sau Trimite): ${exHtml}</div>
 <form method="get">
 <label>Reading type<select name="ptype">${types.map(t=>`<option ${t===ptype?'selected':''}>${t}</option>`).join('')}</select></label>
-<div class="row">${inp('archetype','ex: The Devoted')}${inp('persona','ex: The Desert Nomad — Silk Road')}</div>
+<div class="row">${inp('archetype','ex: The Devoted')}${inp('persona','ex: The Desert Nomad, Silk Road')}</div>
 <div class="row">${inp('cards','ex: The Lovers, The Wheel, The Wish')}${inp('focus','întrebarea / inputul lor')}</div>
 ${inp('profile','ex: The Devoted (2/6), The Flame (2/6), The Dreamer (1/6)')}
 ${inp('answers','răspunsurile din test, separate cu |')}
 <div class="row">${inp('n1','nume 1')}${inp('n2','nume 2')}</div>
 <div class="row">${inp('z1','zodie 1')}${inp('z2','zodie 2')}</div>
 <div class="row">${inp('status','status relație')}${inp('score','ex: 78')}</div>
-<div class="row">${inp('gender','past life — tu azi: woman / man')}${inp('pref','archetype ideal: woman / man / either')}</div>
-<div class="row">${inp('name','soulmate — numele tău')}${inp('meet','soulmate e: woman / man')}</div>
+<div class="row">${inp('gender','past life, tu azi: woman / man')}${inp('pref','archetype ideal: woman / man / either')}</div>
+<div class="row">${inp('name','soulmate, numele tău')}${inp('meet','soulmate e: woman / man')}</div>
 <div class="row">${inp('age','soulmate: 18-24 / 25-34 / 35-44 / 45+')}${inp('energy','soulmate: grounded / adventurous / warm / mysterious')}</div>
 <div class="row">${inp('look','soulmate: soft / bold / natural / dark')}${inp('value','soulmate: ce prețuiești')}</div>
 ${inp('lightning','soulmate: răspunsuri scurte, ce cauți')}
