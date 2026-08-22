@@ -70,7 +70,7 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- The first words they may say: one short romantic line imagining the very first words your soulmate says to you when you meet, warm and cinematic, present tense.
+- The first words they may say: one short, natural line that fits the SETTING where you might meet (from how you'll meet) and this person's own energy and character. Something ordinary a real person would actually say in that exact moment and place, not about the two of you, not romantic, not a pickup line. It can be totally mundane, a passing remark, a small question, a comment about what is happening around you. Present tense, in quotation marks.
 Add +500 to 700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
 }
@@ -95,7 +95,7 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- The first words they may say: one short romantic line imagining the very first words your soulmate says when you meet, warm and cinematic, present tense.
+- The first words they may say: one short, natural line that fits the SETTING where you might meet (from how you'll meet) and this person's own energy and character. Something ordinary a real person would actually say in that exact moment and place, not about the two of you, not romantic, not a pickup line. It can be totally mundane, a passing remark, a small question, a comment about what is happening around you. Present tense, in quotation marks.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 500 to 700 words.`;
   return { system: SYSTEM_READING, user };
@@ -459,17 +459,22 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
     files.forEach((f, i) => {
       attachments.push({ filename: `your-portrait-${i + 1}.png`, content: fs.readFileSync(f).toString('base64'), content_id: `portrait${i}` });
     });
-    const big = `<img src="cid:portrait0" width="290" alt="Your portrait" style="width:290px;max-width:78%;border-radius:16px;border:3px solid rgba(244,199,138,.55);box-shadow:0 12px 34px rgba(0,0,0,.4);display:block;margin:0 auto">`;
-    let more = '';
-    if (files.length > 1) {
-      more = `<div style="margin-top:14px;line-height:0">` + files.slice(1).map((_, k) =>
-        `<img src="cid:portrait${k + 1}" width="132" alt="Portrait" style="width:132px;max-width:42%;border-radius:12px;border:2px solid rgba(244,199,138,.5);margin:6px 5px;display:inline-block">`
+    let grid;
+    if (files.length === 1) {
+      grid = `<img src="cid:portrait0" width="290" alt="Your portrait" style="width:290px;max-width:78%;border-radius:16px;border:3px solid rgba(244,199,138,.55);box-shadow:0 12px 34px rgba(0,0,0,.4);display:block;margin:0 auto">`;
+    } else {
+      // two or three portraits, equal size, side by side
+      const w = files.length >= 3 ? 168 : 236;
+      const mw = files.length >= 3 ? '30%' : '45%';
+      grid = `<div style="line-height:0;font-size:0;text-align:center">` + files.map((_, i) =>
+        `<img src="cid:portrait${i}" width="${w}" alt="Portrait" style="width:${w}px;max-width:${mw};border-radius:14px;border:3px solid rgba(244,199,138,.55);box-shadow:0 10px 28px rgba(0,0,0,.38);margin:6px;display:inline-block;vertical-align:top">`
       ).join('') + `</div>`;
     }
-    const caption = files.length > 1 ? 'three portraits of your soulmate, created just for you' : 'created just for you';
+    const nWord = { 2: 'two', 3: 'three' }[files.length] || '';
+    const caption = files.length > 1 ? `${nWord} portraits of your soulmate, created just for you` : 'created just for you';
     portraitBlock = `
       <tr><td style="background:linear-gradient(160deg,#2e1640,#4a1f47);padding:28px 26px;text-align:center">
-        ${big}${more}
+        ${grid}
         <div style="font-family:Georgia,serif;color:#e7dcf1;font-size:13px;font-style:italic;margin-top:15px">${caption}</div>
       </td></tr>`;
   }
