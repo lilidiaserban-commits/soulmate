@@ -70,7 +70,7 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- The first words they may say: one short, natural line that fits the SETTING where you might meet (from how you'll meet) and this person's own energy and character. Something ordinary a real person would actually say in that exact moment and place, not about the two of you, not romantic, not a pickup line. It can be totally mundane, a passing remark, a small question, a comment about what is happening around you. Present tense, in quotation marks.
+- The first words they may say: JUST ONE short, casual line they might actually say, the kind of real, everyday, slightly random thing a person blurts out that would fit almost ANY situation (a small compliment, an honest offbeat remark, a light question, a random confession) and that reveals their personality. Under 10 words, in quotation marks. Do NOT set a scene or describe where or how you meet, do NOT mention coffee, mornings, sunsets, crossing paths, or any setting. Do NOT be poetic or romantic. Give ONLY the line itself with at most a tiny lead-in like "They might just say:". Examples of the vibe (do not reuse): "I like your jacket." / "Okay, this might sound random, but hi." / "You look like you'd know a good playlist." / "I love your energy."
 Add +500 to 700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
 }
@@ -95,7 +95,7 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- The first words they may say: one short, natural line that fits the SETTING where you might meet (from how you'll meet) and this person's own energy and character. Something ordinary a real person would actually say in that exact moment and place, not about the two of you, not romantic, not a pickup line. It can be totally mundane, a passing remark, a small question, a comment about what is happening around you. Present tense, in quotation marks.
+- The first words they may say: JUST ONE short, casual line they might actually say, the kind of real, everyday, slightly random thing a person blurts out that would fit almost ANY situation (a small compliment, an honest offbeat remark, a light question, a random confession) and that reveals their personality. Under 10 words, in quotation marks. Do NOT set a scene or describe where or how you meet, do NOT mention coffee, mornings, sunsets, crossing paths, or any setting. Do NOT be poetic or romantic. Give ONLY the line itself with at most a tiny lead-in like "They might just say:". Examples of the vibe (do not reuse): "I like your jacket." / "Okay, this might sound random, but hi." / "You look like you'd know a good playlist." / "I love your energy."
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 500 to 700 words.`;
   return { system: SYSTEM_READING, user };
