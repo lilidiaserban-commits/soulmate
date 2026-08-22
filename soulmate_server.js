@@ -479,7 +479,7 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
       <div style="margin:30px 0 4px;padding:24px 22px;background:linear-gradient(160deg,#2e1640,#4a1f47);border-radius:16px;text-align:center">
         <div style="font-family:Georgia,serif;color:#f4c78a;font-size:18px;line-height:1.35;margin-bottom:8px">Want to go deeper?</div>
         <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#e7dcf1;font-size:14px;line-height:1.7;margin-bottom:18px">Unlock the extended reading: the season you may meet, gentle signs to watch for, your compatibility map, a playful clue about their name and their stars, and two more portraits of your soulmate.</div>
-        <a href="${opts.upgradeUrl}" style="display:inline-block;background:#f4c78a;color:#3a1550;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:15px;text-decoration:none;padding:14px 30px;border-radius:999px">Get the extended version, 9.99 &rarr;</a>
+        <a href="${opts.upgradeUrl}" style="display:inline-block;background:#f4c78a;color:#3a1550;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:15px;text-decoration:none;padding:14px 30px;border-radius:999px">Get the extended version, $8.26 &rarr;</a>
         <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#b9a6cf;font-size:11px;margin-top:12px">You only pay the difference, your base reading and portrait stay yours.</div>
       </div>`;
   }
