@@ -481,7 +481,10 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
   let upgradeBlock = '';
   if (opts.upgradeUrl) {
     upgradeBlock = `
-      <p style="margin:26px 0 0;padding-top:18px;border-top:1px solid #eee3f2;color:#6a5a78;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.75">P.S. If you would like to go deeper, you can unlock the extended version of your reading: the season you may meet, gentle signs to watch for, your compatibility map, a little clue about their name and their stars, and two more portraits of your soulmate. <a href="${opts.upgradeUrl}" style="color:#7a3f9d;font-weight:600">Read the extended version here</a>.</p>`;
+      <div style="margin:30px 0 4px;padding-top:22px;border-top:1px solid #eee3f2;text-align:center">
+        <p style="color:#6a5a78;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.7;margin:0 0 20px">Want to go deeper? Unlock the extended version of your reading: the season you may meet, gentle signs to watch for, your compatibility map, a little clue about their name and their stars, and two more portraits of your soulmate.</p>
+        <a href="${opts.upgradeUrl}" style="display:inline-block;background:linear-gradient(135deg,#f4c78a,#e7a86b);color:#3a1d2e;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:16px;text-decoration:none;padding:15px 36px;border-radius:999px;box-shadow:0 8px 22px rgba(200,140,80,.35)">Unlock the extended version →</a>
+      </div>`;
   }
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1eaf7">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1eaf7;margin:0;padding:0">
