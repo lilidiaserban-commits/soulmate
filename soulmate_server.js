@@ -476,12 +476,7 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
   let upgradeBlock = '';
   if (opts.upgradeUrl) {
     upgradeBlock = `
-      <div style="margin:30px 0 4px;padding:24px 22px;background:linear-gradient(160deg,#2e1640,#4a1f47);border-radius:16px;text-align:center">
-        <div style="font-family:Georgia,serif;color:#f4c78a;font-size:18px;line-height:1.35;margin-bottom:8px">Want to go deeper?</div>
-        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#e7dcf1;font-size:14px;line-height:1.7;margin-bottom:18px">Unlock the extended reading: the season you may meet, gentle signs to watch for, your compatibility map, a playful clue about their name and their stars, and two more portraits of your soulmate.</div>
-        <a href="${opts.upgradeUrl}" style="display:inline-block;background:#f4c78a;color:#3a1550;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:15px;text-decoration:none;padding:14px 30px;border-radius:999px">Get the extended version, $10 &rarr;</a>
-        <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#b9a6cf;font-size:11px;margin-top:12px">You only pay the difference, your base reading and portrait stay yours.</div>
-      </div>`;
+      <p style="margin:26px 0 0;padding-top:18px;border-top:1px solid #eee3f2;color:#6a5a78;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.75">P.S. If you would like to go deeper, you can unlock the extended version of your reading: the season you may meet, gentle signs to watch for, your compatibility map, a little clue about their name and their stars, and two more portraits of your soulmate. <a href="${opts.upgradeUrl}" style="color:#7a3f9d;font-weight:600">Read the extended version here</a>.</p>`;
   }
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1eaf7">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1eaf7;margin:0;padding:0">
@@ -503,10 +498,15 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
     </table>
     <div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#b3a6c0;font-size:11px;margin-top:16px">© 2026 Discover Soulmate</div>
   </td></tr></table></body></html>`;
+  // Plain text version (helps inbox placement: Gmail weighs a real text/plain part).
+  const plain = String(bodyText || '').replace(/\*\*/g, '').replace(/\n{3,}/g, '\n\n').trim()
+    + (files.length ? `\n\nYour portrait${files.length > 1 ? 's are' : ' is'} attached to this email.` : '')
+    + (opts.upgradeUrl ? `\n\nP.S. If you would like to go deeper, you can read the extended version here: ${opts.upgradeUrl}` : '')
+    + `\n\nDiscover Soulmate. For entertainment and self reflection only, not a prediction or advice. Questions? ${SUPPORT_EMAIL}`;
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: EMAIL_FROM, to: email, subject, html, attachments }),
+    body: JSON.stringify({ from: EMAIL_FROM, to: email, subject, html, text: plain, attachments }),
   });
   if (!r.ok) throw new Error(`Resend ${r.status}: ${await r.text()}`);
   console.log('[email] sent to', email, '·', subject);
@@ -560,8 +560,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     if (deep) {
       text += '\n\nYour Premium package includes three high resolution portraits of your soulmate, the same person in different moments, plus a keepsake copy of this reading to save or print.';
     }
-    subject = deep ? 'Your Premium Soulmate Reading is inside ✨' : 'Your Soulmate Reading is inside ✨';
-    heading = deep ? 'Your Premium Soulmate Reading ✨' : 'Your Soulmate Reading ✨';
+    subject = `${a.name ? a.name + ', your' : 'Your'} ${deep ? 'Premium Soulmate reading' : 'Soulmate reading'} is inside`;
+    heading = deep ? 'Your Premium Soulmate Reading' : 'Your Soulmate Reading';
     // Base buyers get an "upgrade to Premium" button in their email. It carries their
     // answers plus the base sale id, so the upgrade reuses the same seed (letters, astro, faces).
     if (!deep) {
@@ -596,7 +596,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
       }
     }
     text += '\n\nHere are two more portraits of your soulmate, the same person in new moments. Together with the first portrait from your base reading, you now have all three.';
-    subject = 'Your extended Soulmate reading is inside ✨';
+    subject = `${a.name ? a.name + ', your' : 'Your'} extended Soulmate reading is inside`;
     heading = 'Your Extended Soulmate Reading ✨';
   }
   else if (type === 'archetype') {
@@ -604,7 +604,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const profLine = p.profile ? ` Their full quiz profile (result scores): ${p.profile}. Use their secondary leanings to make this specific to THEM, not generic.` : '';
     const ansLine = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Reference these real choices naturally so the reading feels personally theirs.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended "Love Archetype" reading for someone whose primary archetype is "${arch}". This is a self knowledge reading about HOW they love, grounded in the six love styles (Eros passionate, Ludus playful, Storge friendship based, Pragma practical, Mania all in, Agape selfless). Name the love style behind their archetype naturally, without jargon. It is about them, not about finding a specific partner.${profLine}${ansLine} Sections in order: What your type really means (core traits of your archetype), Your light (your strengths in love), Your shadow (your weaknesses and the traps your type falls into, honest but kind), What you need to feel loved, Who you harmonize with and who you clash with (which love styles fit yours and which create friction), How to grow into the best version of your type, Your love blend (show their mix as playful percentages across the styles, based on their scores), Your love motto (one memorable line). Disclaimer. 800-1000 words. Warm, specific, never clinical.${focusLine}` });
-    subject = 'Your extended Love Archetype reading ✨';
+    subject = 'Your extended Love Archetype reading is inside';
     heading = `Your Love Archetype: ${arch}`;
   }
   else if (type === 'pastlife') {
@@ -615,7 +615,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Ground it in karmic astrology, where the South Node represents the soul's past life signature and its karmic lesson. This person is ${sj.age} whose soul has lived roughly ${sj.lives} lifetimes.${profLineP}${ansLineP} Sections in order: The world you lived in (the era and place), Who you were and your daily life, How that life ended, What your soul carried forward (a gift and a wound), Your karmic lesson (frame it through the South Node, the pattern your soul is here to grow beyond), Your soul age (weave in that you are ${sj.age} of about ${sj.lives} lifetimes), How it echoes in you today (an unexplained fear, a natural talent, a place you are drawn to), A message from that self, Disclaimer. 800-1000 words, vivid and warm.${focusLine}` });
     const selfG = p.gender === 'woman' ? 'woman' : p.gender === 'man' ? 'man' : 'person';
     if (media) portrait = await themedPortrait(`a cinematic period-accurate portrait of a ${selfG} who lived as ${persona}, atmospheric, head and shoulders`, seed);
-    subject = 'Your extended Past Life reading ✨';
+    subject = 'Your extended Past Life reading is inside';
     heading = `Your Past Life: ${persona}`;
   }
   else if (type === 'tarot') {
@@ -626,7 +626,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const feel = p.feel ? ` Lately they feel: ${p.feel}.` : '';
     const help = p.help ? ` What would help them most: ${p.help}.` : '';
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write a deep, personal LOVE tarot reading about this person's love life.${sit}${mind}${want}${feel}${help} The cards drawn, in order, are: ${cards}. Each card is marked (upright) or (reversed); an upright card carries its open, flowing meaning, and a reversed card carries its shadow, blocked or inward meaning, so read each card in the orientation given. Do not use fixed position labels. Weave all the cards together into ONE flowing, tailored answer to their exact question and situation. Cover naturally: where their heart is now, what the cards reveal about their question, an honest read of the light and the shadow, a sense of love timing (a season or window, never a date), and one clear next step. Frame as reflection and entertainment, not fortune telling. Disclaimer. 800-1000 words. Warm and specific.${focusLine}` });
-    subject = 'Your Love Tarot reading 🔮';
+    subject = 'Your Love Tarot reading is inside';
     heading = 'Your Love Tarot Reading';
   }
   else if (type === 'compat') {
@@ -639,7 +639,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const signRule = ` STRICT ASTROLOGY RULES: ${n1}'s only zodiac sign is ${z1}, and ${n2}'s only zodiac sign is ${z2}. Use these exact Sun signs and their elements, consistently, in every section. Never mention any other zodiac sign for either person and never contradict these. Do NOT invent Moon signs or Rising signs. Do NOT turn anyone's birth city into a personality trait, a city is only a place, not a character. Base all the astrology only on these two Sun signs and their elements.`;
     const audience = ` AUDIENCE: the reader is ${n1}; ${n2} is not reading this. Write the ENTIRE reading addressed to ${n1} as "you". Give advice, guidance and the next step ONLY to ${n1}. You may describe what ${n2} needs and how ${n2} feels, so ${n1} understands ${n2} better, but never give instructions, tasks or advice to ${n2}.`;
     text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended LOVE compatibility reading for ${n1} (${z1}) and ${n2} (${z2}), relationship status: "${status}", overall match around ${score}%.${signRule}${audience}${want}${feel}${hard}${rel}${more} Tailor everything to their status and question, do not force sections that do not fit. Cover naturally, all written to ${n1}: Your relationship's own sign (treat the relationship itself as its own being with a composite zodiac personality, name it), Your dynamic in one vivid phrase, Your elemental chemistry (from the two Sun signs only), Where you flow, Where the friction is (honest), How to reach ${n2} when you clash (written for you, practical, only your side to work on), What you need to feel loved and what ${n2} needs (describe ${n2}'s needs so you understand them, do not instruct ${n2}), Your connection type (say whether you two read as soulmates, twin flames, karmic partners, or kindred souls, and why), Your karmic connection (whether your souls may have met before and what this bond is here to teach you), Your growth path, An honest read on where this could go, and one clear next step for you. Balanced and honest, not all positive. Disclaimer. 900-1100 words.${focusLine}` });
-    subject = `Your Love Compatibility reading, ${n1} & ${n2} 💞`;
+    subject = `Your Love Compatibility reading, ${n1} and ${n2}`;
     heading = `${n1} & ${n2}: Your Compatibility`;
   }
   else { console.warn('[gumroad] no generator for', type); return null; }

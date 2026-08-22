@@ -333,7 +333,7 @@ function openCheckout(key){
     name:d.name, meet:d.meet, age:d.age, energy:d.energy,
     look:d.look, value:d.value, lightning:d.lightning, email:d.email
   });
-  window.location.href = GUMROAD_BASE + prod.slug + '?' + p.toString();
+  window.location.href = GUMROAD_BASE + prod.slug + '?wanted=true&' + p.toString();
 }
 function buyUpsell(which,next){ declineTo(next); } /* upsells not on Gumroad yet */
 function declineTo(id){ if(id==='s-upsell2') stage='upsell2'; if(id==='s-result'){ show('s-result'); startGenerating(); return; } show(id); }
