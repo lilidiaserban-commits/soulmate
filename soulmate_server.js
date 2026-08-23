@@ -47,9 +47,16 @@ FORMAT: Write every section title on its own line wrapped in double asterisks, l
 const STYLE_PORTRAIT = 'loose expressive fine-art watercolor and ink portrait of a natural, realistic human face with true-to-life proportions and natural lifelike skin tone and hair colour, confident graphite and ink sketch outline with visible pencil lines, painterly watercolor washes kept mostly inside the drawn figure, soft violet and purple accents only around the background edges with a few gentle white star-sparkle highlights, on clean white watercolor paper with generous negative space, a few small subtle paint splatters nearby, dreamy romantic mood, gallery-quality hand-painted illustration, head-and-shoulders, facing forward toward the viewer, front view portrait, beautiful';
 const NEGATIVE_PORTRAIT = 'photograph, photo, photorealistic, 3d render, cartoon, anime, cgi, plastic skin, text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, oversaturated';
 
-function buildReadingPrompt(a, { deep, letters, astro, signs }) {
+function buildReadingPrompt(a, { deep, letters, astro, signs, kit }) {
   const lightningStr = (Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ');
+  const k = kit || { vocation: 'a landscape gardener', hobby: 'training for long trail runs', quirk: 'always has a worn paperback folded into a back pocket', phrase: 'says "right, let\'s figure it out" before tackling anything' };
   const base = `Write ${a.name || 'the reader'}'s soulmate reading.
+
+BUILD THE SOULMATE AROUND THIS FIXED PERSON (these are the ONLY concrete facts about them — invent nothing that contradicts these, and lean on them so the person feels real and specific, not like a mirror of the reader):
+- Their work: ${k.vocation}
+- Something they love doing: ${k.hobby}
+- A small habit friends know them for: ${k.quirk}
+- A phrase they say: ${k.phrase}
 
 PRIVATE INSPIRATION — feel these only in your own mind to set a faint direction. They must NEVER appear in the reading in any recognizable form:
 - They hope to meet: ${a.meet} (this only sets whether the soulmate is a man or a woman)
@@ -64,11 +71,12 @@ ABSOLUTE RULES (critical — the reader must never recognise their own quiz answ
 - NEVER mention coffee, tea or any drink anywhere in the reading.
 - NEVER reuse the reader's own descriptor words for energy or values — do not write words like "calm", "grounded", "adventurous", "warm", "mysterious", "loyal" or "loyalty". Describe the person entirely in your own fresh wording.
 - NEVER quote, list, restate or mirror the reader's answers. If a reader could read a sentence and spot their own quiz choice in it, rewrite that sentence.
-- INVENT one specific, believable individual with concrete, ORIGINAL life details: a kind of work or vocation, how they spend their time, a hobby or two, small real habits, what friends value in them. Give each section genuinely new, varied detail — never repeat a trait or image.
+- Build every section from the FIXED PERSON above (their work, what they love doing, their habit, their phrase) and expand outward with fresh, believable detail that fits that person. Never repeat a trait or image, and never fall back on the reader's own answers.
 - Warm, specific and grounded; no vague filler, no over-poetic clichés.
 
 Sections in order, each with its own title: Intro, Who they are, How you'll meet, Little signs to watch for, A note for you, Disclaimer.
-"Who they are" must be a vivid, specific portrait of them as a real individual with CONCRETE life details — a likely kind of work or vocation, how they spend an ordinary day, a hobby or two, where they feel at home, small real habits — tangible things a friend would tell you, NOT abstract "essence / energy / vibe" language and NOT the reader's preferences restated.
+"How you'll meet" describes ONLY the setting and circumstances of how you might come together (a place, a situation, a shared context). Do NOT mention any season, month or time of year here — the season belongs only to the extended reading, so mentioning it here would contradict it.
+"Who they are" must be a vivid, specific portrait built on the FIXED PERSON above — their work (${k.vocation}), what they love doing (${k.hobby}), their habit and their phrase — plus how they spend an ordinary day and where they feel at home. Tangible things a friend would tell you, NOT abstract "essence / energy / vibe" language and NOT the reader's preferences restated.
 "Little signs to watch for" = present exactly these three as gentle playful winks to notice in the coming weeks, and use EXACTLY these, do not invent others: the colour ${signs ? signs.color : 'soft blue'}, the symbol ${signs ? signs.symbol : 'a feather'}, and the number ${signs ? signs.number : 12}. Weave them warmly into a short paragraph, light and for fun, never a certainty. This is the ONLY signs section — do not add a second one. Do NOT mention coffee, tea, or any drink here.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 380 to 480 words.`;
@@ -83,12 +91,18 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- How you might recognize them: give ONE small, telling everyday moment that would make the reader think "that's them" — something this person naturally does or says in their OWN life, NOT spoken to the reader and NOT at the moment you meet. For example how they order at a café, a phrase they use with friends, how they speak up in a room, a little habit. One or two concrete, specific sentences, warm but not romantic.
+- How you might recognize them: build this from the FIXED PERSON's habit ("${k.quirk}") and their phrase (${k.phrase}) — one small everyday moment that would make the reader think "that's them". Something they naturally do or say in their OWN life, NOT spoken to the reader and NOT at the moment you meet. NEVER mention coffee, tea or any drink. One or two concrete, specific sentences, warm but not romantic.
 Add +500 to 700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
 }
 
-function buildUpgradePrompt(a, { letters, astro }) {
+function buildUpgradePrompt(a, { letters, astro, kit }) {
+  const k = kit || { vocation: 'a landscape gardener', hobby: 'training for long trail runs', quirk: 'always has a worn paperback folded into a back pocket', phrase: 'says "right, let\'s figure it out" before tackling anything' };
+  const persona = `THE SAME FIXED PERSON from the base reading (build everything on these, invent nothing that contradicts them):
+- Their work: ${k.vocation}
+- Something they love doing: ${k.hobby}
+- A habit friends know them for: ${k.quirk}
+- A phrase they say: ${k.phrase}`;
   const signals = `PRIVATE INSPIRATION (must NEVER appear in the text in any recognizable form):
 - They hope to meet: ${a.meet} (only sets whether the soulmate is a man or a woman)
 - Reader's age band: ${a.age}
@@ -96,11 +110,12 @@ function buildUpgradePrompt(a, { letters, astro }) {
 - What the reader quietly values: ${a.value}
 - Faint personality texture: ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}`;
   const user = `${a.name ? a.name + ' ' : 'The reader '}already received their base soulmate reading and their first portrait. Now write ONLY the deeper, extended premium layers they just unlocked. Do NOT repeat the base reading and do NOT reintroduce their soulmate from scratch. Open with one short warm line saying this is the deeper layer they unlocked.
-ABSOLUTE RULES (the reader must never recognise their own quiz answers): NEVER name or hint at a colour. NEVER make a time of day a defining trait. NEVER reuse the reader's own energy/value words (no "calm", "grounded", "adventurous", "warm", "mysterious", "loyal", "loyalty"). NEVER mention coffee, tea or any drink. NEVER quote, list, restate or mirror the reader's answers. Invent concrete, ORIGINAL, varied detail; give each section genuinely NEW material, never the same trait twice.
+ABSOLUTE RULES (the reader must never recognise their own quiz answers): NEVER name or hint at a colour. NEVER make a time of day a defining trait. NEVER reuse the reader's own energy/value words (no "calm", "grounded", "adventurous", "warm", "mysterious", "loyal", "loyalty"). NEVER mention coffee, tea or any drink. NEVER quote, list, restate or mirror the reader's answers. Build every section on the FIXED PERSON below; give each section genuinely NEW material, never the same trait twice.
+${persona}
 ${signals}
 Sections in order, each with its own title:
 - The season you may meet: frame as a SEASON or life energy window, never a date.
-- Gentle signs to watch for: 2 to 3 supportive "this may not be your person if…" signals, kind and caring.
+- Red flags to watch for: 2 to 3 VARIED "this may not be your person if…" signals — each about a DIFFERENT thing — that clearly tell the reader when someone is NOT their match. Supportive and caring in tone, but unmistakably about warning signs.
 - Your compatibility map: "Where you'll click" and "Where you'll grow".
 - A little clue about their name: playfully hint the first letter of their name may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A warm wink with a few possible letters, never a certainty.
 - A cosmic clue just for fun: open with one light playful line, then include these three lines exactly as written, each on its own line:
@@ -108,7 +123,7 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- How you might recognize them: give ONE small, telling everyday moment that would make the reader think "that's them" — something this person naturally does or says in their OWN life, NOT spoken to the reader and NOT at the moment you meet. For example how they order at a café, a phrase they use with friends, how they speak up in a room, a little habit. One or two concrete, specific sentences, warm but not romantic.
+- How you might recognize them: build this from the FIXED PERSON's habit ("${k.quirk}") and their phrase (${k.phrase}) — one small everyday moment that would make the reader think "that's them". Something they naturally do or say in their OWN life, NOT spoken to the reader and NOT at the moment you meet. NEVER mention coffee, tea or any drink. One or two concrete, specific sentences, warm but not romantic.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 500 to 700 words.`;
   return { system: SYSTEM_READING, user };
@@ -175,6 +190,23 @@ const SIGN_NUMBERS = [3, 4, 5, 6, 8, 9, 11, 12, 13, 16, 18, 21, 22, 24, 27, 33];
 function signHints(seed) {
   const pick = (arr, off) => arr[(((seed >>> 0) + off * 2654435761) >>> 0) % arr.length];
   return { color: pick(SIGN_COLORS, 7), symbol: pick(SIGN_SYMBOLS, 13), number: pick(SIGN_NUMBERS, 19) };
+}
+
+// A fixed, seeded "kit" of concrete invented details so the reading is built
+// around a real independent person — NOT paraphrased from the reader's quiz
+// answers. Nothing here references a colour, a time of day, or a drink.
+const KIT_VOCATIONS = ['a carpenter who restores old furniture','a paediatric nurse','a high-school geography teacher','a landscape gardener','a sound engineer for live gigs','someone who runs a small neighbourhood bakery','a marine biologist','a bookshop manager','a physiotherapist','an architect who still sketches by hand','a ceramics maker','a wildlife photographer','a chef at a tiny bistro','someone who runs a bicycle-repair shop','a primary-school music teacher','a developer who builds small indie games'];
+const KIT_HOBBIES = ['climbing at the local crag on weekends','slowly restoring a vintage motorbike','growing tomatoes and herbs on their balcony','playing bass in a covers band','training for long trail runs','teaching themselves the violin','sea kayaking whenever they can','hunting through crates for old vinyl','woodworking in a cramped home workshop','baking sourdough that never quite behaves','birdwatching on quiet trails','painting small watercolours of places they visit','bouldering at an indoor gym','patching up an old wooden sailboat','learning to cook proper Thai food','volunteering at an animal shelter'];
+const KIT_QUIRKS = ['always has a worn paperback folded into a back pocket','hums half-remembered film scores while they concentrate','keeps a running list of gloriously bad puns','can name almost any bird by its call alone','doodles tiny maps on the corner of napkins','somehow remembers everyone\'s half-birthday','takes the stairs two at a time out of habit','keeps a jar of coins from every place they\'ve been','quietly narrates what other people\'s dogs are thinking','fixes squeaky hinges in every house they visit','collects postcards they never get around to sending','always has a spare charger ready for a stranger'];
+const KIT_PHRASES = ['says "right, let\'s figure it out" before tackling anything','ends every story with "and that\'s the whole saga"','greets people with a warm "there you are"','calls small victories "a proper result"','waves off worry with "one thing at a time"','describes anything they love as "quietly brilliant"','answers "how are you?" with a grin and "still standing"','calls their friends "you legend" and means it'];
+function personaKit(seed) {
+  const pick = (arr, off) => arr[(((seed >>> 0) + off * 2654435761) >>> 0) % arr.length];
+  return {
+    vocation: pick(KIT_VOCATIONS, 3),
+    hobby: pick(KIT_HOBBIES, 11),
+    quirk: pick(KIT_QUIRKS, 23),
+    phrase: pick(KIT_PHRASES, 31),
+  };
 }
 
 /* ===============================================================
@@ -379,7 +411,7 @@ app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <h2>Soulmate Reading, €16.99</h2>
 <p>Your personalized soulmate reading plus a portrait made just for you, delivered instantly by email. One-time payment.</p>
 <h2>Soulmate Premium, €26.99</h2>
-<p>An extended reading with the season you may meet, compatibility map, gentle signs to watch for, and three portraits of your soulmate.</p>
+<p>An extended reading with the season you may meet, compatibility map, red flags to watch for, and three portraits of your soulmate.</p>
 <h2>Extended Soulmate upgrade, €10</h2>
 <p>Already have your base Soulmate reading? Unlock the extended version for the difference: the season you may meet, compatibility map, gentle signs, a clue about their name and stars, and two more portraits.</p>
 <h2>Love Compatibility (extended), €16.99</h2>
@@ -507,7 +539,7 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
       <div style="margin:34px 0 6px;background:linear-gradient(160deg,#2e1640,#5a2a7a);border-radius:18px;padding:30px 26px;text-align:center;box-shadow:0 12px 34px rgba(90,40,120,.32)">
         <div style="display:inline-block;background:rgba(244,199,138,.18);color:#f4c78a;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 15px;border-radius:999px;margin-bottom:15px">✦ Go deeper</div>
         <div style="font-family:Georgia,'Times New Roman',serif;color:#ffffff;font-size:23px;line-height:1.3;margin-bottom:12px">Unlock your Extended Soulmate reading</div>
-        <p style="color:#e7dcf1;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.7;margin:0 auto 24px;max-width:420px">The season you may meet, gentle signs to watch for, your compatibility map, a clue about their name and their stars, and <b>two more portraits</b> of your soulmate.</p>
+        <p style="color:#e7dcf1;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.7;margin:0 auto 24px;max-width:420px">The season you may meet, red flags to watch for, your compatibility map, a clue about their name and their stars, and <b>two more portraits</b> of your soulmate.</p>
         <a href="${opts.upgradeUrl}" style="display:inline-block;background:linear-gradient(135deg,#f7d9a6,#e7a86b);color:#3a1d2e;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:17px;text-decoration:none;padding:17px 42px;border-radius:999px;box-shadow:0 8px 22px rgba(0,0,0,.3)">Unlock the extended version →</a>
       </div>`;
   }
@@ -573,7 +605,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const letters = nameLetters(seed, deep ? 4 : 3);
     const astro = deep ? astroHints(seed) : null;
     const signs = signHints(seed);
-    const smPrompt = buildReadingPrompt(a, { deep, letters, astro, signs });
+    const kit = personaKit(seed);
+    const smPrompt = buildReadingPrompt(a, { deep, letters, astro, signs, kit });
     if (focus && smPrompt && smPrompt.user) smPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
     text = await generateText(smPrompt);
     if (media) {
@@ -613,7 +646,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const baseSeed = seedFrom(p.baseid || saleId || email || 'x');
     const letters = nameLetters(baseSeed, 4);
     const astro = astroHints(baseSeed);
-    const upPrompt = buildUpgradePrompt(a, { letters, astro });
+    const kit = personaKit(baseSeed);
+    const upPrompt = buildUpgradePrompt(a, { letters, astro, kit });
     if (focus) upPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
     text = await generateText(upPrompt);
     if (media) {
