@@ -207,6 +207,24 @@ function soulJourney(seed) {
   return { lives, age };
 }
 
+// Concrete, era-neutral story anchors so each Past Life reading is vivid and
+// unique — built from invented history, NOT paraphrased from the reader's quiz.
+const PL_OBJECTS = ['a carved wooden box they never let out of sight','a silver ring passed down from a grandparent','a bundle of letters tied with worn cord','a small knife worn smooth from years of use','a pendant holding a faded portrait','a well-thumbed book of maps','a length of cloth they wove with their own hands','an iron key to a door long since gone'];
+const PL_BONDS = ['a younger sibling they half-raised themselves','a lifelong friend from the same street','a mentor who saw their gift before anyone else','a love they were kept apart from','a child who would outlive them','a rival whose presence shaped their whole path'];
+const PL_TURNS = ['a long journey that changed everything','a betrayal by someone they had trusted','a fire that took their home in a single night','a chance meeting at a crowded market','a war that swept through their region','a season of famine and impossible choices'];
+const PL_ENDINGS = ['they died old, surrounded by their family','they were lost young to a fever','they died far from home while travelling','they passed quietly in their sleep','they were taken by the sea','they fell in a conflict that was never truly theirs'];
+const PL_PLACES = ['a house at the edge of the water','narrow streets that always smelled of woodsmoke','a room above a busy workshop','a small farmstead set against low hills','a quarter of the city that never truly slept','a cold stone dwelling high on a hillside'];
+function pastLifeKit(seed) {
+  const pick = (arr, off) => arr[(((seed >>> 0) + off * 2654435761) >>> 0) % arr.length];
+  return {
+    object: pick(PL_OBJECTS, 3),
+    bond: pick(PL_BONDS, 11),
+    turn: pick(PL_TURNS, 17),
+    ending: pick(PL_ENDINGS, 23),
+    place: pick(PL_PLACES, 29),
+  };
+}
+
 const SIGN_COLORS = ['emerald green','sky blue','warm amber','dusty rose','soft lavender','golden yellow','deep teal','coral','burnt orange','pale mint','plum purple','sunflower gold','sea green','powder blue','soft peach','silver grey'];
 const SIGN_SYMBOLS = ['a feather','a small brass key','a butterfly','a crescent moon','a seashell','a four leaf clover','a paper crane','a single white flower','a compass','a shooting star','a ladybug','a small lighthouse','a dandelion','a heart shaped stone','a swallow in flight','a lit candle'];
 const SIGN_NUMBERS = [3, 4, 5, 6, 8, 9, 11, 12, 13, 16, 18, 21, 22, 24, 27, 33];
@@ -723,10 +741,21 @@ async function generateForType(type, p, email, saleId, opts = {}) {
   }
   else if (type === 'pastlife') {
     const persona = p.persona || 'your past life';
-    const profLineP = p.profile ? ` Their full quiz profile (persona scores): ${p.profile}. Blend in their secondary leanings so this life feels uniquely theirs.` : '';
-    const ansLineP = p.answers ? ` Their own answers in the quiz were: ${p.answers}. Weave these real choices into the story so it feels personally theirs.` : '';
+    const plk = pastLifeKit(seed);
     const sj = (p.lives && p.soulage) ? { lives: parseInt(p.lives, 10) || soulJourney(seed).lives, age: p.soulage } : soulJourney(seed);
-    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Ground it in karmic astrology, where the South Node represents the soul's past life signature and its karmic lesson. This person is ${sj.age} whose soul has lived roughly ${sj.lives} lifetimes.${profLineP}${ansLineP} Sections in order: The world you lived in (the era and place), Who you were and your daily life, How that life ended, What your soul carried forward (a gift and a wound), Your karmic lesson (frame it through the South Node, the pattern your soul is here to grow beyond), Your soul age (weave in that you are ${sj.age} of about ${sj.lives} lifetimes), How it echoes in you today (an unexplained fear, a natural talent, a place you are drawn to), A message from that self, Disclaimer. 800-1000 words, vivid and warm.${focusLine}` });
+    text = await generateText({ system: SYSTEM_GENERIC, user: `Write an extended, cinematic "Past Life" reading for someone whose past life was "${persona}". Ground it in karmic astrology, where the South Node represents the soul's past life signature and its karmic lesson. This person is ${sj.age} whose soul has lived roughly ${sj.lives} lifetimes.
+
+BUILD THE STORY AS A REAL, LIVED HISTORY around this specific past self — invent concrete, period-appropriate detail and weave in these fixed story anchors so the life feels vivid and singular:
+- Where they lived: ${plk.place}
+- An object that mattered to them: ${plk.object}
+- A defining relationship: ${plk.bond}
+- A turning point in that life: ${plk.turn}
+- How that life ended: ${plk.ending}
+Give this past self a specific period-appropriate name and use it. Make the era, place and daily life richly concrete.
+
+ABSOLUTE RULE: This is a story about a PAST life, not a description of the reader today. NEVER quote, list, restate or paraphrase anything the reader chose in a quiz — the reader must never recognise their own answers in the text. Build everything from the persona and the anchors above.
+
+Sections in order: The world you lived in (the era and place), Who you were and your daily life, How that life ended, What your soul carried forward (a gift and a wound), Your karmic lesson (frame it through the South Node, the pattern your soul is here to grow beyond), Your soul age (weave in that you are ${sj.age} of about ${sj.lives} lifetimes), How it echoes in you today (an unexplained fear, a natural talent, a place you are drawn to), A message from that self, Disclaimer. 800-1000 words, vivid and warm.${focusLine}` });
     const selfG = p.gender === 'woman' ? 'woman' : p.gender === 'man' ? 'man' : 'person';
     if (media) portrait = await themedPortrait(`a cinematic period-accurate portrait of a ${selfG} who lived as ${persona}, atmospheric, head and shoulders`, seed);
     subject = 'Your extended Past Life reading is inside';
