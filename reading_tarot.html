@@ -201,6 +201,18 @@
   const positions = ['Your heart now','What is shifting','What is coming in love'];
   const posLead = ['Right now, your heart is held by','What is shifting is lit by','Moving toward you in love is'];
   const REV_CHANCE = 0.4;
+  // Emotional tone of each card in love: +1 supportive, 0 a turning point, -1 challenging.
+  // Reversed cards use their own score (a heavy card reversed can lift, a bright one can dim).
+  const TONE = {
+    'The Fool':{up:1,rev:-1},'The Magician':{up:1,rev:-1},'The High Priestess':{up:0,rev:-1},
+    'The Empress':{up:1,rev:0},'The Emperor':{up:1,rev:-1},'The Hierophant':{up:1,rev:0},
+    'The Lovers':{up:1,rev:-1},'The Chariot':{up:1,rev:-1},'Strength':{up:1,rev:-1},
+    'The Hermit':{up:0,rev:-1},'Wheel of Fortune':{up:1,rev:-1},'Justice':{up:1,rev:-1},
+    'The Hanged Man':{up:0,rev:-1},'Death':{up:0,rev:-1},'Temperance':{up:1,rev:-1},
+    'The Devil':{up:-1,rev:1},'The Tower':{up:-1,rev:-1},'The Star':{up:1,rev:-1},
+    'The Moon':{up:0,rev:1},'The Sun':{up:1,rev:0},'Judgement':{up:1,rev:-1},'The World':{up:1,rev:0}
+  };
+  function toneOf(slot){ const t=TONE[slot.card.nm]||{up:0,rev:0}; return slot.reversed ? t.rev : t.up; }
   function meaningOf(slot){ return slot.reversed ? slot.card.rev : slot.card.up; }
   function orientTag(slot){ return slot.reversed ? ' <span style="color:#a0417a;font-size:11px">(reversed)</span>' : ''; }
   function faceHtml(slot){ return slot.reversed ? '<span style="display:inline-block;transform:rotate(180deg)">'+slot.card.face+'</span>' : slot.card.face; }
@@ -244,7 +256,14 @@
   function reveal(){
     const row=document.getElementById('cardrow'); row.innerHTML='';
     picks.forEach((slot,i)=>{ const d=document.createElement('div'); d.className='tcard'; d.innerHTML='<div class="pos">'+positions[i]+'</div><div class="cimg'+(slot.reversed?' rev':'')+'"><img src="'+imgUrl(slot.card)+'" alt="'+slot.card.nm+'"></div><div class="nm">'+slot.card.nm+orientTag(slot)+'</div><div class="mn">'+posLead[i]+' '+meaningOf(slot)+'.</div>'; row.appendChild(d); });
-    document.getElementById('summaryText').textContent="Your cards trace a gentle arc in love: from "+picks[0].card.nm+", through "+picks[1].card.nm+", toward "+picks[2].card.nm+". Something in your love life is quietly shifting. The full reading below answers your exact question.";
+    const names = picks.map(p=>p.card.nm+(p.reversed?' reversed':''));
+    const arc = "from "+names[0]+", through "+names[1]+", toward "+names[2];
+    const score = picks.reduce((s,p)=>s+toneOf(p),0);
+    let summary;
+    if (score >= 2) summary = "Your three cards lean bright: "+arc+". The current in your love life is moving in your favour right now. The full reading below answers your exact question.";
+    else if (score <= -1) summary = "Your three cards don't sugar-coat it: "+arc+". There's real tension here — a knot, a temptation or a hard choice to move through in love. The full reading below answers your exact question.";
+    else summary = "Your three cards mix light and shadow: "+arc+". Love is at a genuine turning point — not all smooth, not all storm. The full reading below answers your exact question.";
+    document.getElementById('summaryText').textContent = summary;
     show('result');
   }
 
