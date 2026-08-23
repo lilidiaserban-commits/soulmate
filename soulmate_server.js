@@ -61,7 +61,7 @@ Disclaimer must read exactly: "This reading is a creative interpretation, made j
 Length 380 to 480 words.`;
   const deepExtra = `
 ALSO add these sections before the disclaimer:
-- Your meeting timeline: frame as a SEASON / life-energy window, never a date.
+- The season you may meet: frame as a SEASON / life-energy window, never a date.
 - Red flags to watch for: 2 to 3 gentle "this may not be your person if…" signals, supportive.
 - Your compatibility map: "Where you'll click" + "Where you'll grow".
 - A little clue about their name: playfully hint the first letter of their name seems to shimmer, it may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A fun wink with a few possible letters, warm and light, never a certainty.
@@ -86,7 +86,7 @@ function buildUpgradePrompt(a, { letters, astro }) {
   const user = `${a.name ? a.name + ' ' : 'The reader '}already received their base soulmate reading and their first portrait. Now write ONLY the deeper, extended premium layers they just unlocked. Do NOT repeat the base reading and do NOT reintroduce their soulmate from scratch. Open with one short warm line saying this is the deeper layer they unlocked.
 ${signals}
 Sections in order, each with its own title:
-- Your meeting timeline: frame as a SEASON or life energy window, never a date.
+- The season you may meet: frame as a SEASON or life energy window, never a date.
 - Gentle signs to watch for: 2 to 3 supportive "this may not be your person if…" signals, kind and caring.
 - Your compatibility map: "Where you'll click" and "Where you'll grow".
 - A little clue about their name: playfully hint the first letter of their name may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A warm wink with a few possible letters, never a certainty.
@@ -358,9 +358,9 @@ app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <h2>Soulmate Reading, €16.99</h2>
 <p>Your personalized soulmate reading plus a portrait made just for you, delivered instantly by email. One-time payment.</p>
 <h2>Soulmate Premium, €26.99</h2>
-<p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, three portraits of your soulmate, and a keepsake copy to save or print.</p>
+<p>An extended reading with the season you may meet, compatibility map, gentle signs to watch for, three portraits of your soulmate, and a keepsake copy to save or print.</p>
 <h2>Extended Soulmate upgrade, €10</h2>
-<p>Already have your base Soulmate reading? Unlock the extended version for the difference: your meeting timeline, compatibility map, gentle signs, a clue about their name and stars, and two more portraits.</p>
+<p>Already have your base Soulmate reading? Unlock the extended version for the difference: the season you may meet, compatibility map, gentle signs, a clue about their name and stars, and two more portraits.</p>
 <h2>Love Compatibility (extended), €16.99</h2>
 <p>The full compatibility reading for two people: where you click, where you grow, your connection type, and what your bond is really made of.</p>
 <h2>Tarot, Past Life &amp; Love Archetype (extended), €14.99 each</h2>
