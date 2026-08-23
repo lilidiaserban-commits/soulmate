@@ -47,27 +47,29 @@ FORMAT: Write every section title on its own line wrapped in double asterisks, l
 const STYLE_PORTRAIT = 'loose expressive fine-art watercolor and ink portrait of a natural, realistic human face with true-to-life proportions and natural lifelike skin tone and hair colour, confident graphite and ink sketch outline with visible pencil lines, painterly watercolor washes kept mostly inside the drawn figure, soft violet and purple accents only around the background edges with a few gentle white star-sparkle highlights, on clean white watercolor paper with generous negative space, a few small subtle paint splatters nearby, dreamy romantic mood, gallery-quality hand-painted illustration, head-and-shoulders, facing forward toward the viewer, front view portrait, beautiful';
 const NEGATIVE_PORTRAIT = 'photograph, photo, photorealistic, 3d render, cartoon, anime, cgi, plastic skin, text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, oversaturated';
 
-function buildReadingPrompt(a, { deep, letters, astro }) {
+function buildReadingPrompt(a, { deep, letters, astro, signs }) {
   const lightningStr = (Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ');
   const base = `Write ${a.name || 'the reader'}'s soulmate reading.
 
-PRIVATE INSPIRATION — use ONLY to quietly shape the character in your own mind. NEVER quote, list, name or echo these answers back to the reader, and never build a whole section around one of them:
-- They hope to meet: ${a.meet}
-- Reader's age band: ${a.age}
-- A faint sense of the soulmate's energy: ${a.energy}
-- A subtle colour mood: ${a.look} (a faint mood only, not skin tone; do not over-use)
-- What they quietly value in love: ${a.value}
+PRIVATE INSPIRATION — feel these only in your own mind to set a faint direction. They must NEVER appear in the reading in any recognizable form:
+- They hope to meet: ${a.meet} (this only sets whether the soulmate is a man or a woman)
+- Reader's age band: ${a.age} (loosely informs the soulmate's age)
+- A private hint of their energy: ${a.energy}
+- What the reader quietly values: ${a.value}
 - Faint personality texture: ${lightningStr}
 
-HARD RULES (very important):
-- Do NOT restate or mirror the reader's own answers. If they picked "humor" or a "coffee / ocean / nature" vibe, do NOT make section after section about humor, coffee or nature. Let the inspiration stay invisible.
-- INVENT one specific, believable individual with fresh, VARIED, concrete details: a temperament, the way they move through their days, small habits and quirks, a possible line of work or passion, how they treat the people around them, what their friends love about them. They must read like a real person, not a list of adjectives.
-- Every section must add NEW information and NEW images. Never repeat the same trait, image or idea twice across the reading.
-- Warm, specific and grounded; avoid vague filler and avoid over-poetic clichés.
+ABSOLUTE RULES (critical — the reader must never recognise their own quiz answers in the text):
+- NEVER name or even hint at a colour when describing the person, their home, or their style (no "red", "deep red accents", "soft greens", etc.).
+- NEVER make a time of day a defining trait (no "early mornings", "before dawn", "a night owl").
+- NEVER mention coffee, tea or any drink anywhere in the reading.
+- NEVER reuse the reader's own descriptor words for energy or values — do not write words like "calm", "grounded", "adventurous", "warm", "mysterious", "loyal" or "loyalty". Describe the person entirely in your own fresh wording.
+- NEVER quote, list, restate or mirror the reader's answers. If a reader could read a sentence and spot their own quiz choice in it, rewrite that sentence.
+- INVENT one specific, believable individual with concrete, ORIGINAL life details: a kind of work or vocation, how they spend their time, a hobby or two, small real habits, what friends value in them. Give each section genuinely new, varied detail — never repeat a trait or image.
+- Warm, specific and grounded; no vague filler, no over-poetic clichés.
 
 Sections in order, each with its own title: Intro, Who they are, How you'll meet, Little signs to watch for, A note for you, Disclaimer.
 "Who they are" must be a vivid, specific portrait of them as a real individual with CONCRETE life details — a likely kind of work or vocation, how they spend an ordinary day, a hobby or two, where they feel at home, small real habits — tangible things a friend would tell you, NOT abstract "essence / energy / vibe" language and NOT the reader's preferences restated.
-"Little signs to watch for" = three small playful winks to notice in the coming weeks: a colour, a symbol, and a number. Keep them light and for fun, never a certainty. This is the ONLY signs section — do not add a second one.
+"Little signs to watch for" = present exactly these three as gentle playful winks to notice in the coming weeks, and use EXACTLY these, do not invent others: the colour ${signs ? signs.color : 'soft blue'}, the symbol ${signs ? signs.symbol : 'a feather'}, and the number ${signs ? signs.number : 12}. Weave them warmly into a short paragraph, light and for fun, never a certainty. This is the ONLY signs section — do not add a second one. Do NOT mention coffee, tea, or any drink here.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 380 to 480 words.`;
   const deepExtra = `
@@ -87,15 +89,14 @@ Add +500 to 700 words.`;
 }
 
 function buildUpgradePrompt(a, { letters, astro }) {
-  const signals = `Signals about the reader and their future soulmate:
-- Hoping to meet: ${a.meet}
+  const signals = `PRIVATE INSPIRATION (must NEVER appear in the text in any recognizable form):
+- They hope to meet: ${a.meet} (only sets whether the soulmate is a man or a woman)
 - Reader's age band: ${a.age}
-- Soulmate's core energy: ${a.energy}
-- Aesthetic vibe they're drawn to: ${a.look} (color only, not skin tone)
-- What they value most in love: ${a.value}
-- Personality texture: ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}`;
+- A private hint of their energy: ${a.energy}
+- What the reader quietly values: ${a.value}
+- Faint personality texture: ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}`;
   const user = `${a.name ? a.name + ' ' : 'The reader '}already received their base soulmate reading and their first portrait. Now write ONLY the deeper, extended premium layers they just unlocked. Do NOT repeat the base reading and do NOT reintroduce their soulmate from scratch. Open with one short warm line saying this is the deeper layer they unlocked.
-HARD RULES: Use the signals only as private inspiration. NEVER quote, list or echo the reader's own answers back to them, and never build multiple sections around one trait. Give each section genuinely NEW, varied, concrete detail about this specific person. Warm and grounded, not over-poetic.
+ABSOLUTE RULES (the reader must never recognise their own quiz answers): NEVER name or hint at a colour. NEVER make a time of day a defining trait. NEVER reuse the reader's own energy/value words (no "calm", "grounded", "adventurous", "warm", "mysterious", "loyal", "loyalty"). NEVER mention coffee, tea or any drink. NEVER quote, list, restate or mirror the reader's answers. Invent concrete, ORIGINAL, varied detail; give each section genuinely NEW material, never the same trait twice.
 ${signals}
 Sections in order, each with its own title:
 - The season you may meet: frame as a SEASON or life energy window, never a date.
@@ -166,6 +167,14 @@ function soulJourney(seed) {
   const lives = 3 + ((seed >>> 0) % 40);
   const age = lives < 12 ? 'a younger soul' : lives < 25 ? 'a maturing soul' : 'an old soul';
   return { lives, age };
+}
+
+const SIGN_COLORS = ['emerald green','sky blue','warm amber','dusty rose','soft lavender','golden yellow','deep teal','coral','burnt orange','pale mint','plum purple','sunflower gold','sea green','powder blue','soft peach','silver grey'];
+const SIGN_SYMBOLS = ['a feather','a small brass key','a butterfly','a crescent moon','a seashell','a four leaf clover','a paper crane','a single white flower','a compass','a shooting star','a ladybug','a small lighthouse','a dandelion','a heart shaped stone','a swallow in flight','a lit candle'];
+const SIGN_NUMBERS = [3, 4, 5, 6, 8, 9, 11, 12, 13, 16, 18, 21, 22, 24, 27, 33];
+function signHints(seed) {
+  const pick = (arr, off) => arr[(((seed >>> 0) + off * 2654435761) >>> 0) % arr.length];
+  return { color: pick(SIGN_COLORS, 7), symbol: pick(SIGN_SYMBOLS, 13), number: pick(SIGN_NUMBERS, 19) };
 }
 
 /* ===============================================================
@@ -495,9 +504,11 @@ async function sendReadingEmail(email, subject, heading, bodyText, portraitFile,
   let upgradeBlock = '';
   if (opts.upgradeUrl) {
     upgradeBlock = `
-      <div style="margin:30px 0 4px;padding-top:22px;border-top:1px solid #eee3f2;text-align:center">
-        <p style="color:#6a5a78;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.7;margin:0 0 20px">Want to go deeper? Unlock the extended version of your reading: the season you may meet, gentle signs to watch for, your compatibility map, a little clue about their name and their stars, and two more portraits of your soulmate.</p>
-        <a href="${opts.upgradeUrl}" style="display:inline-block;background:linear-gradient(135deg,#f4c78a,#e7a86b);color:#3a1d2e;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:16px;text-decoration:none;padding:15px 36px;border-radius:999px;box-shadow:0 8px 22px rgba(200,140,80,.35)">Unlock the extended version →</a>
+      <div style="margin:34px 0 6px;background:linear-gradient(160deg,#2e1640,#5a2a7a);border-radius:18px;padding:30px 26px;text-align:center;box-shadow:0 12px 34px rgba(90,40,120,.32)">
+        <div style="display:inline-block;background:rgba(244,199,138,.18);color:#f4c78a;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 15px;border-radius:999px;margin-bottom:15px">✦ Go deeper</div>
+        <div style="font-family:Georgia,'Times New Roman',serif;color:#ffffff;font-size:23px;line-height:1.3;margin-bottom:12px">Unlock your Extended Soulmate reading</div>
+        <p style="color:#e7dcf1;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.7;margin:0 auto 24px;max-width:420px">The season you may meet, gentle signs to watch for, your compatibility map, a clue about their name and their stars, and <b>two more portraits</b> of your soulmate.</p>
+        <a href="${opts.upgradeUrl}" style="display:inline-block;background:linear-gradient(135deg,#f7d9a6,#e7a86b);color:#3a1d2e;font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-weight:700;font-size:17px;text-decoration:none;padding:17px 42px;border-radius:999px;box-shadow:0 8px 22px rgba(0,0,0,.3)">Unlock the extended version →</a>
       </div>`;
   }
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1eaf7">
@@ -561,7 +572,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     const deep = type === 'soulmate-deep';
     const letters = nameLetters(seed, deep ? 4 : 3);
     const astro = deep ? astroHints(seed) : null;
-    const smPrompt = buildReadingPrompt(a, { deep, letters, astro });
+    const signs = signHints(seed);
+    const smPrompt = buildReadingPrompt(a, { deep, letters, astro, signs });
     if (focus && smPrompt && smPrompt.user) smPrompt.user += `\n\nThe person especially asked this reading to speak to: "${focus}". Address it warmly.`;
     text = await generateText(smPrompt);
     if (media) {
