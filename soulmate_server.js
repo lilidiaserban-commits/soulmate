@@ -370,7 +370,7 @@ app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <h2>Soulmate Reading, €16.99</h2>
 <p>Your personalized soulmate reading plus a portrait made just for you, delivered instantly by email. One-time payment.</p>
 <h2>Soulmate Premium, €26.99</h2>
-<p>An extended reading with the season you may meet, compatibility map, gentle signs to watch for, three portraits of your soulmate, and a keepsake copy to save or print.</p>
+<p>An extended reading with the season you may meet, compatibility map, gentle signs to watch for, and three portraits of your soulmate.</p>
 <h2>Extended Soulmate upgrade, €10</h2>
 <p>Already have your base Soulmate reading? Unlock the extended version for the difference: the season you may meet, compatibility map, gentle signs, a clue about their name and stars, and two more portraits.</p>
 <h2>Love Compatibility (extended), €16.99</h2>
