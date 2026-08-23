@@ -354,15 +354,17 @@ app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact U
 
 /* ---- Pricing page (public prices) ---- */
 app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
-<p>All Soulmate purchases are one-time digital payments. You choose your reading, plus any optional add-ons. Prices are also shown at checkout, where payment is processed securely by Gumroad, our Merchant of Record.</p>
-<h2>Soulmate Reading, $16.99</h2>
+<p>All purchases are one-time digital payments. Prices are also shown at checkout, where payment is processed securely by Gumroad, our Merchant of Record. Any applicable VAT is added at checkout depending on your country.</p>
+<h2>Soulmate Reading, €16.99</h2>
 <p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly by email. One-time payment.</p>
-<h2>Keepsake Pack, +$8.99 (optional add-on)</h2>
-<p>A beautifully designed PDF of your reading to keep or print, plus a high-resolution portrait.</p>
-<h2>Deep Soulmate Report, $26.99 (optional)</h2>
-<p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, and three additional portraits.</p>
-<h2>The Reunion Portrait, $18.99 (optional)</h2>
-<p>A "you two together" portrait, plus a short cinematic story of your first meeting.</p>
+<h2>Soulmate Premium, €26.99</h2>
+<p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, three portraits of your soulmate, and a keepsake copy to save or print.</p>
+<h2>Extended Soulmate upgrade, €10</h2>
+<p>Already have your base Soulmate reading? Unlock the extended version for the difference: your meeting timeline, compatibility map, gentle signs, a clue about their name and stars, and two more portraits.</p>
+<h2>Love Compatibility (extended), €16.99</h2>
+<p>The full compatibility reading for two people: where you click, where you grow, and a portrait of you as a pair.</p>
+<h2>Tarot, Past Life &amp; Love Archetype (extended), €14.99 each</h2>
+<p>The full, in-depth version of each reading, delivered instantly by email. Each is a separate one-time purchase.</p>
 <p>These are digital products offered for entertainment and self-reflection only, not predictions or advice.</p>
 `)));
 
