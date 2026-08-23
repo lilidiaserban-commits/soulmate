@@ -362,7 +362,7 @@ app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <h2>Extended Soulmate upgrade, €10</h2>
 <p>Already have your base Soulmate reading? Unlock the extended version for the difference: your meeting timeline, compatibility map, gentle signs, a clue about their name and stars, and two more portraits.</p>
 <h2>Love Compatibility (extended), €16.99</h2>
-<p>The full compatibility reading for two people: where you click, where you grow, and a portrait of you as a pair.</p>
+<p>The full compatibility reading for two people: where you click, where you grow, your connection type, and what your bond is really made of.</p>
 <h2>Tarot, Past Life &amp; Love Archetype (extended), €14.99 each</h2>
 <p>The full, in-depth version of each reading, delivered instantly by email. Each is a separate one-time purchase.</p>
 <p>These are digital products offered for entertainment and self-reflection only, not predictions or advice.</p>
