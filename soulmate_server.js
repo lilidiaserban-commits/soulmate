@@ -44,8 +44,8 @@ HARD RULES: entertainment, not prediction/advice; never claim certainty about th
 THEME: the reader's future soulmate, who they are, their energy, how you may meet. Hopeful, romantic.
 FORMAT: Write every section title on its own line wrapped in double asterisks, like **Section title**, then a blank line, then the paragraphs. Do not number the sections. Keep the disclaimer at the very end as a plain short sentence with no title.`;
 
-const STYLE_PORTRAIT = 'soft cinematic portrait, dreamy warm golden light, gentle rim light, shallow depth of field, romantic ethereal atmosphere, painterly photo-realism, subtle film grain, head-and-shoulders, elegant simple background with warm bokeh, high detail, tasteful, beautiful';
-const NEGATIVE_PORTRAIT = 'text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, cartoon, anime, plastic skin, oversaturated';
+const STYLE_PORTRAIT = 'hand-drawn ink-and-pencil sketch portrait of a natural, realistic human face on warm aged kraft paper (beige and soft brown tones), confident expressive black ink linework and pencil shading with true-to-life proportions, delicate gold ink accents and highlights here and there, loose expressive violet and purple watercolor washes painted over the sketch to make the face come alive, artist sketchbook fine-art style, visible paper texture, head-and-shoulders, romantic dreamy mood, tasteful, beautiful';
+const NEGATIVE_PORTRAIT = 'photograph, photo, photorealistic, 3d render, cartoon, anime, cgi, plastic skin, text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, oversaturated';
 
 function buildReadingPrompt(a, { deep, letters, astro }) {
   const base = `Write ${a.name || 'their'} soulmate reading from these signals:
@@ -714,10 +714,16 @@ app.get('/preview', async (req, res) => {
           await generateForType(ptype, q, q.email, 'sim-' + previewCount, {});
           out = `<div class="reading"><h2>✓ Trimis</h2><p>Readingul complet (cu portret) a plecat către <b>${escHtml(q.email)}</b>. Ajunge în 1 to 2 minute, verifică și spam/promotions. E identic cu ce primește un client care plătește.</p></div>`;
         } else {
-          const r = await generateForType(ptype, q, null, 'preview', { textOnly: true });
+          const withImg = String(q.img||'') === '1';
+          const r = await generateForType(ptype, q, null, 'preview-' + previewCount, { textOnly: !withImg });
           const body = (r && r.text) ? r.text : '(no text generated)';
           const html = '<p>' + escHtml(body).replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
-          out = `<div class="reading"><h2>${escHtml(r && r.heading || '')}</h2>${html}</div>`;
+          let imgs = '';
+          if (withImg && r && r.portrait) {
+            const files = (Array.isArray(r.portrait) ? r.portrait : [r.portrait]).filter(Boolean);
+            imgs = files.map(f => `<img src="/portrait/${path.basename(f)}" style="max-width:340px;width:100%;border-radius:14px;margin:10px 8px 0;display:inline-block">`).join('');
+          }
+          out = `<div class="reading"><h2>${escHtml(r && r.heading || '')}</h2>${imgs}${html}</div>`;
         }
       } catch(e){ out = `<div class="err">Error: ${escHtml(e && e.message || e)}</div>`; }
     }
