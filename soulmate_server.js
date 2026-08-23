@@ -356,7 +356,7 @@ app.get('/contact-us', (_req, res) => res.type('html').send(legalPage('Contact U
 app.get('/pricing', (_req, res) => res.type('html').send(legalPage('Pricing', `
 <p>All purchases are one-time digital payments. Prices are also shown at checkout, where payment is processed securely by Gumroad, our Merchant of Record. Any applicable VAT is added at checkout depending on your country.</p>
 <h2>Soulmate Reading, €16.99</h2>
-<p>Your personalized soulmate reading plus an AI-generated portrait, delivered instantly by email. One-time payment.</p>
+<p>Your personalized soulmate reading plus a portrait made just for you, delivered instantly by email. One-time payment.</p>
 <h2>Soulmate Premium, €26.99</h2>
 <p>An extended reading with your meeting timeline, compatibility map, gentle signs to watch for, three portraits of your soulmate, and a keepsake copy to save or print.</p>
 <h2>Extended Soulmate upgrade, €10</h2>
@@ -568,7 +568,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
       }
     }
     if (deep) {
-      text += '\n\nYour Premium package includes three high resolution portraits of your soulmate, the same person in different moments, plus a keepsake copy of this reading to save or print.';
+      text += '\n\nYour Premium package includes three portraits of your soulmate, the same person in different moments, plus a keepsake copy of this reading to save or print.';
     }
     subject = `${a.name ? a.name + ', your' : 'Your'} ${deep ? 'Premium Soulmate reading' : 'Soulmate reading'} is inside`;
     heading = deep ? 'Your Premium Soulmate Reading' : 'Your Soulmate Reading';
