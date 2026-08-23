@@ -48,29 +48,40 @@ const STYLE_PORTRAIT = 'loose expressive fine-art watercolor and ink portrait of
 const NEGATIVE_PORTRAIT = 'photograph, photo, photorealistic, 3d render, cartoon, anime, cgi, plastic skin, text, watermark, logo, extra fingers, deformed, distorted, blurry, low-res, multiple people, child, minor, nudity, nsfw, celebrity, real public figure, oversaturated';
 
 function buildReadingPrompt(a, { deep, letters, astro }) {
-  const base = `Write ${a.name || 'their'} soulmate reading from these signals:
-- Hoping to meet: ${a.meet}
+  const lightningStr = (Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ');
+  const base = `Write ${a.name || 'the reader'}'s soulmate reading.
+
+PRIVATE INSPIRATION — use ONLY to quietly shape the character in your own mind. NEVER quote, list, name or echo these answers back to the reader, and never build a whole section around one of them:
+- They hope to meet: ${a.meet}
 - Reader's age band: ${a.age}
-- Soulmate's core energy: ${a.energy}
-- Aesthetic vibe they're drawn to: ${a.look} (color only, not skin tone)
-- What they value most in love: ${a.value} (make this the emotional heart)
-- Personality texture (weave in lightly): ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}
-Sections in order: Intro, Their essence, Who they are, How you'll meet, The signs to watch for, Your sign to look for, A note for you, Disclaimer.
-In "Your sign to look for", give three small personal signs to notice in the coming weeks: a color, a symbol, and a number, chosen to fit their vibe. Present them warmly as gentle winks to watch for, for fun, never as a certainty.
+- A faint sense of the soulmate's energy: ${a.energy}
+- A subtle colour mood: ${a.look} (a faint mood only, not skin tone; do not over-use)
+- What they quietly value in love: ${a.value}
+- Faint personality texture: ${lightningStr}
+
+HARD RULES (very important):
+- Do NOT restate or mirror the reader's own answers. If they picked "humor" or a "coffee / ocean / nature" vibe, do NOT make section after section about humor, coffee or nature. Let the inspiration stay invisible.
+- INVENT one specific, believable individual with fresh, VARIED, concrete details: a temperament, the way they move through their days, small habits and quirks, a possible line of work or passion, how they treat the people around them, what their friends love about them. They must read like a real person, not a list of adjectives.
+- Every section must add NEW information and NEW images. Never repeat the same trait, image or idea twice across the reading.
+- Warm, specific and grounded; avoid vague filler and avoid over-poetic clichés.
+
+Sections in order, each with its own title: Intro, Who they are, How you'll meet, Little signs to watch for, A note for you, Disclaimer.
+"Who they are" must be a vivid, specific portrait of them as a real individual with CONCRETE life details — a likely kind of work or vocation, how they spend an ordinary day, a hobby or two, where they feel at home, small real habits — tangible things a friend would tell you, NOT abstract "essence / energy / vibe" language and NOT the reader's preferences restated.
+"Little signs to watch for" = three small playful winks to notice in the coming weeks: a colour, a symbol, and a number. Keep them light and for fun, never a certainty. This is the ONLY signs section — do not add a second one.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 380 to 480 words.`;
   const deepExtra = `
-ALSO add these sections before the disclaimer:
+ALSO add these sections before the disclaimer, each adding genuinely NEW material (never repeating earlier sections or the same trait):
 - The season you may meet: frame as a SEASON / life-energy window, never a date.
-- Red flags to watch for: 2 to 3 gentle "this may not be your person if…" signals, supportive.
-- Your compatibility map: "Where you'll click" + "Where you'll grow".
+- Red flags to watch for: 2 to 3 gentle, VARIED "this may not be your person if…" signals — each about a DIFFERENT thing, not all about one trait.
+- Your compatibility map: "Where you'll click" + "Where you'll grow", concrete and specific.
 - A little clue about their name: playfully hint the first letter of their name seems to shimmer, it may be one of these: ${(letters && letters.length ? letters.join(', ') : 'A, M, L')}. A fun wink with a few possible letters, warm and light, never a certainty.
 - A cosmic clue just for fun: open with one light playful line, then include these three lines exactly as written, each on its own line:
 Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libra'}
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- The first words they may say: JUST ONE short, casual line they might actually say, the kind of real, everyday, slightly random thing a person blurts out that would fit almost ANY situation (a small compliment, an honest offbeat remark, a light question, a random confession) and that reveals their personality. Under 10 words, in quotation marks. Do NOT set a scene or describe where or how you meet, do NOT mention coffee, mornings, sunsets, crossing paths, or any setting. Do NOT be poetic or romantic. Give ONLY the line itself with at most a tiny lead-in like "They might just say:". Examples of the vibe (do not reuse): "I like your jacket." / "Okay, this might sound random, but hi." / "You look like you'd know a good playlist." / "I love your energy."
+- How you might recognize them: give ONE small, telling everyday moment that would make the reader think "that's them" — something this person naturally does or says in their OWN life, NOT spoken to the reader and NOT at the moment you meet. For example how they order at a café, a phrase they use with friends, how they speak up in a room, a little habit. One or two concrete, specific sentences, warm but not romantic.
 Add +500 to 700 words.`;
   return { system: SYSTEM_READING, user: deep ? base + deepExtra : base };
 }
@@ -84,6 +95,7 @@ function buildUpgradePrompt(a, { letters, astro }) {
 - What they value most in love: ${a.value}
 - Personality texture: ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}`;
   const user = `${a.name ? a.name + ' ' : 'The reader '}already received their base soulmate reading and their first portrait. Now write ONLY the deeper, extended premium layers they just unlocked. Do NOT repeat the base reading and do NOT reintroduce their soulmate from scratch. Open with one short warm line saying this is the deeper layer they unlocked.
+HARD RULES: Use the signals only as private inspiration. NEVER quote, list or echo the reader's own answers back to them, and never build multiple sections around one trait. Give each section genuinely NEW, varied, concrete detail about this specific person. Warm and grounded, not over-poetic.
 ${signals}
 Sections in order, each with its own title:
 - The season you may meet: frame as a SEASON or life energy window, never a date.
@@ -95,7 +107,7 @@ Possible zodiac sign: ${(astro && astro.sun) ? astro.sun.join(', ') : 'Leo, Libr
 Possible Moon sign: ${(astro && astro.moon) ? astro.moon.join(', ') : 'Capricorn, Libra'}
 Possible Rising sign: ${(astro && astro.rising) ? astro.rising.join(', ') : 'Cancer, Aries'}
 Keep it a wink, never a certainty.
-- The first words they may say: JUST ONE short, casual line they might actually say, the kind of real, everyday, slightly random thing a person blurts out that would fit almost ANY situation (a small compliment, an honest offbeat remark, a light question, a random confession) and that reveals their personality. Under 10 words, in quotation marks. Do NOT set a scene or describe where or how you meet, do NOT mention coffee, mornings, sunsets, crossing paths, or any setting. Do NOT be poetic or romantic. Give ONLY the line itself with at most a tiny lead-in like "They might just say:". Examples of the vibe (do not reuse): "I like your jacket." / "Okay, this might sound random, but hi." / "You look like you'd know a good playlist." / "I love your energy."
+- How you might recognize them: give ONE small, telling everyday moment that would make the reader think "that's them" — something this person naturally does or says in their OWN life, NOT spoken to the reader and NOT at the moment you meet. For example how they order at a café, a phrase they use with friends, how they speak up in a room, a little habit. One or two concrete, specific sentences, warm but not romantic.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 500 to 700 words.`;
   return { system: SYSTEM_READING, user };
@@ -555,20 +567,17 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     if (media) {
       if (deep) {
         const poses = [
-          'looking softly toward the viewer',
-          'a gentle three quarter view, gazing thoughtfully to the side',
-          'a warm candid half smile in a relaxed natural moment'
+          'front-facing, looking softly toward the viewer with a gentle smile, wearing a cozy cream knit sweater',
+          'a three-quarter side view, gazing thoughtfully away, wearing a casual open collared button-up shirt in a soft colour',
+          'a relaxed candid moment with a warm natural laugh, wearing a light denim jacket over a simple tee'
         ];
         portrait = [];
         for (let i = 0; i < poses.length; i++) {
           portrait.push(await generateImage(buildPortraitPrompt(a, poses[i]), { seed: seed + i, hd: true }));
         }
       } else {
-        portrait = await generateImage(buildPortraitPrompt(a), { seed, hd: false });
+        portrait = await generateImage(buildPortraitPrompt(a, 'front-facing, looking softly toward the viewer with a gentle smile, wearing a cozy cream knit sweater'), { seed, hd: false });
       }
-    }
-    if (deep) {
-      text += '\n\nYour Premium package includes three portraits of your soulmate, the same person in different moments, plus a keepsake copy of this reading to save or print.';
     }
     subject = `${a.name ? a.name + ', your' : 'Your'} ${deep ? 'Premium Soulmate reading' : 'Soulmate reading'} is inside`;
     heading = deep ? 'Your Premium Soulmate Reading' : 'Your Soulmate Reading';
@@ -597,8 +606,8 @@ async function generateForType(type, p, email, saleId, opts = {}) {
     text = await generateText(upPrompt);
     if (media) {
       const poses = [
-        'a gentle three quarter view, gazing thoughtfully to the side',
-        'a warm candid half smile in a relaxed natural moment'
+        'a three-quarter side view, gazing thoughtfully away, wearing a casual open collared button-up shirt in a soft colour',
+        'a relaxed candid moment with a warm natural laugh, wearing a light denim jacket over a simple tee'
       ];
       portrait = [];
       for (let i = 0; i < poses.length; i++) {
