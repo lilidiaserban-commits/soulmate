@@ -49,12 +49,22 @@ const NEGATIVE_PORTRAIT = 'photograph, photo, photorealistic, 3d render, cartoon
 
 function buildReadingPrompt(a, { deep, letters, astro, signs, kit }) {
   const lightningStr = (Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ');
-  const k = kit || { vocation: 'a landscape gardener', hobby: 'training for long trail runs', quirk: 'always has a worn paperback folded into a back pocket', phrase: 'says "right, let\'s figure it out" before tackling anything' };
+  const k = kit || { vocation: 'a landscape gardener', hobby: 'training for long trail runs', quirk: 'always has a worn paperback folded into a back pocket', phrase: 'says "right, let\'s figure it out" before tackling anything', hair: 'soft chestnut-brown hair', eyes: 'brown eyes that crinkle when they smile', food: 'a real weakness for homemade lasagne', animals: 'walks a big soft golden dog every evening', temperament: 'social but needs plenty of their own space', family: 'the youngest in a close-knit family', life: 'carries themselves with an easy, unforced maturity', feature: 'a warm dimpled smile', style: 'dresses simply — worn jeans and soft jumpers', love: 'shows they care by fixing things and showing up, not big speeches', dream: 'quietly saving to one day open their own small place', flaw: 'a hopeless procrastinator until the very last minute', skill: 'can fix almost anything with their hands' };
   const base = `Write ${a.name || 'the reader'}'s soulmate reading.
 
-BUILD THE SOULMATE AROUND THIS FIXED PERSON (these are the ONLY concrete facts about them — invent nothing that contradicts these, and lean on them so the person feels real and specific, not like a mirror of the reader):
+BUILD THE SOULMATE AROUND THIS FIXED PERSON — a real, whole individual. These are the ONLY concrete facts about them; invent nothing that contradicts them, and lean on them so the person feels real and specific, never a mirror of the reader. You do not need to list every detail, but the person on the page must clearly be THIS person:
 - Their work: ${k.vocation}
 - Something they love doing: ${k.hobby}
+- How they look: ${k.hair}, ${k.eyes}, ${k.feature}
+- How they dress: ${k.style}
+- Their nature: ${k.temperament}; ${k.life}
+- Family background: ${k.family}
+- Food they love: ${k.food}
+- Animals: ${k.animals}
+- How they show they care: ${k.love}
+- A quiet dream: ${k.dream}
+- An endearing flaw: ${k.flaw}
+- Something they're quietly good at: ${k.skill}
 - A small habit friends know them for: ${k.quirk}
 - A phrase they say: ${k.phrase}
 
@@ -66,7 +76,7 @@ PRIVATE INSPIRATION — feel these only in your own mind to set a faint directio
 - Faint personality texture: ${lightningStr}
 
 ABSOLUTE RULES (critical — the reader must never recognise their own quiz answers in the text):
-- NEVER name or even hint at a colour when describing the person, their home, or their style (no "red", "deep red accents", "soft greens", etc.).
+- You MAY state the soulmate's OWN hair colour and eye colour exactly as given in the FIXED PERSON above. Do NOT introduce any OTHER colour (their home, clothing, accents, style), and never a colour that could echo the reader's own favourite colour.
 - NEVER make a time of day a defining trait (no "early mornings", "before dawn", "a night owl").
 - NEVER mention coffee, tea or any drink anywhere in the reading.
 - NEVER reuse the reader's own descriptor words for energy or values — do not write words like "calm", "grounded", "adventurous", "warm", "mysterious", "loyal" or "loyalty". Describe the person entirely in your own fresh wording.
@@ -76,7 +86,7 @@ ABSOLUTE RULES (critical — the reader must never recognise their own quiz answ
 
 Sections in order, each with its own title: Intro, Who they are, How you'll meet, Little signs to watch for, A note for you, Disclaimer.
 "How you'll meet" describes ONLY the setting and circumstances of how you might come together (a place, a situation, a shared context). Do NOT mention any season, month or time of year here — the season belongs only to the extended reading, so mentioning it here would contradict it.
-"Who they are" must be a vivid, specific portrait built on the FIXED PERSON above — their work (${k.vocation}), what they love doing (${k.hobby}), their habit and their phrase — plus how they spend an ordinary day and where they feel at home. Tangible things a friend would tell you, NOT abstract "essence / energy / vibe" language and NOT the reader's preferences restated.
+"Who they are" must be a vivid, specific portrait built on the FIXED PERSON above — weave in how they look (${k.hair}, ${k.eyes}, ${k.feature}), how they dress (${k.style}), their work (${k.vocation}), what they love doing (${k.hobby}), their nature (${k.temperament}; ${k.life}), their family background (${k.family}), a food they love (${k.food}), the animals in their life (${k.animals}), how they show they care (${k.love}), a quiet dream (${k.dream}), an endearing flaw (${k.flaw}), plus how they spend an ordinary day and where they feel at home. Pick the details that flow best into a warm paragraph or two — you need not cram in all of them. Tangible things a friend would tell you about a real person, NOT abstract "essence / energy / vibe" language and NOT the reader's preferences restated.
 "Little signs to watch for" = present exactly these three as gentle playful winks to notice in the coming weeks, and use EXACTLY these, do not invent others: the colour ${signs ? signs.color : 'soft blue'}, the symbol ${signs ? signs.symbol : 'a feather'}, and the number ${signs ? signs.number : 12}. Weave them warmly into a short paragraph, light and for fun, never a certainty. This is the ONLY signs section — do not add a second one. Do NOT mention coffee, tea, or any drink here.
 Disclaimer must read exactly: "This reading is a creative interpretation, made just for you, for reflection and fun, not prediction."
 Length 380 to 480 words.`;
@@ -97,10 +107,20 @@ Add +500 to 700 words.`;
 }
 
 function buildUpgradePrompt(a, { letters, astro, kit }) {
-  const k = kit || { vocation: 'a landscape gardener', hobby: 'training for long trail runs', quirk: 'always has a worn paperback folded into a back pocket', phrase: 'says "right, let\'s figure it out" before tackling anything' };
+  const k = kit || { vocation: 'a landscape gardener', hobby: 'training for long trail runs', quirk: 'always has a worn paperback folded into a back pocket', phrase: 'says "right, let\'s figure it out" before tackling anything', hair: 'soft chestnut-brown hair', eyes: 'brown eyes that crinkle when they smile', food: 'a real weakness for homemade lasagne', animals: 'walks a big soft golden dog every evening', temperament: 'social but needs plenty of their own space', family: 'the youngest in a close-knit family', life: 'carries themselves with an easy, unforced maturity' };
   const persona = `THE SAME FIXED PERSON from the base reading (build everything on these, invent nothing that contradicts them):
 - Their work: ${k.vocation}
 - Something they love doing: ${k.hobby}
+- How they look: ${k.hair}, ${k.eyes}, ${k.feature}
+- How they dress: ${k.style}
+- Their nature: ${k.temperament}; ${k.life}
+- Family background: ${k.family}
+- Food they love: ${k.food}
+- Animals: ${k.animals}
+- How they show they care: ${k.love}
+- A quiet dream: ${k.dream}
+- An endearing flaw: ${k.flaw}
+- Something they're quietly good at: ${k.skill}
 - A habit friends know them for: ${k.quirk}
 - A phrase they say: ${k.phrase}`;
   const signals = `PRIVATE INSPIRATION (must NEVER appear in the text in any recognizable form):
@@ -110,7 +130,7 @@ function buildUpgradePrompt(a, { letters, astro, kit }) {
 - What the reader quietly values: ${a.value}
 - Faint personality texture: ${(Array.isArray(a.lightning) ? a.lightning : String(a.lightning || '').split(',')).filter(Boolean).join(', ')}`;
   const user = `${a.name ? a.name + ' ' : 'The reader '}already received their base soulmate reading and their first portrait. Now write ONLY the deeper, extended premium layers they just unlocked. Do NOT repeat the base reading and do NOT reintroduce their soulmate from scratch. Open with one short warm line saying this is the deeper layer they unlocked.
-ABSOLUTE RULES (the reader must never recognise their own quiz answers): NEVER name or hint at a colour. NEVER make a time of day a defining trait. NEVER reuse the reader's own energy/value words (no "calm", "grounded", "adventurous", "warm", "mysterious", "loyal", "loyalty"). NEVER mention coffee, tea or any drink. NEVER quote, list, restate or mirror the reader's answers. Build every section on the FIXED PERSON below; give each section genuinely NEW material, never the same trait twice.
+ABSOLUTE RULES (the reader must never recognise their own quiz answers): You MAY state the soulmate's OWN hair and eye colour from the FIXED PERSON, but NEVER introduce any other colour and never one that could echo the reader's favourite colour. NEVER make a time of day a defining trait. NEVER reuse the reader's own energy/value words (no "calm", "grounded", "adventurous", "warm", "mysterious", "loyal", "loyalty"). NEVER mention coffee, tea or any drink. NEVER quote, list, restate or mirror the reader's answers. Build every section on the FIXED PERSON below; give each section genuinely NEW material, never the same trait twice.
 ${persona}
 ${signals}
 Sections in order, each with its own title:
@@ -134,15 +154,18 @@ function buildLoveStoryPrompt(a) {
     user: `Write a ~120-word cinematic mini love-story for ${a.name || 'the reader'}: the moment you meet your soulmate. Present tense, warm, ends hopeful. Same HARD RULES.` };
 }
 
-function buildPortraitPrompt(a, pose) {
+function buildPortraitPrompt(a, pose, kit) {
   const subject = a.meet === 'woman' ? 'a beautiful woman'
     : a.meet === 'man' ? 'a handsome man'
     : (seedFrom(a.name || 'x') % 2 ? 'a beautiful woman' : 'a handsome man');
   const age = { '18-24':'early 20s','25-34':'late 20s to early 30s','35-44':'late 30s','45+':'mid 40s, gracefully' }[a.age] || 'late 20s';
   const look = { soft:'soft radiant features, gentle warm smile, luminous skin', bold:'striking sharp features, strong brows, confident jawline', natural:'effortless natural look, minimal styling, freckles, relaxed', dark:'dark magnetic features, deep expressive eyes, moody elegance' }[a.look] || '';
   const mood = { grounded:'calm reassuring expression', adventurous:'playful spark in the eyes, windswept', warm:'tender inviting warmth', mysterious:'quiet enigmatic gaze' }[a.energy] || '';
+  // Hair and eye colour come from the persona kit so the portrait MATCHES the
+  // written reading (e.g. never "auburn hair" in text but a brunette in the image).
+  const appearance = kit ? `with ${kit.hair}, ${kit.eyes} and ${kit.feature}, ` : '';
   const poseStr = pose ? `${pose}, ` : 'looking softly toward the viewer, ';
-  return { prompt: `${subject}, ${age}, ${look}, ${mood}, ${poseStr}${STYLE_PORTRAIT}`, negative: NEGATIVE_PORTRAIT, aspect: '4:5' };
+  return { prompt: `${subject}, ${age}, ${appearance}${look}, ${mood}, ${poseStr}${STYLE_PORTRAIT}`, negative: NEGATIVE_PORTRAIT, aspect: '4:5' };
 }
 
 function buildReunionPrompt(a) {
@@ -198,7 +221,20 @@ function signHints(seed) {
 const KIT_VOCATIONS = ['a carpenter who restores old furniture','a paediatric nurse','a high-school geography teacher','a landscape gardener','a sound engineer for live gigs','someone who runs a small neighbourhood bakery','a marine biologist','a bookshop manager','a physiotherapist','an architect who still sketches by hand','a ceramics maker','a wildlife photographer','a chef at a tiny bistro','someone who runs a bicycle-repair shop','a primary-school music teacher','a developer who builds small indie games'];
 const KIT_HOBBIES = ['climbing at the local crag on weekends','slowly restoring a vintage motorbike','growing tomatoes and herbs on their balcony','playing bass in a covers band','training for long trail runs','teaching themselves the violin','sea kayaking whenever they can','hunting through crates for old vinyl','woodworking in a cramped home workshop','baking sourdough that never quite behaves','birdwatching on quiet trails','painting small watercolours of places they visit','bouldering at an indoor gym','patching up an old wooden sailboat','learning to cook proper Thai food','volunteering at an animal shelter'];
 const KIT_QUIRKS = ['always has a worn paperback folded into a back pocket','hums half-remembered film scores while they concentrate','keeps a running list of gloriously bad puns','can name almost any bird by its call alone','doodles tiny maps on the corner of napkins','somehow remembers everyone\'s half-birthday','takes the stairs two at a time out of habit','keeps a jar of coins from every place they\'ve been','quietly narrates what other people\'s dogs are thinking','fixes squeaky hinges in every house they visit','collects postcards they never get around to sending','always has a spare charger ready for a stranger'];
-const KIT_PHRASES = ['says "right, let\'s figure it out" before tackling anything','ends every story with "and that\'s the whole saga"','greets people with a warm "there you are"','calls small victories "a proper result"','waves off worry with "one thing at a time"','describes anything they love as "quietly brilliant"','answers "how are you?" with a grin and "still standing"','calls their friends "you legend" and means it'];
+const KIT_PHRASES = ['says "right, let\'s figure it out" before tackling anything','ends every story with "and that\'s the whole saga"','greets people with a bright "there you are"','calls small victories "a proper result"','waves off worry with "one thing at a time"','describes anything they love as "quietly brilliant"','answers "how are you?" with a grin and "still standing"','calls their friends "you legend" and means it'];
+const KIT_HAIR = ['dark tousled hair','soft chestnut-brown hair','jet-black hair kept short','sandy blonde hair','wavy auburn hair','deep brown hair that never quite stays put','light brown hair with a slight curl','black hair going a little grey at the temples'];
+const KIT_EYES = ['brown eyes that crinkle when they smile','clear grey-blue eyes','dark hazel eyes','deep green eyes','soft brown eyes','bright blue eyes'];
+const KIT_FOODS = ['a real weakness for homemade lasagne','can never resist a bowl of spicy ramen','lives for a slow Sunday roast','always up for street-food noodles','a soft spot for fresh cinnamon rolls','completely devoted to good sushi','will never say no to grilled fish with lemon','swears by their grandmother\'s soup'];
+const KIT_ANIMALS = ['shares their place with a scruffy rescue dog','has two cats that clearly run the household','grew up around horses and still rides when they can','feeds every stray in the neighbourhood','walks a big soft golden dog every evening','fosters kittens whenever the shelter is full','has a lazy old dog that follows them room to room','keeps a small, very opinionated parrot'];
+const KIT_TEMPERAMENT = ['more of an introvert who recharges in quiet','a natural extrovert who lights up a room','social but needs plenty of their own space','quietly introverted, and far more open once you know them','an easy extrovert who makes friends anywhere'];
+const KIT_FAMILY = ['one of four siblings from a big, loud family','an only child, independent from early on','the eldest of three, used to looking after others','grew up between two cultures','raised mostly by their grandparents','the youngest in a close-knit family'];
+const KIT_LIFE = ['an old soul who came through some hard years and softened rather than hardened','still a little naive and open-hearted, trusting people easily','carries themselves with an easy, unforced maturity','young at heart and a bit impulsive, learning as they go','shaped by a few real setbacks, and kinder for them'];
+const KIT_FEATURE = ['a warm dimpled smile','a light scatter of freckles across the nose','a small scar through one eyebrow','simple round glasses they push up when they think','a neatly kept short beard','a gap-toothed grin that\'s all theirs','a little tattoo on the forearm with a story behind it','laugh lines that show they smile a lot'];
+const KIT_STYLE = ['dresses simply — worn jeans and soft jumpers','always a little smart, rolled sleeves and clean lines','cosy and layered, a scarf even indoors','sporty and practical, always ready to move','a touch vintage, second-hand finds they\'re proud of'];
+const KIT_LOVE = ['shows they care by fixing things and showing up, not big speeches','remembers the tiny details you mention only once','the first to check in when you\'ve gone quiet','cooks for people as their way of saying I love you','leaves little notes where you\'ll find them later'];
+const KIT_DREAM = ['quietly saving to one day open their own small place','dreams of one long, slow trip with no fixed plan','wants to build a little house with their own hands','hopes to finally learn to sail properly','saving up to go back and study something they love'];
+const KIT_FLAW = ['a hopeless procrastinator until the very last minute','stubborn once they\'ve made up their mind','terrible at sitting still and doing nothing','says yes to too much and overcommits','a bit of a perfectionist about small things'];
+const KIT_SKILL = ['can fix almost anything with their hands','remembers every lyric to every song','a surprisingly good cook','the one who stays steady and calms everyone in a crisis','can tell a story that holds the whole room'];
 function personaKit(seed) {
   const pick = (arr, off) => arr[(((seed >>> 0) + off * 2654435761) >>> 0) % arr.length];
   return {
@@ -206,6 +242,19 @@ function personaKit(seed) {
     hobby: pick(KIT_HOBBIES, 11),
     quirk: pick(KIT_QUIRKS, 23),
     phrase: pick(KIT_PHRASES, 31),
+    hair: pick(KIT_HAIR, 37),
+    eyes: pick(KIT_EYES, 41),
+    food: pick(KIT_FOODS, 43),
+    animals: pick(KIT_ANIMALS, 47),
+    temperament: pick(KIT_TEMPERAMENT, 53),
+    family: pick(KIT_FAMILY, 59),
+    life: pick(KIT_LIFE, 61),
+    feature: pick(KIT_FEATURE, 67),
+    style: pick(KIT_STYLE, 71),
+    love: pick(KIT_LOVE, 73),
+    dream: pick(KIT_DREAM, 79),
+    flaw: pick(KIT_FLAW, 83),
+    skill: pick(KIT_SKILL, 89),
   };
 }
 
@@ -618,10 +667,10 @@ async function generateForType(type, p, email, saleId, opts = {}) {
         ];
         portrait = [];
         for (let i = 0; i < poses.length; i++) {
-          portrait.push(await generateImage(buildPortraitPrompt(a, poses[i]), { seed: seed + i, hd: true }));
+          portrait.push(await generateImage(buildPortraitPrompt(a, poses[i], kit), { seed: seed + i, hd: true }));
         }
       } else {
-        portrait = await generateImage(buildPortraitPrompt(a, 'front-facing, looking softly toward the viewer with a gentle smile, wearing a cozy cream knit sweater'), { seed, hd: false });
+        portrait = await generateImage(buildPortraitPrompt(a, 'front-facing, looking softly toward the viewer with a gentle smile, wearing a cozy cream knit sweater', kit), { seed, hd: false });
       }
     }
     subject = `${a.name ? a.name + ', your' : 'Your'} ${deep ? 'Premium Soulmate reading' : 'Soulmate reading'} is inside`;
@@ -657,7 +706,7 @@ async function generateForType(type, p, email, saleId, opts = {}) {
       ];
       portrait = [];
       for (let i = 0; i < poses.length; i++) {
-        portrait.push(await generateImage(buildPortraitPrompt(a, poses[i]), { seed: baseSeed + 1 + i, hd: true }));
+        portrait.push(await generateImage(buildPortraitPrompt(a, poses[i], kit), { seed: baseSeed + 1 + i, hd: true }));
       }
     }
     text += '\n\nHere are two more portraits of your soulmate, the same person in new moments. Together with the first portrait from your base reading, you now have all three.';
